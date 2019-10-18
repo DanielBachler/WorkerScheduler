@@ -1,6 +1,6 @@
 # Worker Scheduler
 
-A work management application designed fort [Milliman](https://us.milliman.com/)
+A work management application designed for [Milliman](https://us.milliman.com/)
 
 This was completed as a senior design project at Montana State University.
 
