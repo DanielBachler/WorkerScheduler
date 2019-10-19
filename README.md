@@ -15,7 +15,10 @@ See the following links for important project management information
 * JetBrains PyCharm with Anaconda Plugin
 * Anaconda Navigator
 * Git for Windows
+* PyQt5 module
+* mysql-connector-python
 
 ## Development Resources
 
 * [PyQt5 Tutorial](http://zetcode.com/gui/pyqt5/)
+* [mySQL Connector Tutorial](https://dev.mysql.com/doc/connector-python/en/connector-python-examples.html)
