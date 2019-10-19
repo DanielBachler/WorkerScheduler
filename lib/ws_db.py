@@ -11,6 +11,8 @@ if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
 
+import mysql.connector as sql
+
 from lib import CONSTANTS as K
 
 # Manages connection with mySQL database
