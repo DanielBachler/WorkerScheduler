@@ -5,7 +5,7 @@
 ##
 ## Created: 2019-10-19 by Brendan Kristiansen
 ## CONSTANTS.py
-## Worker Scheduler Constants
+## Work Scheduler Constants
 
 if __name__ == "__main__":
     print("Unable to execute as script")

@@ -5,7 +5,7 @@
 ##
 ## Created: 2019-10-19 by Brendan Kristiansen
 ## ws_gui.py
-## GUI Wrapper for Worker Scheduler
+## GUI Wrapper for Work Scheduler
 
 if __name__ == "__main__":
     print("Unable to execute as script")
