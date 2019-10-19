@@ -13,14 +13,20 @@ if __name__ == "__main__":
 
 from lib import CONSTANTS as K
 
-# Login to database. Store open connection
-def db_login():
-    pass
+# Manages connection with mySQL database
+class DB_Connection:
 
-# Create a database user.
-def create_user():
-    pass
+    def __init__(self):
+        pass
 
-# Delete a database user.
-def del_user():
-    pass
+    # Login to database. Store open connection
+    def db_login(self):
+        pass
+
+    # Create a database user.
+    def create_user(self):
+        pass
+
+    # Delete a database user.
+    def del_user(self):
+        pass
