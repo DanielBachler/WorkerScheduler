@@ -14,6 +14,7 @@ if __name__ == "__main__":
 import mysql.connector as sql
 
 from lib import CONSTANTS as K
+from lib import ws_gui
 
 # Manages connection with mySQL database
 class DB_Connection:
@@ -22,8 +23,8 @@ class DB_Connection:
         pass
 
     # Login to database. Store open connection
-    def db_login(self):
-        pass
+    def db_login(self, ex):
+        srv_addr, uname, pw = ex.login()
 
     # Create a database user.
     def create_user(self):

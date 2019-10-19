@@ -19,7 +19,11 @@ from lib import CONSTANTS as K
 app = None
 
 def main():
-    ex = ws_gui.Example()
+    ex = ws_gui.Main_UI()
+    conn = ws_db.DB_Connection()
+    conn.db_login(ex)
+    ex.initUI()
+
     sys.exit(app.exec_())
 
 if __name__ == "__main__":

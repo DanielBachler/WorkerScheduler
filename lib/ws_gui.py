@@ -16,16 +16,31 @@ from PyQt5.QtWidgets import *
 
 from lib import CONSTANTS as K
 
-class Example(QMainWindow):
+class Main_UI(QMainWindow):
 
     def __init__(self):
         super().__init__()
 
-        self.initUI()
+        #self.initUI()
+
+    def login(self):
+        server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
+        if okPressed and server_addr != '':
+            pass
+        username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
+        if okPressed and server_addr != '':
+            pass
+        password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Normal, "")
+        if okPressed and server_addr != '':
+            pass
+        return (server_addr, username, password)
 
     def initUI(self):
         self.statusBar().showMessage('Ready')
 
         self.setGeometry(300, 300, 250, 150)
         self.setWindowTitle('The Worker Scheduler')
+
+
+
         self.show()
