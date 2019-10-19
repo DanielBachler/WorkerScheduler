@@ -14,6 +14,8 @@ if __name__ == "__main__":
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
+from lib import CONSTANTS as K
+
 class Example(QMainWindow):
 
     def __init__(self):
