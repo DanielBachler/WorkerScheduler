@@ -14,6 +14,7 @@ See the following links for important project management information
 
 * JetBrains PyCharm with Anaconda Plugin
 * Anaconda Navigator
+* Qt Designer
 * Git for Windows
 * PyQt5 module
 * mysql-connector-python
