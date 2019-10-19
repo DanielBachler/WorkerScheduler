@@ -10,3 +10,15 @@
 if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
+
+# Login to database. Store open connection
+def db_login():
+    pass
+
+# Create a database user.
+def create_user():
+    pass
+
+# Delete a database user.
+def del_user():
+    pass
