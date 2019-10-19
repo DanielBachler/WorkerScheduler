@@ -10,3 +10,9 @@
 if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
+
+APPLICATION_NAME = "The Work Scheduler"
+APPLICATION_VERSION = "demo0"
+
+## UI PATHS
+UI_LOGIN_WINDOW = "ui/login_window.ui"
