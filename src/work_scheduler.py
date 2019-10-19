@@ -15,4 +15,4 @@ def main():
 if __name__ == "__main__":
     main()
 else:
-    print("UnableK to import as module")
+    print("Unable to import as module")
