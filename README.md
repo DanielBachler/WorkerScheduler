@@ -19,6 +19,10 @@ See the following links for important project management information
 * PyQt5 module
 * mysql-connector-python
 
+## Development Servers
+
+* Development MySQL Server: www.bek.sh:3306
+
 ## Development Resources
 
 * [PyQt5 Tutorial](http://zetcode.com/gui/pyqt5/)
