@@ -40,8 +40,18 @@ class Main_UI(QMainWindow):
         # buttons (bottom): exit, edit selected worker?,
 
         # Create objects
+        # Exit button creation and function adding
         exitButton = QPushButton("Exit", self)
+        # Exits application when clicked
+        exitButton.clicked.connect(QApplication.instance().quit)
+        # QApplication.instance().quit
+        exitButton.resize(exitButton.sizeHint())
+
+        # Edit button creation and function adding
         editButton = QPushButton("Edit")
+
+        # Save button creation and function adding
+        saveButton = QPushButton("Save")
 
         # Create spacing boxes
         # Create horizontal box
@@ -66,3 +76,12 @@ class Main_UI(QMainWindow):
         self.setGeometry(300, 300, 600, 600)
         self.setWindowTitle('Worker Scheduler')
         self.show()
+
+    def closeEvent(self, event):
+        temp = QMessageBox.question(self, 'Exit Confirmation', 'Are you sure you want to quit?',
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if temp == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
