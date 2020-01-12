@@ -21,7 +21,7 @@ class Main_UI(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        #self.initUI()
+        self.initUI()
 
     def login(self):
         server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
@@ -36,11 +36,33 @@ class Main_UI(QMainWindow):
         return (server_addr, username, password)
 
     def initUI(self):
+        # Setup main display, needs: Pane of worker names to chose (left), pane showing selected worker info (right),
+        # buttons (bottom): exit, edit selected worker?,
+
+        # Create objects
+        exitButton = QPushButton("Exit", self)
+        editButton = QPushButton("Edit")
+
+        # Create spacing boxes
+        # Create horizontal box
+        hbox = QHBoxLayout()
+        hbox.addStretch(1)
+        # Add buttons to horizontal box
+        hbox.addWidget(exitButton)
+        hbox.addWidget(editButton)
+
+        # Create vertical box
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        # Add panes to vbox
+
+        # Add hbox to vbox
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)
+
+        # Finalize box
         self.statusBar().showMessage('Ready')
-
-        self.setGeometry(300, 300, 250, 150)
-        self.setWindowTitle('The Worker Scheduler')
-
-
-
+        self.setGeometry(300, 300, 600, 600)
+        self.setWindowTitle('Worker Scheduler')
         self.show()
