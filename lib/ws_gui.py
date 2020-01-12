@@ -82,8 +82,10 @@ class Main_UI(QMainWindow):
         employee.setFixedSize(80, 80)
         employee.setAlignment(Qt.AlignRight)
         employee.setReadOnly(True)
-        employee.setText("Employee")
         vboxR.addWidget(employee)
+
+        # Update box when new employee selected
+        employees.itemClicked.connect(self.newSelected)
 
         # Search
 
@@ -107,3 +109,6 @@ class Main_UI(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def newSelected(self, item):
+        self.centralWidget().findChild(QLineEdit).setText(item.text())
