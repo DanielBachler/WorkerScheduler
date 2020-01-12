@@ -36,6 +36,7 @@ class Main_UI(QMainWindow):
         return (server_addr, username, password)
 
     def initUI(self):
+        size = (600, 600)
         # Setup main display, needs: Pane of worker names to chose (left), pane showing selected worker info (right),
         # menu: exit, edit selected worker?,
 
@@ -54,9 +55,48 @@ class Main_UI(QMainWindow):
         exitMenu.addAction(exitAction)
         exitMenu.addAction(saveAction)
 
+        # Create contents of window
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
+
+        vboxL = QVBoxLayout()
+
+        vboxC = QVBoxLayout()
+
+        vboxR = QVBoxLayout()
+
+        hbox = QHBoxLayout()
+        hbox.setAlignment(Qt.AlignCenter)
+
+        # Panes
+        # Pane left
+        employees = QLineEdit()
+        employees.setFixedSize(80, 80)
+        employees.setAlignment(Qt.AlignRight)
+        employees.setReadOnly(True)
+        #employees.move(50, 50)
+        employees.setText("Employees List")
+        vboxL.addWidget(employees)
+
+        # Pane Right
+        employee = QLineEdit()
+        employee.setFixedSize(80, 80)
+        employee.setAlignment(Qt.AlignRight)
+        employee.setReadOnly(True)
+        employee.setText("Employee")
+        vboxR.addWidget(employee)
+
+        # Search
+
         # Finalize box
+        hbox.addLayout(vboxL)
+        hbox.addLayout(vboxC)
+        hbox.addLayout(vboxR)
+
+        centralWidget.setLayout(hbox)
+
         self.statusBar().showMessage('Ready')
-        self.setGeometry(300, 300, 600, 600)
+        self.setGeometry(300, 300, size[0], size[1])
         self.setWindowTitle('Worker Scheduler')
         self.show()
 
