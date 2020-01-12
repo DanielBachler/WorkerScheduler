@@ -70,12 +70,11 @@ class Main_UI(QMainWindow):
 
         # Panes
         # Pane left
-        employees = QLineEdit()
+        testEmployees = ("Dan", "Jesse", "Brendan", "Ed")
+        employees = QListWidget()
         employees.setFixedSize(80, 80)
-        employees.setAlignment(Qt.AlignRight)
-        employees.setReadOnly(True)
-        #employees.move(50, 50)
-        employees.setText("Employees List")
+        for i in range(0, len(testEmployees)):
+            employees.addItem(testEmployees[i])
         vboxL.addWidget(employees)
 
         # Pane Right
