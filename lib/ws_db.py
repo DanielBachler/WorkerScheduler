@@ -35,9 +35,21 @@ class DB_Connection:
         if self.crs == None or self.cnx == None:
             return
         else:
-            self.db_command("CREATE TABLE IF NOT EXISTS employee (eid int, employee_name character, rank int, role character, hourly_rate real);")
-            self.db_command("CREATE TABLE IF NOT EXISTS project (pid int, project_name character, estimated_hrs real, start_date date, end_date date, rpt int);")
+            self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer primary key, employee_name varchar(64), rank integer, emp_role integer, hourly_rate real);")
+            self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer primary key, project_name varchar(64), estimated_hrs real, start_date date, end_date date, rpt int);")
+            # TODO: Table for employee hours
+            # TODO: Table for company info
+            # TODO: Table for time assignments
+            # TODO: Table for roles
+            # TODO: Table for access levels
 
+    # Return a user's information
+    def get_user_info(self):
+        pass
+
+    # Set a company's information. This only needs to be done once.
+    def set_company_info(self):
+        pass
 
     # Create a database user.
     def create_user(self):
