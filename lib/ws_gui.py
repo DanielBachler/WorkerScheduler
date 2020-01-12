@@ -21,7 +21,7 @@ class Main_UI(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.initUI()
+        #self.initUI()
 
     def login(self):
         server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
@@ -37,39 +37,22 @@ class Main_UI(QMainWindow):
 
     def initUI(self):
         # Setup main display, needs: Pane of worker names to chose (left), pane showing selected worker info (right),
-        # buttons (bottom): exit, edit selected worker?,
+        # menu: exit, edit selected worker?,
 
-        # Create objects
-        # Exit button creation and function adding
-        exitButton = QPushButton("Exit", self)
-        # Exits application when clicked
-        exitButton.clicked.connect(QApplication.instance().quit)
-        # QApplication.instance().quit
-        exitButton.resize(exitButton.sizeHint())
+        # Create menu bar for options
+        menubar = self.menuBar()
+        # Exit submenu
+        exitMenu = menubar.addMenu('Exit')
 
-        # Edit button creation and function adding
-        editButton = QPushButton("Edit")
+        # Actions for exit menu
+        # Setup exit action
+        exitAction = QAction('Exit Application', self)
+        exitAction.triggered.connect(self.close)
 
-        # Save button creation and function adding
-        saveButton = QPushButton("Save")
-
-        # Create spacing boxes
-        # Create horizontal box
-        hbox = QHBoxLayout()
-        hbox.addStretch(1)
-        # Add buttons to horizontal box
-        hbox.addWidget(exitButton)
-        hbox.addWidget(editButton)
-
-        # Create vertical box
-        vbox = QVBoxLayout()
-        vbox.addStretch(1)
-        # Add panes to vbox
-
-        # Add hbox to vbox
-        vbox.addLayout(hbox)
-
-        self.setLayout(vbox)
+        saveAction = QAction('Save', self)
+        # Add actions to menu
+        exitMenu.addAction(exitAction)
+        exitMenu.addAction(saveAction)
 
         # Finalize box
         self.statusBar().showMessage('Ready')
