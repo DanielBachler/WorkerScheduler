@@ -41,7 +41,7 @@ class Main_UI(QMainWindow):
         # menu: exit, add new user (new window),
         # Buttons: delete selected user (prompt), edit selected user (new window)
 
-        # Create menu bar for options
+        ## Create menu bar for options
         menubar = self.menuBar()
         # Menu bar tabs
         fileMenu = menubar.addMenu('File')
@@ -64,6 +64,8 @@ class Main_UI(QMainWindow):
 
         # Add actions to user menu
         userMenu.addAction(newUserAction)
+
+        ## Contents of central widget
 
         # Create contents of window
         centralWidget = QWidget()
@@ -99,6 +101,23 @@ class Main_UI(QMainWindow):
         employees.itemClicked.connect(self.newSelected)
 
         # Search
+
+        # New hbox for buttons under selected user pane
+        employeeHBox = QHBoxLayout()
+        # Buttons under right pane for selected employee
+        deleteSelectedUser = QPushButton('Delete User')
+        deleteSelectedUser.setToolTip('This button will permanently delete the selected employee from the database')
+        deleteSelectedUser.clicked.connect(self.deletedSelectedUserFunc)
+        employeeHBox.addWidget(deleteSelectedUser)
+
+        # Edit user button
+        editUserButton = QPushButton('Edit User')
+        editUserButton.setToolTip('This will allow editing of the selected employee if you have permissions')
+        editUserButton.clicked.connect(self.editSelectedUser)
+        employeeHBox.addWidget(editUserButton)
+
+        # Add button box to vboxR
+        vboxR.addLayout(employeeHBox)
 
         # Finalize box
         hbox.addLayout(vboxL)
@@ -137,8 +156,23 @@ class Main_UI(QMainWindow):
         # New popup window with ability to create new local user, push to database on close?
         print("Add new user TODO")
 
-    # Save: saves the current state of local database to database server
+    # save: saves the current state of local database to database server
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def save(self):
         pass
+
+    # deleteSelectedUserFunc: deletes the user passed to it, called by the delete button on main GUI panel
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def deletedSelectedUserFunc(self):
+        currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
+        print("Deleting " + currentUser)
+
+    # editSelectedUser:
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def editSelectedUser(self):
+        currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
+        print("Editing " + currentUser)
+

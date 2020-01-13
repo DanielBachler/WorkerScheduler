@@ -11,6 +11,7 @@
 
 import sys
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QIcon
 
 from lib import ws_gui
 from lib import ws_db
@@ -23,6 +24,7 @@ def main():
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
     ex.initUI()
+    ex.setWindowIcon(QIcon('icon.png'))
 
     sys.exit(app.exec_())
 
