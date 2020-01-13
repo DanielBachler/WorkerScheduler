@@ -176,3 +176,10 @@ class Main_UI(QMainWindow):
         currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
         print("Editing " + currentUser)
 
+class NewUserGUI(QWidget):
+    def __init__(self):
+        super().__init__()
+
+    def initUI(self):
+        pass
+
