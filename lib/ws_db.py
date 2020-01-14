@@ -45,7 +45,9 @@ class DB_Connection:
 
     # Return a user's information
     def get_user_info(self):
-        pass
+        self.db_command("GRANT ALL ON *.* to user@localhost IDENTIFIED BY 'password'; ")    # TODO
+        self.db_command("GRANT ALL ON *.* to user@'%' IDENTIFIED BY 'password';")           # TODO
+
 
     # Set a company's information. This only needs to be done once.
     def set_company_info(self):
@@ -57,4 +59,8 @@ class DB_Connection:
 
     # Delete a database user.
     def del_user(self):
+        pass
+
+    # Execute database query
+    def db_command(self, stmt):
         pass
