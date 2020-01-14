@@ -21,8 +21,6 @@ class Main_UI(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        #self.initUI()
-
     def login(self):
         server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
         if okPressed and server_addr != '':
@@ -84,7 +82,6 @@ class Main_UI(QMainWindow):
         # Pane left
         testEmployees = ("Dan", "Jesse", "Brendan", "Ed")
         employees = QListWidget()
-        #employees.setFixedSize(80, 80)
         for i in range(0, len(testEmployees)):
             employees.addItem(testEmployees[i])
         vboxL.addWidget(employees)
