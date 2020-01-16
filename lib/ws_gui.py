@@ -4,6 +4,7 @@
 ## Copyright 2019
 ##
 ## Created: 2019-10-19 by Brendan Kristiansen
+## Worked on by Dan Bachler
 ## ws_gui.py
 ## GUI Wrapper for Work Scheduler
 
@@ -13,6 +14,7 @@ if __name__ == "__main__":
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QIcon
 
 from lib import CONSTANTS as K
 
@@ -123,6 +125,7 @@ class Main_UI(QMainWindow):
 
         centralWidget.setLayout(hbox)
 
+        self.center()
         self.statusBar().showMessage('Ready')
         self.setGeometry(300, 300, size[0], size[1])
         self.setWindowTitle('Worker Scheduler')
@@ -151,7 +154,9 @@ class Main_UI(QMainWindow):
     # RETURNS: None, user object is added to local database instead
     def makeNewUser(self):
         # New popup window with ability to create new local user, push to database on close?
-        print("Add new user TODO")
+        self.newUserWindow = NewUserGUI()
+        self.newUserWindow.initUI()
+        self.newUserWindow.setWindowIcon(QIcon('icon.png'))
 
     # save: saves the current state of local database to database server
     # ARGS: self (QMainWindow)
@@ -173,10 +178,79 @@ class Main_UI(QMainWindow):
         currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
         print("Editing " + currentUser)
 
+    # center: centers the window on the screen
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
 class NewUserGUI(QWidget):
     def __init__(self):
         super().__init__()
+        #self.initUI()
 
     def initUI(self):
-        pass
+        # Create save button
+        saveButton = QPushButton('Save')
+        saveButton.clicked.connect(self.saveUser)
+
+        # Create cancel button
+        cancelButton = QPushButton('Cancel')
+        cancelButton.clicked.connect(self.close)
+
+        # Box for buttons
+        buttonBox = QHBoxLayout()
+
+        # Add buttons to box
+        buttonBox.addWidget(saveButton)
+        buttonBox.addWidget(cancelButton)
+
+        # Create inputs and text displays each in own hbox
+
+
+        # Box for left side column
+        leftColumnBox = QVBoxLayout()
+
+        # Box for right side column
+        rightColumnBox = QVBoxLayout()
+
+        # Box to hold columns
+        columnBox = QHBoxLayout()
+        columnBox.addLayout(leftColumnBox)
+        columnBox.addLayout(rightColumnBox)
+
+        # Put boxes into main box
+        mainVertBox = QVBoxLayout()
+        mainVertBox.addLayout(columnBox)
+        mainVertBox.addLayout(buttonBox)
+
+        # Add to the main widget
+        self.setLayout(mainVertBox)
+
+        # Finalize self
+        self.setGeometry(300, 300, 300, 300)
+        self.setWindowTitle('New User Form')
+        self.show()
+
+    # saveUser: Saves the user currently being created, makes sure that all req fields are filled
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def saveUser(self):
+        # Save the entered user in the fields, checks?
+        print("Save the created user")
+
+    # closeEvent: changes the default closing behavior by overriding the base method
+    # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
+    # RETURNS: none
+    def closeEvent(self, event):
+        temp = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if temp == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
