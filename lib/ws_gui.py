@@ -28,7 +28,7 @@ class Main_UI(QMainWindow):
         username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
         if okPressed and server_addr != '':
             pass
-        password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Normal, "")
+        password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
         if okPressed and server_addr != '':
             pass
         return (server_addr, username, password)
