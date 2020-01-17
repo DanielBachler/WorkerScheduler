@@ -15,6 +15,7 @@ if __name__ == "__main__":
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
+from lib import object
 
 from lib import CONSTANTS as K
 
@@ -187,10 +188,10 @@ class Main_UI(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+
 class NewUserGUI(QWidget):
     def __init__(self):
         super().__init__()
-        #self.initUI()
 
     def initUI(self):
         # Create save button
@@ -210,12 +211,79 @@ class NewUserGUI(QWidget):
 
         # Create inputs and text displays each in own hbox
 
+        # Name label and editor LEFT
+        hbox_name = QHBoxLayout()
+        name_label = QLabel("User Name:")
+        name_edit = QLineEdit()
+        name_edit.setObjectName("user_name")
+        hbox_name.addWidget(name_label)
+        hbox_name.addWidget(name_edit)
+
+        # Pay label and editor RIGHT
+        hbox_pay = QHBoxLayout()
+        pay_label = QLabel("Pay:")
+        pay_edit = QLineEdit()
+        pay_edit.setObjectName("user_pay")
+        hbox_pay.addWidget(pay_label)
+        hbox_pay.addWidget(pay_edit)
+
+        # Rank label and editor LEFT
+        hbox_rank = QHBoxLayout()
+        rank_label = QLabel("Rank:")
+        rank_edit = QLineEdit()
+        rank_edit.setObjectName("user_rank")
+        hbox_rank.addWidget(rank_label)
+        hbox_rank.addWidget(rank_edit)
+
+        # Team label and editor RIGHT
+        hbox_team = QHBoxLayout()
+        team_label = QLabel("Team:")
+        team_edit = QLineEdit()
+        team_edit.setObjectName("user_team")
+        hbox_team.addWidget(team_label)
+        hbox_team.addWidget(team_edit)
+
+        # Maybe popup window using calendar widget?
+        # Desired hours label and editor LEFT
+
+        # Actual hours label and editor RIGHT
+
+        # Projects (drop down box?) maybe new window with qlist and clicking to add? LEFT
+        hbox_project = QHBoxLayout()
+        project_button = QPushButton("Projects")
+        project_button.clicked.connect(self.projectMenu)
+        hbox_project.addWidget(project_button)
+
+        # Mentor label and editor RIGHT
+        hbox_mentor = QHBoxLayout()
+        mentor_label = QLabel("Mentor:")
+        mentor_edit = QLineEdit()
+        mentor_edit.setObjectName("user_mentor")
+        hbox_mentor.addWidget(mentor_label)
+        hbox_mentor.addWidget(mentor_edit)
+
+        # Employee ID label and editor LEFT
+        hbox_id = QHBoxLayout()
+        id_label = QLabel("Employee ID:")
+        id_edit = QLineEdit()
+        id_edit.setObjectName("user_id")
+        hbox_id.addWidget(id_label)
+        hbox_id.addWidget(id_edit)
 
         # Box for left side column
         leftColumnBox = QVBoxLayout()
+        leftColumnBox.addLayout(hbox_name)
+        leftColumnBox.addLayout(hbox_rank)
+        # Desired hours place holder
+        leftColumnBox.addLayout(hbox_project)
+        leftColumnBox.addLayout(hbox_id)
 
         # Box for right side column
         rightColumnBox = QVBoxLayout()
+        rightColumnBox.addLayout(hbox_pay)
+        rightColumnBox.addLayout(hbox_team)
+        # Actual hours placeholder
+        rightColumnBox.addLayout(hbox_mentor)
 
         # Box to hold columns
         columnBox = QHBoxLayout()
@@ -225,6 +293,7 @@ class NewUserGUI(QWidget):
         # Put boxes into main box
         mainVertBox = QVBoxLayout()
         mainVertBox.addLayout(columnBox)
+        mainVertBox.addStretch(1)
         mainVertBox.addLayout(buttonBox)
 
         # Add to the main widget
@@ -240,7 +309,17 @@ class NewUserGUI(QWidget):
     # RETURNS: None
     def saveUser(self):
         # Save the entered user in the fields, checks?
-        print("Save the created user")
+        name = self.findChild(QLineEdit, "user_name").text()
+        pay = self.findChild(QLineEdit, "user_pay").text()
+        rank = self.findChild(QLineEdit, "user_rank").text()
+        team = self.findChild(QLineEdit, "user_team").text()
+        mentor = self.findChild(QLineEdit, "user_mentor").text()
+        employee_id = self.findChild(QLineEdit, "user_id").text()
+        # Place holder for projects, needs more fleshing out
+        projects = ()
+        temp_user = object.User(name, pay, rank, team, mentor, employee_id, projects)
+        temp_user.print_user()
+        self.close()
 
     # closeEvent: changes the default closing behavior by overriding the base method
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
@@ -253,4 +332,7 @@ class NewUserGUI(QWidget):
             event.accept()
         else:
             event.ignore()
+
+    def projectMenu(self):
+        print("Open Project Menu")
 
