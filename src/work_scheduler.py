@@ -16,11 +16,13 @@ from PyQt5.QtGui import QIcon
 from lib import ws_gui
 from lib import ws_db
 from lib import CONSTANTS as K
+from lib import object
 
 app = None
 
 def main():
-    ex = ws_gui.Main_UI()
+    userList = ()
+    ex = ws_gui.Main_UI(userList)
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
     ex.initUI()

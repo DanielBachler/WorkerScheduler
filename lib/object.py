@@ -51,7 +51,8 @@ class User:
     # TODO: Setters
 
     def print_user(self):
-        print("User Name: %s\nUser Rank: %s" % (self.name, self.rank))
+        print_string = ("User Name: %s\nUser Rank: %s" % (self.name, self.rank))
+        return print_string
 
 
 class Project:

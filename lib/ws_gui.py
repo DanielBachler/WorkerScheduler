@@ -20,9 +20,12 @@ from lib import object
 from lib import CONSTANTS as K
 
 class Main_UI(QMainWindow):
-
-    def __init__(self):
+    userList = ()
+    newUserWindow = ""
+    def __init__(self, userList):
         super().__init__()
+        self.userList = userList
+        self.newUserWindow = NewUserGUI()
 
     def login(self):
         server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
@@ -140,6 +143,8 @@ class Main_UI(QMainWindow):
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if temp == QMessageBox.Yes:
+            if not self.newUserWindow.isEnabled():
+                self.newUserWindow.close()
             event.accept()
         else:
             event.ignore()
@@ -155,7 +160,6 @@ class Main_UI(QMainWindow):
     # RETURNS: None, user object is added to local database instead
     def makeNewUser(self):
         # New popup window with ability to create new local user, push to database on close?
-        self.newUserWindow = NewUserGUI()
         self.newUserWindow.initUI()
         self.newUserWindow.setWindowIcon(QIcon('icon.png'))
 
@@ -190,6 +194,12 @@ class Main_UI(QMainWindow):
 
 
 class NewUserGUI(QWidget):
+    # Temp var to hold made user
+    made_user = ""
+
+    # Saved bool
+    saved = False
+
     def __init__(self):
         super().__init__()
 
@@ -317,19 +327,30 @@ class NewUserGUI(QWidget):
         employee_id = self.findChild(QLineEdit, "user_id").text()
         # Place holder for projects, needs more fleshing out
         projects = ()
-        temp_user = object.User(name, pay, rank, team, mentor, employee_id, projects)
-        temp_user.print_user()
+        self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects)
+        print(self.made_user.print_user())
         self.close()
 
     # closeEvent: changes the default closing behavior by overriding the base method
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
-    # RETURNS: none
+    # RETURNS: None
     def closeEvent(self, event):
-        temp = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
+        to_exit = False
+        if self.saved:
+            to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        else:
+            temp_mbox = QMessageBox()
+            temp_mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.Save | QMessageBox.No)
+            temp_mbox.setDefaultButton(QMessageBox.Save)
+            temp_mbox.setWindowTitle('Cancel Confirmation')
+            temp_mbox.setInformativeText("You haven't saved, are you sure you want to cancel?")
+            to_exit = temp_mbox.exec()
 
-        if temp == QMessageBox.Yes:
+        if to_exit == QMessageBox.Yes:
             event.accept()
+        elif to_exit == QMessageBox.Save:
+            self.saveUser()
         else:
             event.ignore()
 
