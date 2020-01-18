@@ -50,6 +50,7 @@ class Main_UI(QMainWindow):
         # Menu bar tabs
         fileMenu = menubar.addMenu('File')
         userMenu = menubar.addMenu('Users')
+        projectMenu = menubar.addMenu("Projects")
 
         # Actions for file menu
         exitAction = QAction('Exit Application', self)
@@ -62,12 +63,19 @@ class Main_UI(QMainWindow):
         newUserAction = QAction('Add New User', self)
         newUserAction.triggered.connect(self.makeNewUser)
 
+        # Actions for project menu
+        newProjectAction = QAction('Add New Project')
+        newProjectAction.triggered.connect(self.makeNewProject)
+
         # Add actions to file menu
         fileMenu.addAction(saveAction)
         fileMenu.addAction(exitAction)
 
         # Add actions to user menu
         userMenu.addAction(newUserAction)
+
+        # Add actions to project menu
+        projectMenu.addAction(newProjectAction)
 
         ## Contents of central widget
 
@@ -191,6 +199,9 @@ class Main_UI(QMainWindow):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def makeNewProject(self):
+        print("Open new project window")
 
 
 class NewUserGUI(QWidget):
