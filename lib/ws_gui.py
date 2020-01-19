@@ -19,13 +19,18 @@ from lib import object
 
 from lib import CONSTANTS as K
 
+
 class Main_UI(QMainWindow):
+
     userList = ()
     newUserWindow = ""
+    newProjectWindow = ""
+
     def __init__(self, userList):
         super().__init__()
         self.userList = userList
         self.newUserWindow = NewUserGUI()
+        self.newProjectWindow = NewProjectGUI()
 
     def login(self):
         server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
@@ -37,7 +42,7 @@ class Main_UI(QMainWindow):
         password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
         if okPressed and server_addr != '':
             pass
-        return (server_addr, username, password)
+        return server_addr, username, password
 
     def initUI(self):
         size = (600, 600)
@@ -64,7 +69,7 @@ class Main_UI(QMainWindow):
         newUserAction.triggered.connect(self.makeNewUser)
 
         # Actions for project menu
-        newProjectAction = QAction('Add New Project')
+        newProjectAction = QAction('Add New Project', self)
         newProjectAction.triggered.connect(self.makeNewProject)
 
         # Add actions to file menu
@@ -201,7 +206,8 @@ class Main_UI(QMainWindow):
         self.move(qr.topLeft())
 
     def makeNewProject(self):
-        print("Open new project window")
+        self.newUserWindow.initUI()
+        self.newProjectWindow.setWindowTitle(QIcon('icon.png'))
 
 
 class NewUserGUI(QWidget):
@@ -210,6 +216,9 @@ class NewUserGUI(QWidget):
 
     # Saved bool
     saved = False
+
+    # Close from save bool
+    close_from_save = False
 
     def __init__(self):
         super().__init__()
@@ -340,31 +349,43 @@ class NewUserGUI(QWidget):
         projects = ()
         self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects)
         print(self.made_user.print_user())
+        self.saved = True
+        self.close_from_save = True
         self.close()
 
     # closeEvent: changes the default closing behavior by overriding the base method
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: None
     def closeEvent(self, event):
-        to_exit = False
-        if self.saved:
-            to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
-                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        else:
-            temp_mbox = QMessageBox()
-            temp_mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.Save | QMessageBox.No)
-            temp_mbox.setDefaultButton(QMessageBox.Save)
-            temp_mbox.setWindowTitle('Cancel Confirmation')
-            temp_mbox.setInformativeText("You haven't saved, are you sure you want to cancel?")
-            to_exit = temp_mbox.exec()
-
-        if to_exit == QMessageBox.Yes:
+        if self.close_from_save:
             event.accept()
-        elif to_exit == QMessageBox.Save:
-            self.saveUser()
         else:
-            event.ignore()
+            to_exit = False
+            if self.saved:
+                to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
+                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            else:
+                temp_mbox = QMessageBox()
+                temp_mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.Save | QMessageBox.No)
+                temp_mbox.setDefaultButton(QMessageBox.Save)
+                temp_mbox.setWindowTitle('Cancel Confirmation')
+                temp_mbox.setInformativeText("You haven't saved, are you sure you want to cancel?")
+                to_exit = temp_mbox.exec()
+
+            if to_exit == QMessageBox.Yes:
+                event.accept()
+            elif to_exit == QMessageBox.Save:
+                self.saveUser()
+            else:
+                event.ignore()
 
     def projectMenu(self):
         print("Open Project Menu")
 
+
+class NewProjectGUI(QWidget):
+    def __init__(self):
+        super().__init__()
+
+    def initUI(self):
+        pass
