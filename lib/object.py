@@ -19,7 +19,7 @@ class User:
     team = ""
     mentor = ""
     employee_id = ""
-    projects = ()
+    projects = []
 
     def __init__(self, name, pay, rank, team, mentor, employee_id, projects):
         self.name = name

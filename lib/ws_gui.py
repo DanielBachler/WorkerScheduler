@@ -22,7 +22,7 @@ from lib import CONSTANTS as K
 
 class Main_UI(QMainWindow):
 
-    userList = ()
+    userList = []
     newUserWindow = ""
     newProjectWindow = ""
 
@@ -99,10 +99,9 @@ class Main_UI(QMainWindow):
 
         # Panes
         # Pane left
-        testEmployees = ("Dan", "Jesse", "Brendan", "Ed")
         employees = QListWidget()
-        for i in range(0, len(testEmployees)):
-            employees.addItem(testEmployees[i])
+        for i in range(0, len(self.userList)):
+            employees.addItem(self.userList[i].name)
         vboxL.addWidget(employees)
 
         # Pane Right
@@ -166,14 +165,19 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow), item (a QListWidget List item)
     # RETURNS: None
     def newSelected(self, item):
-        self.centralWidget().findChild(QLineEdit).setText(item.text())
+        name = item.text()
+        selected_user = ""
+        for user in self.userList:
+            if user.name == name:
+                selected_user = user
+        self.centralWidget().findChild(QLineEdit).setText(selected_user.print_user())
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
     # RETURNS: None, user object is added to local database instead
     def makeNewUser(self):
         # New popup window with ability to create new local user, push to database on close?
-        self.newUserWindow.initUI()
+        self.newUserWindow.initUI(self)
         self.newUserWindow.setWindowIcon(QIcon('icon.png'))
 
     # save: saves the current state of local database to database server
@@ -209,6 +213,15 @@ class Main_UI(QMainWindow):
         self.newUserWindow.initUI()
         self.newProjectWindow.setWindowTitle(QIcon('icon.png'))
 
+    # updateUserList: updates the QListWidget when new user is added or user is edited
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def updateUserList(self):
+        templist = self.findChild(QListWidget)
+        templist.clear()
+        for i in range(0, len(self.userList)):
+            templist.addItem(self.userList[i].name)
+
 
 class NewUserGUI(QWidget):
     # Temp var to hold made user
@@ -220,10 +233,14 @@ class NewUserGUI(QWidget):
     # Close from save bool
     close_from_save = False
 
+    # Parent window
+    parent_window = ""
+
     def __init__(self):
         super().__init__()
 
-    def initUI(self):
+    def initUI(self, parent):
+        self.parent_window = parent
         # Create save button
         saveButton = QPushButton('Save')
         saveButton.clicked.connect(self.saveUser)
@@ -346,9 +363,10 @@ class NewUserGUI(QWidget):
         mentor = self.findChild(QLineEdit, "user_mentor").text()
         employee_id = self.findChild(QLineEdit, "user_id").text()
         # Place holder for projects, needs more fleshing out
-        projects = ()
+        projects = []
         self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects)
-        print(self.made_user.print_user())
+        self.parent_window.userList.append(self.made_user)
+        self.parent_window.updateUserList()
         self.saved = True
         self.close_from_save = True
         self.close()
@@ -360,7 +378,6 @@ class NewUserGUI(QWidget):
         if self.close_from_save:
             event.accept()
         else:
-            to_exit = False
             if self.saved:
                 to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -373,6 +390,9 @@ class NewUserGUI(QWidget):
                 to_exit = temp_mbox.exec()
 
             if to_exit == QMessageBox.Yes:
+                edits = self.findChildren(QLineEdit)
+                for edit in edits:
+                    edit.clear()
                 event.accept()
             elif to_exit == QMessageBox.Save:
                 self.saveUser()

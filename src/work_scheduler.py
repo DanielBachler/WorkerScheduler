@@ -20,8 +20,9 @@ from lib import object
 
 app = None
 
+
 def main():
-    userList = ()
+    userList = tempUserList()
     ex = ws_gui.Main_UI(userList)
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
@@ -29,6 +30,15 @@ def main():
     ex.setWindowIcon(QIcon('icon.png'))
 
     sys.exit(app.exec_())
+
+
+# METHOD FOR TESTING
+def tempUserList():
+    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "2460239", ("Work Scheduler", "Robotics"))
+    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1", ("Work Scheduler", "Test"))
+    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2", ("Work Scheduler", "Robotics"))
+    tempList = [userBrendan, userDan, userJesse]
+    return tempList
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
