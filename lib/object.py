@@ -19,9 +19,11 @@ class User:
     team = ""
     mentor = ""
     employee_id = ""
+    desired_hours = ""
+    actual_hours = ""
     projects = []
 
-    def __init__(self, name, pay, rank, team, mentor, employee_id, projects):
+    def __init__(self, name, pay, rank, team, mentor, employee_id, projects, desired_hours, actual_hours):
         self.name = name
         self.pay = pay
         self.rank = rank
@@ -29,31 +31,22 @@ class User:
         self.mentor = mentor
         self.employee_id = employee_id
         self.projects = projects
-
-    def set_name(self, name):
-        self.name = name
-
-    def set_pay(self, pay):
-        self.pay = pay
-
-    def set_rank(self, rank):
-        self.rank = rank
-
-    def set_mentor(self, mentor):
-        self.mentor = mentor
-
-    def set_id(self, employee_id):
-        self.employee_id = employee_id
-
-    def set_projects(self, projects):
-        self.projects = projects
-
-    # TODO: Setters
+        self.desired_hours = desired_hours
+        self.actual_hours = actual_hours
 
     def print_user(self):
-        print_string = ("User Name: %s\nUser Rank: %s" % (self.name, self.rank))
+        print_string = ("User Name: %s\nUser Rank: %s\n"
+                        "User Pay: %s \nUser Team: %s\n"
+                        "User Mentor: %s\nEmployee ID: %s\n"
+                        "Desired Hours: %s\nActual Hours: %s\n"
+                        "Projects: %s" %
+                        (self.name, self.rank, self.pay, self.team,
+                         self.mentor, self.employee_id, self.desired_hours, self.actual_hours, self.print_projects()))
         return print_string
 
+    def print_projects(self):
+        projects_string = ""
+        return projects_string
 
 class Project:
     pass

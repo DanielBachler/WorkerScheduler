@@ -105,8 +105,7 @@ class Main_UI(QMainWindow):
         vboxL.addWidget(employees)
 
         # Pane Right
-        employee = QLineEdit()
-        # employee.setFixedSize(80, 80)
+        employee = QTextEdit()
         employee.setFixedHeight(employees.height())
         employee.setAlignment(Qt.AlignLeft)
         employee.setReadOnly(True)
@@ -170,13 +169,14 @@ class Main_UI(QMainWindow):
         for user in self.userList:
             if user.name == name:
                 selected_user = user
-        self.centralWidget().findChild(QLineEdit).setText(selected_user.print_user())
+        self.centralWidget().findChild(QTextEdit).setText(selected_user.print_user())
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
     # RETURNS: None, user object is added to local database instead
     def makeNewUser(self):
         # New popup window with ability to create new local user, push to database on close?
+        self.newUserWindow = NewUserGUI()
         self.newUserWindow.initUI(self)
         self.newUserWindow.setWindowIcon(QIcon('icon.png'))
 
@@ -221,7 +221,6 @@ class Main_UI(QMainWindow):
         templist.clear()
         for i in range(0, len(self.userList)):
             templist.addItem(self.userList[i].name)
-
 
 class NewUserGUI(QWidget):
     # Temp var to hold made user
@@ -290,10 +289,21 @@ class NewUserGUI(QWidget):
         hbox_team.addWidget(team_label)
         hbox_team.addWidget(team_edit)
 
-        # Maybe popup window using calendar widget?
         # Desired hours label and editor LEFT
+        hbox_desired_hours = QHBoxLayout()
+        desired_hours_label = QLabel("Desired Hours:")
+        desired_hours_edit = QLineEdit()
+        desired_hours_edit.setObjectName("user_desired_hours")
+        hbox_desired_hours.addWidget(desired_hours_label)
+        hbox_desired_hours.addWidget(desired_hours_edit)
 
         # Actual hours label and editor RIGHT
+        hbox_actual_hours = QHBoxLayout()
+        actual_hours_label = QLabel("Actual Hours:")
+        actual_hours_edit = QLineEdit()
+        actual_hours_edit.setObjectName("user_actual_hours")
+        hbox_actual_hours.addWidget(actual_hours_label)
+        hbox_actual_hours.addWidget(actual_hours_edit)
 
         # Projects (drop down box?) maybe new window with qlist and clicking to add? LEFT
         hbox_project = QHBoxLayout()
@@ -321,7 +331,7 @@ class NewUserGUI(QWidget):
         leftColumnBox = QVBoxLayout()
         leftColumnBox.addLayout(hbox_name)
         leftColumnBox.addLayout(hbox_rank)
-        # Desired hours place holder
+        leftColumnBox.addLayout(hbox_desired_hours)
         leftColumnBox.addLayout(hbox_project)
         leftColumnBox.addLayout(hbox_id)
 
@@ -329,7 +339,7 @@ class NewUserGUI(QWidget):
         rightColumnBox = QVBoxLayout()
         rightColumnBox.addLayout(hbox_pay)
         rightColumnBox.addLayout(hbox_team)
-        # Actual hours placeholder
+        rightColumnBox.addLayout(hbox_actual_hours)
         rightColumnBox.addLayout(hbox_mentor)
 
         # Box to hold columns
@@ -362,9 +372,11 @@ class NewUserGUI(QWidget):
         team = self.findChild(QLineEdit, "user_team").text()
         mentor = self.findChild(QLineEdit, "user_mentor").text()
         employee_id = self.findChild(QLineEdit, "user_id").text()
+        desired_hours = self.findChild(QLineEdit, "user_desired_hours").text()
+        actual_hours = self.findChild(QLineEdit, "user_actual_hours").text()
         # Place holder for projects, needs more fleshing out
         projects = []
-        self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects)
+        self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects, desired_hours, actual_hours)
         self.parent_window.userList.append(self.made_user)
         self.parent_window.updateUserList()
         self.saved = True
@@ -390,9 +402,6 @@ class NewUserGUI(QWidget):
                 to_exit = temp_mbox.exec()
 
             if to_exit == QMessageBox.Yes:
-                edits = self.findChildren(QLineEdit)
-                for edit in edits:
-                    edit.clear()
                 event.accept()
             elif to_exit == QMessageBox.Save:
                 self.saveUser()
