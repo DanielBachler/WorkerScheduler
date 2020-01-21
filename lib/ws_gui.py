@@ -469,30 +469,54 @@ class AddProjectsGUI(QWidget):
     # RETURNS: None
     def initUI(self):
         # Left Top Panel displaying existing projects
+        existing_projects_label = QLabel("All Projects")
         existing_projects = QListWidget()
         existing_projects.setObjectName("existing_projects")
 
+        # Box for panel and label
+        existing_projects_box = QVBoxLayout()
+        existing_projects_box.addWidget(existing_projects_label)
+        existing_projects_box.addWidget(existing_projects)
+
         # Left Bottom panel displaying selected project info
+        existing_selected_label = QLabel("Selected Projects")
         existing_selected = QTextEdit()
         existing_selected.setObjectName("existing_selected")
 
+        # Box for panel and label
+        existing_selected_box = QVBoxLayout()
+        existing_selected_box.addWidget(existing_selected_label)
+        existing_selected_box.addWidget(existing_selected)
+
         # V Box for left panels
         left_panel_box = QVBoxLayout()
-        left_panel_box.addWidget(existing_projects)
-        left_panel_box.addWidget(existing_selected)
+        left_panel_box.addLayout(existing_projects_box)
+        left_panel_box.addLayout(existing_selected_box)
 
         # Right panel displaying projects owned by current user
+        assigned_projects_label = QLabel("Projects Assigned to User")
         assigned_projects = QListWidget()
         assigned_projects.setObjectName("assigned_projects")
 
+        # Box for top right panel
+        assigned_projects_box = QVBoxLayout()
+        assigned_projects_box.addWidget(assigned_projects_label)
+        assigned_projects_box.addWidget(assigned_projects)
+
         # Right bottom panel displaying selected project info
+        assigned_selected_label = QLabel("Details of Selected Project")
         assigned_selected = QTextEdit()
         assigned_selected.setObjectName("assigned_selected")
 
+        # Box for bottom right panel and label
+        assigned_selected_box = QVBoxLayout()
+        assigned_selected_box.addWidget(assigned_selected_label)
+        assigned_selected_box.addWidget(assigned_selected)
+
         # V Box for right panels
         right_panel_box = QVBoxLayout()
-        right_panel_box.addWidget(assigned_projects)
-        right_panel_box.addWidget(assigned_selected)
+        right_panel_box.addWidget(assigned_projects_box)
+        right_panel_box.addWidget(assigned_selected_box)
 
         # H Box for panel boxes
         panel_box = QHBoxLayout()
@@ -503,6 +527,10 @@ class AddProjectsGUI(QWidget):
         add_to_user = QPushButton("Add")
         add_to_user.clicked.connect(self.addToUser)
 
+        # Button to cancel window
+        cancel_window = QPushButton("Cancel")
+        # cancel_window.clicked.connect(self.close)
+
         # Button for removing project from user
         remove_from_user = QPushButton("Remove")
         remove_from_user.clicked.connect(self.removeFromUser)
@@ -510,6 +538,7 @@ class AddProjectsGUI(QWidget):
         # H Box for buttons
         button_box = QHBoxLayout()
         button_box.addWidget(add_to_user)
+        button_box.addWidget(cancel_window)
         button_box.addWidget(remove_from_user)
 
         # Box to hold everything
