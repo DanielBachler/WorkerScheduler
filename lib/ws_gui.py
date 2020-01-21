@@ -8,6 +8,13 @@
 ## ws_gui.py
 ## GUI Wrapper for Work Scheduler
 
+# TODO:
+#   NewUserGUI: if not edited dont have save option, just close
+#       AddProjectUI: labels for windows, cancel button
+#   NewProjectGUI: Fix crash, add forms
+#   Overall: Master Project list not tied to database for testing, add to main UI
+#   MainUI: Add switching between view modes
+
 if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
@@ -68,9 +75,15 @@ class Main_UI(QMainWindow):
         newUserAction = QAction('Add New User', self)
         newUserAction.triggered.connect(self.makeNewUser)
 
+        switchViewUser = QAction("Switch to User View Mode", self)
+        switchViewUser.triggered.connect(self.switch_user_view)
+
         # Actions for project menu
         newProjectAction = QAction('Add New Project', self)
         newProjectAction.triggered.connect(self.makeNewProject)
+
+        switchViewProject = QAction("Switch to Project View Mode", self)
+        switchViewProject.triggered.connect(self.switch_project_view)
 
         # Add actions to file menu
         fileMenu.addAction(saveAction)
@@ -78,9 +91,11 @@ class Main_UI(QMainWindow):
 
         # Add actions to user menu
         userMenu.addAction(newUserAction)
+        userMenu.addAction(switchViewUser)
 
         # Add actions to project menu
         projectMenu.addAction(newProjectAction)
+        projectMenu.addAction(switchViewProject)
 
         ## Contents of central widget
 
@@ -210,7 +225,8 @@ class Main_UI(QMainWindow):
         self.move(qr.topLeft())
 
     def makeNewProject(self):
-        self.newUserWindow.initUI()
+        self.newProjectWindow = NewProjectGUI()
+        self.newProjectWindow.initUI(self)
         self.newProjectWindow.setWindowTitle(QIcon('icon.png'))
 
     # updateUserList: updates the QListWidget when new user is added or user is edited
@@ -221,6 +237,19 @@ class Main_UI(QMainWindow):
         templist.clear()
         for i in range(0, len(self.userList)):
             templist.addItem(self.userList[i].name)
+
+    # switch_user_view: changes the main UI to show users
+    # ARGS: self (QMainWindow),
+    # RETURNS: None
+    def switch_user_view(self):
+        print("Switch to user view")
+
+    # switch_project_view: changes the main UI to show projects
+    # ARGS: self (QMainWindow)
+    # RETURNS:
+    def switch_project_view(self):
+        print("Switch to project view")
+
 
 class NewUserGUI(QWidget):
     # Temp var to hold made user
@@ -234,6 +263,8 @@ class NewUserGUI(QWidget):
 
     # Parent window
     parent_window = ""
+
+    project_window = ""
 
     def __init__(self):
         super().__init__()
@@ -332,8 +363,8 @@ class NewUserGUI(QWidget):
         leftColumnBox.addLayout(hbox_name)
         leftColumnBox.addLayout(hbox_rank)
         leftColumnBox.addLayout(hbox_desired_hours)
-        leftColumnBox.addLayout(hbox_project)
         leftColumnBox.addLayout(hbox_id)
+        leftColumnBox.addLayout(hbox_project)
 
         # Box for right side column
         rightColumnBox = QVBoxLayout()
@@ -357,7 +388,7 @@ class NewUserGUI(QWidget):
         self.setLayout(mainVertBox)
 
         # Finalize self
-        self.setGeometry(300, 300, 300, 300)
+        self.setGeometry(300, 300, 300, 500)
         self.setWindowTitle('New User Form')
         self.show()
 
@@ -409,12 +440,99 @@ class NewUserGUI(QWidget):
                 event.ignore()
 
     def projectMenu(self):
-        print("Open Project Menu")
+        self.project_window = AddProjectsGUI()
+        self.project_window.initUI()
 
 
 class NewProjectGUI(QWidget):
+    main_window = ""
+
     def __init__(self):
         super().__init__()
 
+    def initUI(self, main_window):
+        self.main_window = main_window
+
+        self.setGeometry(300, 300, 500, 500)
+        self.setWindowTitle('New Project Form')
+        self.setWindowIcon(QIcon("icon.png"))
+        self.show()
+
+
+class AddProjectsGUI(QWidget):
+    # Default init, inits super
+    def __init__(self):
+        super().__init__()
+
+    # initUI: creates the inital UI for Add Projects window
+    # ARGS: self (QWidget)
+    # RETURNS: None
     def initUI(self):
-        pass
+        # Left Top Panel displaying existing projects
+        existing_projects = QListWidget()
+        existing_projects.setObjectName("existing_projects")
+
+        # Left Bottom panel displaying selected project info
+        existing_selected = QTextEdit()
+        existing_selected.setObjectName("existing_selected")
+
+        # V Box for left panels
+        left_panel_box = QVBoxLayout()
+        left_panel_box.addWidget(existing_projects)
+        left_panel_box.addWidget(existing_selected)
+
+        # Right panel displaying projects owned by current user
+        assigned_projects = QListWidget()
+        assigned_projects.setObjectName("assigned_projects")
+
+        # Right bottom panel displaying selected project info
+        assigned_selected = QTextEdit()
+        assigned_selected.setObjectName("assigned_selected")
+
+        # V Box for right panels
+        right_panel_box = QVBoxLayout()
+        right_panel_box.addWidget(assigned_projects)
+        right_panel_box.addWidget(assigned_selected)
+
+        # H Box for panel boxes
+        panel_box = QHBoxLayout()
+        panel_box.addLayout(left_panel_box)
+        panel_box.addLayout(right_panel_box)
+
+        # Button for adding project to user
+        add_to_user = QPushButton("Add")
+        add_to_user.clicked.connect(self.addToUser)
+
+        # Button for removing project from user
+        remove_from_user = QPushButton("Remove")
+        remove_from_user.clicked.connect(self.removeFromUser)
+
+        # H Box for buttons
+        button_box = QHBoxLayout()
+        button_box.addWidget(add_to_user)
+        button_box.addWidget(remove_from_user)
+
+        # Box to hold everything
+        main_box = QVBoxLayout()
+        main_box.addLayout(panel_box)
+        main_box.addLayout(button_box)
+
+        # Set layout to main layout
+        self.setLayout(main_box)
+
+        self.setGeometry(300, 300, 500, 500)
+        self.setWindowTitle('Add Project to User')
+        self.setWindowIcon(QIcon("icon.png"))
+        self.show()
+
+    # addToUser: adds the currently selected project of existing_projects to the user
+    # ARGS: self (QWidget)
+    # RETURNS:
+    def addToUser(self):
+        print("Add to user")
+
+    # removeFromUser: removes the selected project in assigned_projects from the user
+    # ARGS: self (QWidget)
+    # RETURNS:
+    def removeFromUser(self):
+        print("Remove from user")

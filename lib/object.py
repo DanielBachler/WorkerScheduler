@@ -49,4 +49,26 @@ class User:
         return projects_string
 
 class Project:
-    pass
+    expected_hours = ""
+    billing_code = ""
+    hours_edit_date = ""
+    title = ""
+    users = []
+
+
+    def __init__(self, expected_hours, billing_code, title):
+        self.expected_hours = expected_hours
+        self.billing_code = billing_code
+        self.title = title
+
+    def print_project(self):
+        print_string = ("Title: %s\nBilling Code: %s\nExpected Hours: %s\n"
+                        "Date of Last Edit: %s\nAssigned Employees: %s" %
+                        (self.title, self.billing_code, self.expected_hours, self.hours_edit_date,
+                         self.print_users))
+
+    def print_users(self):
+        user_string = ""
+        for user in self.users:
+            user_string += user.name + "\n"
+        return user_string
