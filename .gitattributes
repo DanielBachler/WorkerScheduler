@@ -1,1 +1,2 @@
-static/* venv
+* linguist-vendored
+*.py linguist-vendored=false
