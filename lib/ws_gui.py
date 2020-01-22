@@ -471,6 +471,7 @@ class AddProjectsGUI(QWidget):
         # Left Top Panel displaying existing projects
         existing_projects_label = QLabel("All Projects")
         existing_projects = QListWidget()
+        existing_projects.itemClicked.connect(self.updateAllProjects)
         existing_projects.setObjectName("existing_projects")
 
         # Box for panel and label
@@ -479,7 +480,7 @@ class AddProjectsGUI(QWidget):
         existing_projects_box.addWidget(existing_projects)
 
         # Left Bottom panel displaying selected project info
-        existing_selected_label = QLabel("Selected Projects")
+        existing_selected_label = QLabel("Selected Project Details")
         existing_selected = QTextEdit()
         existing_selected.setObjectName("existing_selected")
 
@@ -496,6 +497,7 @@ class AddProjectsGUI(QWidget):
         # Right panel displaying projects owned by current user
         assigned_projects_label = QLabel("Projects Assigned to User")
         assigned_projects = QListWidget()
+        assigned_projects.itemClicked.connect(self.updateUserProjects)
         assigned_projects.setObjectName("assigned_projects")
 
         # Box for top right panel
@@ -504,7 +506,7 @@ class AddProjectsGUI(QWidget):
         assigned_projects_box.addWidget(assigned_projects)
 
         # Right bottom panel displaying selected project info
-        assigned_selected_label = QLabel("Details of Selected Project")
+        assigned_selected_label = QLabel("Selected Project Details")
         assigned_selected = QTextEdit()
         assigned_selected.setObjectName("assigned_selected")
 
@@ -515,8 +517,8 @@ class AddProjectsGUI(QWidget):
 
         # V Box for right panels
         right_panel_box = QVBoxLayout()
-        right_panel_box.addWidget(assigned_projects_box)
-        right_panel_box.addWidget(assigned_selected_box)
+        right_panel_box.addLayout(assigned_projects_box)
+        right_panel_box.addLayout(assigned_selected_box)
 
         # H Box for panel boxes
         panel_box = QHBoxLayout()
@@ -529,7 +531,7 @@ class AddProjectsGUI(QWidget):
 
         # Button to cancel window
         cancel_window = QPushButton("Cancel")
-        # cancel_window.clicked.connect(self.close)
+        cancel_window.clicked.connect(self.close)
 
         # Button for removing project from user
         remove_from_user = QPushButton("Remove")
@@ -556,12 +558,30 @@ class AddProjectsGUI(QWidget):
 
     # addToUser: adds the currently selected project of existing_projects to the user
     # ARGS: self (QWidget)
-    # RETURNS:
+    # RETURNS: None
     def addToUser(self):
         print("Add to user")
 
     # removeFromUser: removes the selected project in assigned_projects from the user
     # ARGS: self (QWidget)
-    # RETURNS:
+    # RETURNS: None
     def removeFromUser(self):
         print("Remove from user")
+
+    # initLists: populates the two QListWidgets with the appropriate information
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def initLists(self):
+        pass
+
+    # updateAllProjects:
+    # ARGS: self (QWidget), item (QListWidget item)
+    # RETURNS: None
+    def updateAllProjects(self, item):
+        project_name = item.text()
+
+    # updateUserProjects:
+    # ARGS: self (QWidget), item (QListWidget item)
+    # RETURNS: None
+    def updateUserProjects(self, item):
+        project_name = item.text()
