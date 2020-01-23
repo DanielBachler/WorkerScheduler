@@ -57,6 +57,9 @@ class User:
     def print_projects(self):
         projects_string = ""
 
+        for project in self.projects:
+            projects_string += project.title + "\n"
+
         return projects_string
 
 
@@ -82,7 +85,8 @@ class Project:
         print_string = ("Title: %s\nBilling Code: %s\nExpected Hours: %s\n"
                         "Date of Last Edit: %s\nAssigned Employees: %s" %
                         (self.title, self.billing_code, self.expected_hours, self.hours_edit_date,
-                         self.print_users))
+                         self.print_users()))
+        return print_string
 
     # print_users: Makes a formatted string for the users assigned to a project
     # ARGS: self (Project)
