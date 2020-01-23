@@ -9,9 +9,8 @@
 ## GUI Wrapper for Work Scheduler
 
 # TODO:
-#   NewUserGUI: if not edited dont have save option, just close
-#       AddProjectUI: labels for windows, cancel button
-#   NewProjectGUI: Fix crash, add forms
+#   NewUserGUI:
+#   NewProjectGUI: add forms (Jesse)
 #   Overall: Master Project list not tied to database for testing, add to main UI
 #   MainUI: Add switching between view modes
 
@@ -28,17 +27,24 @@ from lib import CONSTANTS as K
 
 
 class Main_UI(QMainWindow):
-
+    # Class global vars for users and projects
     userList = []
+    projectList = []
+    # Class global vars for sub windows
     newUserWindow = ""
     newProjectWindow = ""
 
-    def __init__(self, userList):
+    # __init__: Initializes the main UI
+    # ARGS: self (QMainWindow)
+    # RETURNS: QMainWindow
+    def __init__(self):
         super().__init__()
-        self.userList = userList
         self.newUserWindow = NewUserGUI()
         self.newProjectWindow = NewProjectGUI()
 
+    # login: Takes the login information and connects the database as a user
+    # ARGS: self (QMainWindow)
+    # RETURNS: server_addr (String), username (String), password (String)
     def login(self):
         server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
         if okPressed and server_addr != '':
@@ -51,7 +57,12 @@ class Main_UI(QMainWindow):
             pass
         return server_addr, username, password
 
-    def initUI(self):
+    # initUI: Creates the UI for the main UI
+    # ARGS: self (QMainWindow), userList (List[User]), projectList (List[Project])
+    # RETURNS: None
+    def initUI(self, userList, projectList):
+        self.userList = userList
+        self.projectList = projectList
         size = (600, 600)
         # Setup main display: Pane of worker names to chose (left), pane showing selected worker info (right),
         # menu: exit, add new user (new window),
@@ -161,7 +172,7 @@ class Main_UI(QMainWindow):
         self.setWindowTitle('Worker Scheduler')
         self.show()
 
-    # closeEvent: changes the default closing behavior by overriding the base method
+    # closeEvent: Changes the default closing behavior by overriding the base method
     # ARGS: self (QMainWindow), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: none
     def closeEvent(self, event):
@@ -175,7 +186,7 @@ class Main_UI(QMainWindow):
         else:
             event.ignore()
 
-    # newSelected: changes the displayed text in right side panel of QMainWindow
+    # newSelected: Changes the displayed text in right side panel of QMainWindow
     # ARGS: self (QMainWindow), item (a QListWidget List item)
     # RETURNS: None
     def newSelected(self, item):
@@ -195,27 +206,27 @@ class Main_UI(QMainWindow):
         self.newUserWindow.initUI(self)
         self.newUserWindow.setWindowIcon(QIcon('icon.png'))
 
-    # save: saves the current state of local database to database server
+    # save: Saves the current state of local database to database server
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def save(self):
         pass
 
-    # deleteSelectedUserFunc: deletes the user passed to it, called by the delete button on main GUI panel
+    # deleteSelectedUserFunc: Deletes the user passed to it, called by the delete button on main GUI panel
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def deletedSelectedUserFunc(self):
         currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
         print("Deleting " + currentUser)
 
-    # editSelectedUser:
+    # editSelectedUser: Edits the currently highlighted user
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def editSelectedUser(self):
         currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
         print("Editing " + currentUser)
 
-    # center: centers the window on the screen
+    # center: Centers the window on the screen
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def center(self):
@@ -224,12 +235,14 @@ class Main_UI(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    # makeNewProject: Opens new project creation UI
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
     def makeNewProject(self):
         self.newProjectWindow = NewProjectGUI()
         self.newProjectWindow.initUI(self)
-        self.newProjectWindow.setWindowTitle(QIcon('icon.png'))
 
-    # updateUserList: updates the QListWidget when new user is added or user is edited
+    # updateUserList: Updates the QListWidget when new user is added or user is edited
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def updateUserList(self):
@@ -238,13 +251,13 @@ class Main_UI(QMainWindow):
         for i in range(0, len(self.userList)):
             templist.addItem(self.userList[i].name)
 
-    # switch_user_view: changes the main UI to show users
+    # switch_user_view: Changes the main UI to show users
     # ARGS: self (QMainWindow),
     # RETURNS: None
     def switch_user_view(self):
         print("Switch to user view")
 
-    # switch_project_view: changes the main UI to show projects
+    # switch_project_view: Changes the main UI to show projects
     # ARGS: self (QMainWindow)
     # RETURNS:
     def switch_project_view(self):
@@ -264,11 +277,21 @@ class NewUserGUI(QWidget):
     # Parent window
     parent_window = ""
 
+    # Popup project selection window
     project_window = ""
 
+    # Var for whether box has been edited
+    box_edited = False
+
+    # __init__: Initializes the NewUserGUI window
+    # ARGS: self (QWidget)
+    # RETURNS: QWidget
     def __init__(self):
         super().__init__()
 
+    # initUI: Creates the UI for the NewUserGUI
+    # ARGS: self (QWidget), parent (QMainWindow)
+    # RETURNS: None
     def initUI(self, parent):
         self.parent_window = parent
         # Create save button
@@ -292,6 +315,7 @@ class NewUserGUI(QWidget):
         hbox_name = QHBoxLayout()
         name_label = QLabel("User Name:")
         name_edit = QLineEdit()
+        name_edit.textChanged.connect(self.boxEdited)
         name_edit.setObjectName("user_name")
         hbox_name.addWidget(name_label)
         hbox_name.addWidget(name_edit)
@@ -300,6 +324,7 @@ class NewUserGUI(QWidget):
         hbox_pay = QHBoxLayout()
         pay_label = QLabel("Pay:")
         pay_edit = QLineEdit()
+        pay_edit.textEdited.connect(self.boxEdited)
         pay_edit.setObjectName("user_pay")
         hbox_pay.addWidget(pay_label)
         hbox_pay.addWidget(pay_edit)
@@ -308,6 +333,7 @@ class NewUserGUI(QWidget):
         hbox_rank = QHBoxLayout()
         rank_label = QLabel("Rank:")
         rank_edit = QLineEdit()
+        rank_edit.textEdited.connect(self.boxEdited)
         rank_edit.setObjectName("user_rank")
         hbox_rank.addWidget(rank_label)
         hbox_rank.addWidget(rank_edit)
@@ -316,6 +342,7 @@ class NewUserGUI(QWidget):
         hbox_team = QHBoxLayout()
         team_label = QLabel("Team:")
         team_edit = QLineEdit()
+        team_edit.textEdited.connect(self.boxEdited)
         team_edit.setObjectName("user_team")
         hbox_team.addWidget(team_label)
         hbox_team.addWidget(team_edit)
@@ -324,6 +351,7 @@ class NewUserGUI(QWidget):
         hbox_desired_hours = QHBoxLayout()
         desired_hours_label = QLabel("Desired Hours:")
         desired_hours_edit = QLineEdit()
+        desired_hours_edit.textEdited.connect(self.boxEdited)
         desired_hours_edit.setObjectName("user_desired_hours")
         hbox_desired_hours.addWidget(desired_hours_label)
         hbox_desired_hours.addWidget(desired_hours_edit)
@@ -332,6 +360,7 @@ class NewUserGUI(QWidget):
         hbox_actual_hours = QHBoxLayout()
         actual_hours_label = QLabel("Actual Hours:")
         actual_hours_edit = QLineEdit()
+        actual_hours_edit.textEdited.connect(self.boxEdited)
         actual_hours_edit.setObjectName("user_actual_hours")
         hbox_actual_hours.addWidget(actual_hours_label)
         hbox_actual_hours.addWidget(actual_hours_edit)
@@ -346,6 +375,7 @@ class NewUserGUI(QWidget):
         hbox_mentor = QHBoxLayout()
         mentor_label = QLabel("Mentor:")
         mentor_edit = QLineEdit()
+        mentor_edit.textEdited.connect(self.boxEdited)
         mentor_edit.setObjectName("user_mentor")
         hbox_mentor.addWidget(mentor_label)
         hbox_mentor.addWidget(mentor_edit)
@@ -354,6 +384,7 @@ class NewUserGUI(QWidget):
         hbox_id = QHBoxLayout()
         id_label = QLabel("Employee ID:")
         id_edit = QLineEdit()
+        id_edit.textEdited.connect(self.boxEdited)
         id_edit.setObjectName("user_id")
         hbox_id.addWidget(id_label)
         hbox_id.addWidget(id_edit)
@@ -396,34 +427,36 @@ class NewUserGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def saveUser(self):
-        # Save the entered user in the fields, checks?
-        name = self.findChild(QLineEdit, "user_name").text()
-        pay = self.findChild(QLineEdit, "user_pay").text()
-        rank = self.findChild(QLineEdit, "user_rank").text()
-        team = self.findChild(QLineEdit, "user_team").text()
-        mentor = self.findChild(QLineEdit, "user_mentor").text()
-        employee_id = self.findChild(QLineEdit, "user_id").text()
-        desired_hours = self.findChild(QLineEdit, "user_desired_hours").text()
-        actual_hours = self.findChild(QLineEdit, "user_actual_hours").text()
-        # Place holder for projects, needs more fleshing out
-        projects = []
-        self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects, desired_hours, actual_hours)
-        self.parent_window.userList.append(self.made_user)
-        self.parent_window.updateUserList()
-        self.saved = True
-        self.close_from_save = True
+        if self.box_edited:
+            # Save the entered user in the fields, checks?
+            name = self.findChild(QLineEdit, "user_name").text()
+            pay = self.findChild(QLineEdit, "user_pay").text()
+            rank = self.findChild(QLineEdit, "user_rank").text()
+            team = self.findChild(QLineEdit, "user_team").text()
+            mentor = self.findChild(QLineEdit, "user_mentor").text()
+            employee_id = self.findChild(QLineEdit, "user_id").text()
+            desired_hours = self.findChild(QLineEdit, "user_desired_hours").text()
+            actual_hours = self.findChild(QLineEdit, "user_actual_hours").text()
+            # Place holder for projects, needs more fleshing out
+            projects = []
+            self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects,
+                                         desired_hours, actual_hours)
+            self.parent_window.userList.append(self.made_user)
+            self.parent_window.updateUserList()
+            self.saved = True
+            self.close_from_save = True
         self.close()
 
-    # closeEvent: changes the default closing behavior by overriding the base method
+    # closeEvent: Changes the default closing behavior by overriding the base method
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: None
     def closeEvent(self, event):
-        if self.close_from_save:
+        if self.close_from_save or not self.box_edited:
             event.accept()
         else:
             if self.saved:
                 to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
-                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             else:
                 temp_mbox = QMessageBox()
                 temp_mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.Save | QMessageBox.No)
@@ -439,17 +472,32 @@ class NewUserGUI(QWidget):
             else:
                 event.ignore()
 
+    # projectMenu: Opens a new window for managing a users projects
+    # ARGS: self (QWidget)
+    # RETURNS: None
     def projectMenu(self):
         self.project_window = AddProjectsGUI()
         self.project_window.initUI()
+
+    # boxEdited: Changes the state of box_edited when any text is edited
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def boxEdited(self):
+        self.box_edited = True
 
 
 class NewProjectGUI(QWidget):
     main_window = ""
 
+    # __init__: Initializes the NewProjectGUI
+    # ARGS: self (QWidget)
+    # RETURNS: QWidget
     def __init__(self):
         super().__init__()
 
+    # initUI: Creates the UI for the NewProjectGUI
+    # ARGS: self (QWidget), main_window (QMainWindow)
+    # RETURNS: None
     def initUI(self, main_window):
         self.main_window = main_window
 
@@ -460,11 +508,13 @@ class NewProjectGUI(QWidget):
 
 
 class AddProjectsGUI(QWidget):
-    # Default init, inits super
+    # __init__: Initializes the AddProjectGUI window
+    # ARGS: self (QWidget)
+    # RETURNS: QWidget
     def __init__(self):
         super().__init__()
 
-    # initUI: creates the inital UI for Add Projects window
+    # initUI: Creates the initial UI for Add Projects window
     # ARGS: self (QWidget)
     # RETURNS: None
     def initUI(self):
@@ -556,19 +606,19 @@ class AddProjectsGUI(QWidget):
         self.setWindowIcon(QIcon("icon.png"))
         self.show()
 
-    # addToUser: adds the currently selected project of existing_projects to the user
+    # addToUser: Adds the currently selected project of existing_projects to the user
     # ARGS: self (QWidget)
     # RETURNS: None
     def addToUser(self):
         print("Add to user")
 
-    # removeFromUser: removes the selected project in assigned_projects from the user
+    # removeFromUser: Removes the selected project in assigned_projects from the user
     # ARGS: self (QWidget)
     # RETURNS: None
     def removeFromUser(self):
         print("Remove from user")
 
-    # initLists: populates the two QListWidgets with the appropriate information
+    # initLists: Populates the two QListWidgets with the appropriate information
     # ARGS: self (QWidget)
     # RETURNS: None
     def initLists(self):

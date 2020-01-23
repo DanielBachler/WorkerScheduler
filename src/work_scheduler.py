@@ -23,10 +23,11 @@ app = None
 
 def main():
     userList = tempUserList()
-    ex = ws_gui.Main_UI(userList)
+    projectList = tempProjectList()
+    ex = ws_gui.Main_UI()
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
-    ex.initUI()
+    ex.initUI(userList, projectList)
     ex.setWindowIcon(QIcon('icon.png'))
 
     sys.exit(app.exec_())
@@ -39,6 +40,17 @@ def tempUserList():
     userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2", ("Work Scheduler", "Robotics"), 40, 0)
     tempList = [userBrendan, userDan, userJesse]
     return tempList
+
+
+# METHOD FOR TESTING
+def tempProjectList():
+    project1 = object.Project("14", "317", "Johnson Project")
+    project2 = object.Project("24", "219", "Fairweather Account")
+    project3 = object.Project("12", "519", "Beckham Account")
+    project4 = object.Project("120", "Geralt", "Rivea Project")
+    projectList = [project1, project2, project3, project4]
+    return projectList
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
