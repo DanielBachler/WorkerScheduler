@@ -269,10 +269,10 @@ class Main_UI(QMainWindow):
         # Add item based on which view is selected
         if self.view:
             for project in self.projectList:
-                left_view.addItem(project)
+                left_view.addItem(project.title)
         else:
             for user in self.userList:
-                left_view.addItem(user)
+                left_view.addItem(user.name)
 
     # switch_user_view: Changes the main UI to show users
     # ARGS: self (QMainWindow),
@@ -439,19 +439,23 @@ class NewUserGUI(QWidget):
     # RETURNS: None
     def saveUser(self):
         if self.box_edited:
-            # Save the entered user in the fields, checks?
-            name = self.findChild(QLineEdit, "user_name").text()
-            pay = self.findChild(QLineEdit, "user_pay").text()
-            rank = self.findChild(QLineEdit, "user_rank").text()
-            team = self.findChild(QLineEdit, "user_team").text()
-            mentor = self.findChild(QLineEdit, "user_mentor").text()
-            employee_id = self.findChild(QLineEdit, "user_id").text()
-            # Place holder for projects, needs more fleshing out
-            self.made_user = object.User(name, pay, rank, team, mentor, employee_id)
-            self.parent_window.userList.append(self.made_user)
-            self.parent_window.updateUserList()
-            self.saved = True
-            self.close_from_save = True
+            try:
+                # Save the entered user in the fields, checks?
+                name = self.findChild(QLineEdit, "user_name").text()
+                pay = self.findChild(QLineEdit, "user_pay").text()
+                rank = self.findChild(QLineEdit, "user_rank").text()
+                team = self.findChild(QLineEdit, "user_team").text()
+                mentor = self.findChild(QLineEdit, "user_mentor").text()
+                employee_id = self.findChild(QLineEdit, "user_id").text()
+                # Place holder for projects, needs more fleshing out
+                self.made_user = object.User(name, pay, rank, team, mentor, employee_id)
+                self.parent_window.userList.append(self.made_user)
+                self.parent_window.updateUserList()
+                self.saved = True
+                self.close_from_save = True
+            except Exception as e:
+                print(e)
+
         self.close()
 
     # closeEvent: Changes the default closing behavior by overriding the base method
