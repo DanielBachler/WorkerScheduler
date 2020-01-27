@@ -21,22 +21,20 @@ class User:
     employee_id = ""
     desired_hours = ""
     actual_hours = ""
-    projects = []
+    # Dict with project titles as keys, values are lists with first value as projected hours, second as actual hours
+    projects = {}
 
     # __init__: Initializes a given user
     # ARGS: self (User), name (String), pay (String), rank (String), team (String), mentor (String),
-    #       employee_id (String), projects (List[Project]), desired_hours (String), actual_hours (String)
+    #       employee_id (String)
     # RETURNS: User
-    def __init__(self, name, pay, rank, team, mentor, employee_id, projects, desired_hours, actual_hours):
+    def __init__(self, name, pay, rank, team, mentor, employee_id):
         self.name = name
         self.pay = pay
         self.rank = rank
         self.team = team
         self.mentor = mentor
         self.employee_id = employee_id
-        self.projects = projects
-        self.desired_hours = desired_hours
-        self.actual_hours = actual_hours
 
     # print_user: Makes a string of the information for the selected user in a formatted fashion
     # ARGS: self (User)
@@ -44,11 +42,9 @@ class User:
     def print_user(self):
         print_string = ("User Name: %s\nUser Rank: %s\n"
                         "User Pay: %s \nUser Team: %s\n"
-                        "User Mentor: %s\nEmployee ID: %s\n"
-                        "Desired Hours: %s\nActual Hours: %s\n"
-                        "Projects: %s" %
+                        "User Mentor: %s\nEmployee ID: %s\nProjects: \n%s" %
                         (self.name, self.rank, self.pay, self.team,
-                         self.mentor, self.employee_id, self.desired_hours, self.actual_hours, self.print_projects()))
+                         self.mentor, self.employee_id, self.print_projects()))
         return print_string
 
     # print_projects: Prints a Users projects using projects.print_project for each Project object
@@ -58,12 +54,23 @@ class User:
         try:
             projects_string = ""
 
-            for project in self.projects:
+            for project in self.projects.keys():
                 projects_string += project.title + "\n"
 
             return projects_string
         except:
             print("Failed to print projects")
+
+    # addProject: adds a project to the dict with projected hours
+    # ARGS: self (object.User), project (object.Project), projected_hours (int)
+    # RETURNS: None
+    def addProject(self, project, projected_hours):
+        if project in self.projects.keys():
+            current_list = self.projects[project]
+            current_list[0] = projected_hours
+            self.projects[project] = current_list
+        else:
+            self.projects[project] = (projected_hours, "NA")
 
 
 class Project:

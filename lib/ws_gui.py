@@ -317,14 +317,8 @@ class NewUserGUI(QWidget):
     # Parent window
     parent_window = ""
 
-    # Popup project selection window
-    project_window = ""
-
     # Var for whether box has been edited
     box_edited = False
-
-    # List of projects for the new user
-    user_projects = []
 
     # __init__: Initializes the NewUserGUI window
     # ARGS: self (QWidget)
@@ -390,29 +384,6 @@ class NewUserGUI(QWidget):
         hbox_team.addWidget(team_label)
         hbox_team.addWidget(team_edit)
 
-        # Desired hours label and editor LEFT
-        hbox_desired_hours = QHBoxLayout()
-        desired_hours_label = QLabel("Desired Hours:")
-        desired_hours_edit = QLineEdit()
-        desired_hours_edit.textEdited.connect(self.boxEdited)
-        desired_hours_edit.setObjectName("user_desired_hours")
-        hbox_desired_hours.addWidget(desired_hours_label)
-        hbox_desired_hours.addWidget(desired_hours_edit)
-
-        # Actual hours label and editor RIGHT
-        hbox_actual_hours = QHBoxLayout()
-        actual_hours_label = QLabel("Actual Hours:")
-        actual_hours_edit = QLineEdit()
-        actual_hours_edit.textEdited.connect(self.boxEdited)
-        actual_hours_edit.setObjectName("user_actual_hours")
-        hbox_actual_hours.addWidget(actual_hours_label)
-        hbox_actual_hours.addWidget(actual_hours_edit)
-
-        # Projects (drop down box?) maybe new window with qlist and clicking to add? LEFT
-        hbox_project = QHBoxLayout()
-        project_button = QPushButton("Projects")
-        project_button.clicked.connect(self.projectMenu)
-        hbox_project.addWidget(project_button)
 
         # Mentor label and editor RIGHT
         hbox_mentor = QHBoxLayout()
@@ -436,15 +407,12 @@ class NewUserGUI(QWidget):
         leftColumnBox = QVBoxLayout()
         leftColumnBox.addLayout(hbox_name)
         leftColumnBox.addLayout(hbox_rank)
-        leftColumnBox.addLayout(hbox_desired_hours)
         leftColumnBox.addLayout(hbox_id)
-        leftColumnBox.addLayout(hbox_project)
 
         # Box for right side column
         rightColumnBox = QVBoxLayout()
         rightColumnBox.addLayout(hbox_pay)
         rightColumnBox.addLayout(hbox_team)
-        rightColumnBox.addLayout(hbox_actual_hours)
         rightColumnBox.addLayout(hbox_mentor)
 
         # Box to hold columns
@@ -478,12 +446,8 @@ class NewUserGUI(QWidget):
             team = self.findChild(QLineEdit, "user_team").text()
             mentor = self.findChild(QLineEdit, "user_mentor").text()
             employee_id = self.findChild(QLineEdit, "user_id").text()
-            desired_hours = self.findChild(QLineEdit, "user_desired_hours").text()
-            actual_hours = self.findChild(QLineEdit, "user_actual_hours").text()
             # Place holder for projects, needs more fleshing out
-            projects = self.user_projects
-            self.made_user = object.User(name, pay, rank, team, mentor, employee_id, projects,
-                                         desired_hours, actual_hours)
+            self.made_user = object.User(name, pay, rank, team, mentor, employee_id)
             self.parent_window.userList.append(self.made_user)
             self.parent_window.updateUserList()
             self.saved = True
@@ -515,13 +479,6 @@ class NewUserGUI(QWidget):
             else:
                 event.ignore()
 
-    # projectMenu: Opens a new window for managing a users projects
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def projectMenu(self):
-        self.project_window = AddProjectsGUI()
-        self.project_window.initUI(self.parent_window.projectList, self)
-
     # boxEdited: Changes the state of box_edited when any text is edited
     # ARGS: self (QWidget)
     # RETURNS: None
@@ -550,6 +507,7 @@ class NewProjectGUI(QWidget):
         self.show()
 
 
+# DEPRECIATED
 class AddProjectsGUI(QWidget):
     # List of projects at time of opening
     project_list = []
