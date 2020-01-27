@@ -40,7 +40,7 @@ class User:
 
     # print_user: Makes a string of the information for the selected user in a formatted fashion
     # ARGS: self (User)
-    # RETURNS: None
+    # RETURNS: print_string (String)
     def print_user(self):
         print_string = ("User Name: %s\nUser Rank: %s\n"
                         "User Pay: %s \nUser Team: %s\n"
@@ -53,14 +53,17 @@ class User:
 
     # print_projects: Prints a Users projects using projects.print_project for each Project object
     # ARGS: self (User)
-    # RETURNS: None
+    # RETURNS: projects_string (String)
     def print_projects(self):
-        projects_string = ""
+        try:
+            projects_string = ""
 
-        for project in self.projects:
-            projects_string += project.title + "\n"
+            for project in self.projects:
+                projects_string += project.title + "\n"
 
-        return projects_string
+            return projects_string
+        except:
+            print("Failed to print projects")
 
 
 class Project:

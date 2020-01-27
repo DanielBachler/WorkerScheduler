@@ -22,8 +22,8 @@ app = None
 
 
 def main():
-    userList = tempUserList()
     projectList = tempProjectList()
+    userList = tempUserList(projectList)
     ex = ws_gui.Main_UI()
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
@@ -34,10 +34,10 @@ def main():
 
 
 # METHOD FOR TESTING
-def tempUserList():
-    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "2460239", ("Work Scheduler", "Robotics"), 20, 18)
-    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1", ("Work Scheduler", "Test"), 69, 96)
-    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2", ("Work Scheduler", "Robotics"), 40, 0)
+def tempUserList(project_list):
+    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "2460239", (project_list[1], project_list[2]), 20, 18)
+    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1", (project_list[0], project_list[2]), 69, 96)
+    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2", (project_list[3], project_list[2]), 40, 0)
     tempList = [userBrendan, userDan, userJesse]
     return tempList
 

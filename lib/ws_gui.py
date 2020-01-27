@@ -13,6 +13,8 @@
 #   NewProjectGUI: add forms (Jesse)
 #   Overall: Master Project list not tied to database for testing, add to main UI
 #   MainUI: Add switching between view modes
+#   Projects: Add overall hours as per Ed's request
+#   Users: Remove hours as currently implemented and change to dictionary with projects as keys?
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -33,6 +35,9 @@ class Main_UI(QMainWindow):
     # Class global vars for sub windows
     newUserWindow = ""
     newProjectWindow = ""
+
+    # View variable, F = users, T = projects
+    view = False
 
     # __init__: Initializes the main UI
     # ARGS: self (QMainWindow)
@@ -125,20 +130,20 @@ class Main_UI(QMainWindow):
 
         # Panes
         # Pane left
-        employees = QListWidget()
-        for i in range(0, len(self.userList)):
-            employees.addItem(self.userList[i].name)
-        vboxL.addWidget(employees)
+        left_view = QListWidget()
+        left_view.setObjectName("left_view")
+        vboxL.addWidget(left_view)
 
         # Pane Right
-        employee = QTextEdit()
-        employee.setFixedHeight(employees.height())
-        employee.setAlignment(Qt.AlignLeft)
-        employee.setReadOnly(True)
-        vboxR.addWidget(employee)
+        right_view = QTextEdit()
+        right_view.setObjectName("right_view")
+        right_view.setFixedHeight(left_view.height())
+        right_view.setAlignment(Qt.AlignLeft)
+        right_view.setReadOnly(True)
+        vboxR.addWidget(right_view)
 
         # Update box when new employee selected
-        employees.itemClicked.connect(self.newSelected)
+        left_view.itemClicked.connect(self.newSelected)
 
         # Search
 
@@ -166,6 +171,7 @@ class Main_UI(QMainWindow):
 
         centralWidget.setLayout(hbox)
 
+        self.change_view()
         self.center()
         self.statusBar().showMessage('Ready')
         self.setGeometry(300, 300, size[0], size[1])
@@ -190,12 +196,22 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow), item (a QListWidget List item)
     # RETURNS: None
     def newSelected(self, item):
+        # Get right_view object
+        right_view = self.centralWidget().findChild(QTextEdit, "right_view")
         name = item.text()
-        selected_user = ""
-        for user in self.userList:
-            if user.name == name:
-                selected_user = user
-        self.centralWidget().findChild(QTextEdit).setText(selected_user.print_user())
+        selected_object = ""
+        if self.view:
+            selected_project = object.Project
+            for project in self.projectList:
+                if project.title == name:
+                    selected_object = project
+            right_view.setText(selected_object.print_project())
+        else:
+            selected_user = object.User
+            for user in self.userList:
+                if user.name == name:
+                    selected_object = user
+            right_view.setText(selected_object.print_user())
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -242,26 +258,50 @@ class Main_UI(QMainWindow):
         self.newProjectWindow = NewProjectGUI()
         self.newProjectWindow.initUI(self)
 
-    # updateUserList: Updates the QListWidget when new user is added or user is edited
+    # updateUserList: Updates the QListWidget when a new item is added or item is edited
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def updateUserList(self):
-        templist = self.findChild(QListWidget)
-        templist.clear()
-        for i in range(0, len(self.userList)):
-            templist.addItem(self.userList[i].name)
+        # Get right_view object
+        left_view = self.findChild(QListWidget)
+        left_view.clear()
+
+        # Add item based on which view is selected
+        if self.view:
+            for project in self.projectList:
+                left_view.addItem(project)
+        else:
+            for user in self.userList:
+                left_view.addItem(user)
 
     # switch_user_view: Changes the main UI to show users
     # ARGS: self (QMainWindow),
     # RETURNS: None
     def switch_user_view(self):
-        print("Switch to user view")
+        self.view = False
+        self.change_view()
 
     # switch_project_view: Changes the main UI to show projects
     # ARGS: self (QMainWindow)
     # RETURNS:
     def switch_project_view(self):
-        print("Switch to project view")
+        self.view = True
+        self.change_view()
+
+    # change_view: Changes the currently displayed items in Main UI based on view var
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def change_view(self):
+        # Get the left_view object
+        left_view = self.centralWidget().findChild(QListWidget, "left_view")
+        if self.view:
+            left_view.clear()
+            for project in self.projectList:
+                left_view.addItem(project.title)
+        else:
+            left_view.clear()
+            for user in self.userList:
+                left_view.addItem(user.name)
 
 
 class NewUserGUI(QWidget):
