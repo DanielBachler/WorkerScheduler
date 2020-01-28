@@ -7,6 +7,8 @@
 ## object.py
 ## User and Project Object Container for Work Scheduler
 
+from datetime import date
+
 if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
@@ -21,7 +23,7 @@ class User:
     employee_id = ""
     desired_hours = ""
     actual_hours = ""
-    # Dict with project titles as keys, values are lists with first value as projected hours, second as actual hours
+    # Dict with project titles as keys, values are UserProject objects
     projects = {}
 
     # __init__: Initializes a given user
@@ -61,6 +63,8 @@ class User:
         except:
             print("Failed to print projects")
 
+    # TODO: Fix with new UserProject object
+
     # addProject: adds a project to the dict with projected hours
     # ARGS: self (object.User), project (object.Project), projected_hours (int)
     # RETURNS: None
@@ -73,12 +77,50 @@ class User:
             self.projects[project] = (projected_hours, "NA")
 
 
+class UserProject:
+    billing_code = ""
+    projected_hours = 0
+    # Default is none, to differentiate from desired of 0
+    desired_hours = None
+    actual_hours = 0
+    # Dict of past hours by year, keys are years values are ints
+    past_actual_hours = {}
+    past_planned_hours = {}
+
+    # __init__: Initializes a user project
+    # ARGS:
+    # Returns: self (object.UserProject)
+    def __init__(self):
+        pass
+
+    # planned_vs_desired: Calculates the planned vs desired hours diff
+    # ARGS: self (object.UserProject)
+    # RETURNS: (int)
+    def planned_vs_desired(self):
+        return self.projected_hours - self.desired_hours
+
+    # actual_vs_planned: Calculates the actual vs planned hours diff
+    # ARGS: self (object.UserProject)
+    # RETURNS: (int)
+    def actual_vs_planned(self):
+        return self.actual_hours - self.projected_hours
+
+    # actual_vs_desired: Calculates the actual vs desired diff
+    # ARGS: self (object.UserProject)
+    # RETURNS: (int)
+    def actual_vs_desired(self):
+        return self.actual_hours - self.desired_hours
+
+
 class Project:
-    expected_hours = ""
+    expected_hours = 0
     billing_code = ""
     hours_edit_date = ""
     title = ""
     users = []
+    # Dict of past hours by year, keys are years values are ints
+    past_actual_hours = {}
+    past_planned_hours = {}
 
     # __init__: Initializes a given project
     # ARGS: self (Project), expected_hours (String), billing_code (String), title (String)
@@ -87,6 +129,8 @@ class Project:
         self.expected_hours = expected_hours
         self.billing_code = billing_code
         self.title = title
+        # To print: self.hours_edit_date.strftime("%b-%d-%Y")
+        self.hours_edit_date = date.today()
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)

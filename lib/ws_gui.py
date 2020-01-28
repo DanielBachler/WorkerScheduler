@@ -10,9 +10,8 @@
 
 # TODO:
 #   NewUserGUI:
-#   NewProjectGUI: add forms (Jesse)
+#   NewProjectGUI: add forms, functionality
 #   Overall: Master Project list not tied to database for testing, add to main UI
-#   MainUI: Add switching between view modes
 #   Projects: Add overall hours as per Ed's request
 #   Users: Remove hours as currently implemented and change to dictionary with projects as keys?
 
@@ -503,8 +502,28 @@ class NewProjectGUI(QWidget):
     # ARGS: self (QWidget), main_window (QMainWindow)
     # RETURNS: None
     def initUI(self, main_window):
+        # Set parent window
         self.main_window = main_window
 
+        # FORMS
+
+        # Billing Code: LEFT
+
+        # Expected Hours: RIGHT
+
+        # Title: LEFT
+
+        # Users button: RIGHT
+
+        # BOXES
+
+        # Put into left and right boxes
+
+        # Put into main box
+
+        # Set Layout
+        
+        # init geometry and show
         self.setGeometry(300, 300, 500, 500)
         self.setWindowTitle('New Project Form')
         self.setWindowIcon(QIcon("icon.png"))
