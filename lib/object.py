@@ -114,7 +114,8 @@ class UserProject:
 
 class Project:
     expected_hours = 0
-    billing_code = ""
+    # Needs to be list since some projects can have multiple billing codes
+    billing_code = []
     hours_edit_date = ""
     title = ""
     users = []

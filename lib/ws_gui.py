@@ -9,11 +9,12 @@
 ## GUI Wrapper for Work Scheduler
 
 # TODO:
-#   NewUserGUI:
-#   NewProjectGUI: add forms, functionality
+#   NewUserGUI: Change rank to drop down and add Admin edit ability for list
+#   NewProjectGUI: add forms, functionality (Billing code needs to be multiple entry form)
 #   Overall: Master Project list not tied to database for testing, add to main UI
-#   Projects: Add overall hours as per Ed's request
+#   Projects: Modify to meet Ed's updated reqs
 #   Users: Remove hours as currently implemented and change to dictionary with projects as keys?
+#   Overall: Keep ranks as list in database
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -34,6 +35,11 @@ class Main_UI(QMainWindow):
     # Class global vars for sub windows
     newUserWindow = ""
     newProjectWindow = ""
+    # List of available ranks pulled from database
+    rank_list = []
+
+    # If current user is admin, debug set to TRUE
+    admin = True
 
     # View variable, F = users, T = projects
     view = False
@@ -64,9 +70,12 @@ class Main_UI(QMainWindow):
     # initUI: Creates the UI for the main UI
     # ARGS: self (QMainWindow), userList (List[User]), projectList (List[Project])
     # RETURNS: None
-    def initUI(self, userList, projectList):
+    def initUI(self, userList, projectList, rank_list):
+        # Init global vars
         self.userList = userList
         self.projectList = projectList
+        self.rank_list = rank_list
+
         size = (600, 600)
         # Setup main display: Pane of worker names to chose (left), pane showing selected worker info (right),
         # menu: exit, add new user (new window),
@@ -111,6 +120,16 @@ class Main_UI(QMainWindow):
         # Add actions to project menu
         projectMenu.addAction(newProjectAction)
         projectMenu.addAction(switchViewProject)
+
+        # Admin menu, only create if user is admin rank
+        if self.admin:
+            # Menu bar item
+            adminMenu = menubar.addMenu("Admin")
+            # Actions
+            add_rank = QAction("Add new rank", self)
+            add_rank.triggered.connect(self.addRank)
+            # Add actions
+            adminMenu.addAction(add_rank)
 
         ## Contents of central widget
 
@@ -302,6 +321,14 @@ class Main_UI(QMainWindow):
             for user in self.userList:
                 left_view.addItem(user.name)
 
+    # addRank: adds a new rank to the rank list
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def addRank(self):
+        rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
+        if okPressed and rank != "":
+            self.rank_list.append(rank)
+            
 
 class NewUserGUI(QWidget):
     # Temp var to hold made user
@@ -365,14 +392,29 @@ class NewUserGUI(QWidget):
         hbox_pay.addWidget(pay_label)
         hbox_pay.addWidget(pay_edit)
 
-        # Rank label and editor LEFT
-        hbox_rank = QHBoxLayout()
-        rank_label = QLabel("Rank:")
-        rank_edit = QLineEdit()
-        rank_edit.textEdited.connect(self.boxEdited)
-        rank_edit.setObjectName("user_rank")
-        hbox_rank.addWidget(rank_label)
-        hbox_rank.addWidget(rank_edit)
+        # TODO: Change to QComboBox
+
+        # Rank Combo box: LEFT
+        try:
+            hbox_rank = QHBoxLayout()
+            rank_label = QLabel("Rank:")
+            rank_edit = QComboBox()
+            rank_edit.setObjectName("user_rank")
+            # Set changed command
+            rank_edit.activated.connect(self.boxEdited)
+            hbox_rank.addWidget(rank_label)
+            hbox_rank.addWidget(rank_edit)
+        except Exception as e:
+            print(e)
+
+        # # Rank label and editor LEFT
+        # hbox_rank = QHBoxLayout()
+        # rank_label = QLabel("Rank:")
+        # rank_edit = QLineEdit()
+        # rank_edit.textEdited.connect(self.boxEdited)
+        # rank_edit.setObjectName("user_rank")
+        # hbox_rank.addWidget(rank_label)
+        # hbox_rank.addWidget(rank_edit)
 
         # Team label and editor RIGHT
         hbox_team = QHBoxLayout()
@@ -382,7 +424,6 @@ class NewUserGUI(QWidget):
         team_edit.setObjectName("user_team")
         hbox_team.addWidget(team_label)
         hbox_team.addWidget(team_edit)
-
 
         # Mentor label and editor RIGHT
         hbox_mentor = QHBoxLayout()
@@ -428,6 +469,9 @@ class NewUserGUI(QWidget):
         # Add to the main widget
         self.setLayout(mainVertBox)
 
+        # Populate combo box
+        self.updateRankBox()
+
         # Finalize self
         self.setGeometry(300, 300, 300, 500)
         self.setWindowTitle('New User Form')
@@ -442,7 +486,7 @@ class NewUserGUI(QWidget):
                 # Save the entered user in the fields, checks?
                 name = self.findChild(QLineEdit, "user_name").text()
                 pay = self.findChild(QLineEdit, "user_pay").text()
-                rank = self.findChild(QLineEdit, "user_rank").text()
+                rank = self.findChild(QComboBox, "user_rank").currentText()
                 team = self.findChild(QLineEdit, "user_team").text()
                 mentor = self.findChild(QLineEdit, "user_mentor").text()
                 employee_id = self.findChild(QLineEdit, "user_id").text()
@@ -488,6 +532,19 @@ class NewUserGUI(QWidget):
     def boxEdited(self):
         self.box_edited = True
 
+    # updateRankBox: updates the rank combo box if new item is added
+    # ARGS: None
+    # RETURNS: None
+    def updateRankBox(self):
+        # Get combo box object
+        rank_edit = self.findChild(QComboBox, "user_rank")
+        # Clear existing entries
+        rank_edit.clear()
+        # Repopulate
+        rank_edit.addItem("")
+        for rank in self.parent_window.rank_list:
+            rank_edit.addItem(rank)
+
 
 class NewProjectGUI(QWidget):
     main_window = ""
@@ -522,7 +579,7 @@ class NewProjectGUI(QWidget):
         # Put into main box
 
         # Set Layout
-        
+
         # init geometry and show
         self.setGeometry(300, 300, 500, 500)
         self.setWindowTitle('New Project Form')
