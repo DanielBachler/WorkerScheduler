@@ -170,7 +170,7 @@ class Main_UI(QMainWindow):
         # Buttons under right pane for selected employee
         deleteSelectedUser = QPushButton('Delete User')
         deleteSelectedUser.setToolTip('This button will permanently delete the selected employee from the database')
-        deleteSelectedUser.clicked.connect(self.deletedSelectedUserFunc)
+        deleteSelectedUser.clicked.connect(self.deletedSelectedFunc)
         employeeHBox.addWidget(deleteSelectedUser)
 
         # Edit user button
@@ -249,7 +249,7 @@ class Main_UI(QMainWindow):
     # deleteSelectedUserFunc: Deletes the user passed to it, called by the delete button on main GUI panel
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    def deletedSelectedUserFunc(self):
+    def deletedSelectedFunc(self):
         currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
         print("Deleting " + currentUser)
 
@@ -273,8 +273,12 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def makeNewProject(self):
-        self.newProjectWindow = NewProjectGUI()
-        self.newProjectWindow.initUI(self)
+        try:
+            self.newProjectWindow = NewProjectGUI()
+            self.newProjectWindow.initUI(self)
+            self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
+        except Exception as e:
+            print(e)
 
     # updateUserList: Updates the QListWidget when a new item is added or item is edited
     # ARGS: self (QMainWindow)
@@ -391,8 +395,6 @@ class NewUserGUI(QWidget):
         pay_edit.setObjectName("user_pay")
         hbox_pay.addWidget(pay_label)
         hbox_pay.addWidget(pay_edit)
-
-        # TODO: Change to QComboBox
 
         # Rank Combo box: LEFT
         try:
@@ -548,6 +550,8 @@ class NewUserGUI(QWidget):
 
 class NewProjectGUI(QWidget):
     main_window = ""
+    # If boxes have been edited
+    edited = False
 
     # __init__: Initializes the NewProjectGUI
     # ARGS: self (QWidget)
@@ -562,29 +566,92 @@ class NewProjectGUI(QWidget):
         # Set parent window
         self.main_window = main_window
 
+        # BUTTONS
+
+        # Save button
+
+        # Cancel button
+
         # FORMS
 
-        # Billing Code: LEFT
+        # Billing Codes: LEFT
+        billing_label = QLabel("Billing code(s)\nseparated by comma:")
+        billing_input = QLineEdit()
+        billing_input.setObjectName("billing_input")
+        billing_input.textEdited.connect(self.isEdited)
+        billing_box = QHBoxLayout()
+        billing_box.addWidget(billing_label)
+        billing_box.addWidget(billing_input)
 
         # Expected Hours: RIGHT
+        expected_hours_label = QLabel("Expected Project Hours:")
+        expected_hours_input = QLineEdit()
+        expected_hours_input.setObjectName("expected_hours_input")
+        expected_hours_input.textEdited.connect(self.isEdited)
+        expected_hours_box = QHBoxLayout()
+        expected_hours_box.addWidget(expected_hours_label)
+        expected_hours_box.addWidget(expected_hours_input)
 
         # Title: LEFT
+        title_label = QLabel("Title:")
+        title_input = QLineEdit()
+        title_input.setObjectName("title_input")
+        title_input.textEdited.connect(self.isEdited)
+        title_box = QHBoxLayout()
+        title_box.addWidget(title_label)
+        title_box.addWidget(title_input)
 
-        # Users button: RIGHT
+        # Description RIGHT
+        description_label = QLabel("Description:")
+        description_input = QTextEdit()
+        description_input.setObjectName("description_input")
+        description_input.textChanged.connect(self.isEdited)
+        description_box = QHBoxLayout()
+        description_box.addWidget(description_label)
+        description_box.addWidget(description_input)
 
-        # BOXES
+        # Users button: LEFT
+        user_button = QPushButton("Add Users")
+        user_button.clicked.connect(self.addUsers)
+        user_box = QHBoxLayout()
+        user_box.addWidget(user_button)
+
+        # Boxes for left and right side
+        left_V_box = QVBoxLayout()
+        right_V_box = QVBoxLayout()
 
         # Put into left and right boxes
+        left_V_box.addLayout(billing_box)
+        right_V_box.addLayout(expected_hours_box)
+        left_V_box.addLayout(title_box)
+        right_V_box.addLayout(description_box)
+        left_V_box.addLayout(user_box)
 
         # Put into main box
+        main_box = QHBoxLayout()
+        main_box.addLayout(left_V_box)
+        main_box.addLayout(right_V_box)
 
         # Set Layout
+        self.setLayout(main_box)
 
         # init geometry and show
         self.setGeometry(300, 300, 500, 500)
         self.setWindowTitle('New Project Form')
         self.setWindowIcon(QIcon("icon.png"))
         self.show()
+
+    # isEdited: Changes state of self.edited if any forms are modified
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def isEdited(self):
+        self.edited = True
+
+    # addUsers: Form to add users to project and set times
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def addUsers(self):
+        pass
 
 
 # DEPRECIATED

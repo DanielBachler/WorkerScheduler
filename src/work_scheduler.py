@@ -46,10 +46,10 @@ def tempUserList(project_list):
 
 # METHOD FOR TESTING
 def tempProjectList():
-    project1 = object.Project("14", "317", "Johnson Project")
-    project2 = object.Project("24", "219", "Fairweather Account")
-    project3 = object.Project("12", "519", "Beckham Account")
-    project4 = object.Project("120", "Geralt", "Rivea Project")
+    project1 = object.Project( "Johnson Project", "A Description", ["317"], 14)
+    project2 = object.Project("Fairweather Account", "A Description", ["219"], 24)
+    project3 = object.Project("Beckham Account", "A Description", ["5656"], 12)
+    project4 = object.Project("Rivea Project", "A Description", ["555"], 120)
     projectList = [project1, project2, project3, project4]
     return projectList
 

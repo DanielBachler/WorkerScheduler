@@ -115,39 +115,51 @@ class UserProject:
 class Project:
     expected_hours = 0
     # Needs to be list since some projects can have multiple billing codes
-    billing_code = []
+    billing_codes = []
     hours_edit_date = ""
     title = ""
+    description = ""
     users = []
     # Dict of past hours by year, keys are years values are ints
     past_actual_hours = {}
     past_planned_hours = {}
 
     # __init__: Initializes a given project
-    # ARGS: self (Project), expected_hours (String), billing_code (String), title (String)
+    # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String]), users (List[String?])
     # RETURNS: Project
-    def __init__(self, expected_hours, billing_code, title):
+    def __init__(self, title, description, billing_code, expected_hours, users=[]):
         self.expected_hours = expected_hours
-        self.billing_code = billing_code
+        self.billing_codes = billing_code
         self.title = title
         # To print: self.hours_edit_date.strftime("%b-%d-%Y")
         self.hours_edit_date = date.today()
+        self.users = users
+        self.description = description
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
     # RETURNS: None
     def print_project(self):
-        print_string = ("Title: %s\nBilling Code: %s\nExpected Hours: %s\n"
+        print_string = ("Title: %s\nDescription: %s\nBilling Code: %s\nExpected Hours: %s\n"
                         "Date of Last Edit: %s\nAssigned Employees: %s" %
-                        (self.title, self.billing_code, self.expected_hours, self.hours_edit_date,
-                         self.print_users()))
+                        (self.title, self.description, self.printBillingCodes(), self.expected_hours,
+                         self.hours_edit_date.strftime("%b-%d-%Y"), self.print_users()))
         return print_string
 
     # print_users: Makes a formatted string for the users assigned to a project
     # ARGS: self (Project)
-    # RETURNS: None
+    # RETURNS: user_string (String)
     def print_users(self):
         user_string = ""
         for user in self.users:
             user_string += user.name + "\n"
         return user_string
+
+    # printBillingCodes: creates a formatted string of the assigned billing codes
+    # ARGS: self (object.Project)
+    # RETURNS: codes (String)
+    def printBillingCodes(self):
+        codes = ""
+        for code in self.billing_codes:
+            codes += code + "\n"
+        return codes
