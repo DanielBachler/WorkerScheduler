@@ -569,8 +569,17 @@ class NewProjectGUI(QWidget):
         # BUTTONS
 
         # Save button
+        save_button = QPushButton("Save")
+        save_button.clicked.connect(self.save)
 
         # Cancel button
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.close)
+
+        # Button box
+        button_box = QHBoxLayout()
+        button_box.addWidget(save_button)
+        button_box.addWidget(cancel_button)
 
         # FORMS
 
@@ -632,8 +641,13 @@ class NewProjectGUI(QWidget):
         main_box.addLayout(left_V_box)
         main_box.addLayout(right_V_box)
 
+        # Main V Box
+        final_box = QVBoxLayout()
+        final_box.addLayout(main_box)
+        final_box.addLayout(button_box)
+
         # Set Layout
-        self.setLayout(main_box)
+        self.setLayout(final_box)
 
         # init geometry and show
         self.setGeometry(300, 300, 500, 500)
@@ -653,224 +667,249 @@ class NewProjectGUI(QWidget):
     def addUsers(self):
         pass
 
+    #
+    #
+    #
+    def save(self):
+        pass
+
+    # closeEvent: Changes the default closing behavior by overriding the base method
+    # ARGS: self (QMainWindow), event (a QEvent) which is in this case is one of the closing events
+    # RETURNS: none
+    def closeEvent(self, event):
+        if self.isEdited():
+            temp = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel project creation?',
+                                    QMessageBox.Yes | QMessageBox.No | QMessageBox.Save, QMessageBox.No)
+        else:
+            event.accept()
+            return
+
+        if temp == QMessageBox.Yes:
+            event.accept()
+        elif temp == QMessageBox.Save:
+            self.save()
+            event.accept()
+        else:
+            event.ignore()
+
 
 # DEPRECIATED
-class AddProjectsGUI(QWidget):
-    # List of projects at time of opening
-    project_list = []
-
-    # List of projects to assign
-    to_assign = []
-
-    # Parent window
-    parent_window = ""
-
-    # Currently selected item
-    selected_item_all = ""
-    selected_item_user = ""
-
-    # __init__: Initializes the AddProjectGUI window
-    # ARGS: self (QWidget)
-    # RETURNS: QWidget
-    def __init__(self):
-        super().__init__()
-
-    # initUI: Creates the initial UI for Add Projects window
-    # ARGS: self (QWidget), project_list (List[Project]), parent_window (QWidget)
-    # RETURNS: None
-    def initUI(self, project_list, parent_window):
-        # Populate project_list
-        self.project_list = project_list
-        self.parent_window = parent_window
-
-        # Left Top Panel displaying existing projects
-        existing_projects_label = QLabel("All Projects")
-        existing_projects = QListWidget()
-        existing_projects.itemClicked.connect(self.updateAllProjects)
-        existing_projects.setObjectName("existing_projects")
-
-        # Box for panel and label
-        existing_projects_box = QVBoxLayout()
-        existing_projects_box.addWidget(existing_projects_label)
-        existing_projects_box.addWidget(existing_projects)
-
-        # Left Bottom panel displaying selected project info
-        existing_selected_label = QLabel("Selected Project Details")
-        existing_selected = QTextEdit()
-        existing_selected.setObjectName("existing_selected")
-
-        # Box for panel and label
-        existing_selected_box = QVBoxLayout()
-        existing_selected_box.addWidget(existing_selected_label)
-        existing_selected_box.addWidget(existing_selected)
-
-        # V Box for left panels
-        left_panel_box = QVBoxLayout()
-        left_panel_box.addLayout(existing_projects_box)
-        left_panel_box.addLayout(existing_selected_box)
-
-        # Right panel displaying projects owned by current user
-        assigned_projects_label = QLabel("Projects Assigned to User")
-        assigned_projects = QListWidget()
-        assigned_projects.itemClicked.connect(self.updateUserProjects)
-        assigned_projects.setObjectName("assigned_projects")
-
-        # Box for top right panel
-        assigned_projects_box = QVBoxLayout()
-        assigned_projects_box.addWidget(assigned_projects_label)
-        assigned_projects_box.addWidget(assigned_projects)
-
-        # Right bottom panel displaying selected project info
-        assigned_selected_label = QLabel("Selected Project Details")
-        assigned_selected = QTextEdit()
-        assigned_selected.setObjectName("assigned_selected")
-
-        # Box for bottom right panel and label
-        assigned_selected_box = QVBoxLayout()
-        assigned_selected_box.addWidget(assigned_selected_label)
-        assigned_selected_box.addWidget(assigned_selected)
-
-        # V Box for right panels
-        right_panel_box = QVBoxLayout()
-        right_panel_box.addLayout(assigned_projects_box)
-        right_panel_box.addLayout(assigned_selected_box)
-
-        # H Box for panel boxes
-        panel_box = QHBoxLayout()
-        panel_box.addLayout(left_panel_box)
-        panel_box.addLayout(right_panel_box)
-
-        # Button for adding project to user
-        add_to_user = QPushButton("Add")
-        add_to_user.clicked.connect(self.addToUser)
-
-        # Button to save project list
-        save_to_user = QPushButton("Save")
-        save_to_user.clicked.connect(self.saveToUser)
-
-        # Button to cancel window
-        cancel_window = QPushButton("Cancel")
-        cancel_window.clicked.connect(self.close)
-
-        # Button for removing project from user
-        remove_from_user = QPushButton("Remove")
-        remove_from_user.clicked.connect(self.removeFromUser)
-
-        # H Box for buttons
-        button_box = QHBoxLayout()
-        button_box.addWidget(add_to_user)
-        button_box.addWidget(save_to_user)
-        button_box.addWidget(cancel_window)
-        button_box.addWidget(remove_from_user)
-
-        # Box to hold everything
-        main_box = QVBoxLayout()
-        main_box.addLayout(panel_box)
-        main_box.addLayout(button_box)
-
-        # Set layout to main layout
-        self.setLayout(main_box)
-
-        # Setup functions
-        self.initLists()
-
-        self.setGeometry(300, 300, 500, 500)
-        self.setWindowTitle('Add Project to User')
-        self.setWindowIcon(QIcon("icon.png"))
-        self.show()
-
-    # addToUser: Adds the currently selected project of existing_projects to the user
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def addToUser(self):
-        # Get project object
-        real_project = self.getProject(self.selected_item_all.text(), self.project_list)
-
-        # Run updates for various widgets and lists
-        self.to_assign.append(real_project)
-        self.updateUserProjects(self.selected_item_all)
-        self.updateUserProjectsList()
-
-    # removeFromUser: Removes the selected project in assigned_projects from the user
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def removeFromUser(self):
-        # Get project object
-        selected_project = self.getProject(self.selected_item_user.text(), self.to_assign)
-
-        # Remove from list
-        self.to_assign.remove(selected_project)
-        self.updateUserProjectsList()
-
-    # saveToUser: saves the selected project list to the user
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def saveToUser(self):
-        self.parent_window.user_projects = self.to_assign
-        self.close()
-
-    # initLists: Populates the two QListWidgets with the appropriate information
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def initLists(self):
-        # Get the QLists to update
-        existing_projects = self.findChild(QListWidget, "existing_projects")
-
-        # Populate existing projects
-        for project in self.project_list:
-            existing_projects.addItem(project.title)
-
-    # updateAllProjects:
-    # ARGS: self (QWidget), item (QListWidget item)
-    # RETURNS: None
-    def updateAllProjects(self, item):
-        self.selected_item_all = item
-
-        # Get text window
-        text_window = self.findChild(QTextEdit, "existing_selected")
-
-        # Find the project
-        selected_project = self.getProject(item.text(), self.project_list)
-
-        # Set text
-        text_window.setText(selected_project.print_project())
-
-    # updateUserProjects:
-    # ARGS: self (QWidget), item (QListWidget item)
-    # RETURNS: None
-    def updateUserProjects(self, item):
-        # Update highlighted item
-        self.selected_item_user = item
-
-        # Get text window
-        text_window = self.findChild(QTextEdit, "assigned_selected")
-
-        # Find the project
-        selected_project = self.getProject(item.text(), self.to_assign)
-
-        # Set text
-        text_window.setText(selected_project.print_project())
-
-    # updateUserProjectsList: Updates the list of user specific projects
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def updateUserProjectsList(self):
-        assigned_projects = self.findChild(QListWidget, "assigned_projects")
-
-        # Clear List
-        assigned_projects.clear()
-
-        # Populate
-        for project in self.to_assign:
-            assigned_projects.addItem(project.title)
-
-    # getProject: Gets the project object given the name
-    # ARGS: self (QWidget), project_name (String), project_list (List[Project])
-    # RETURNS: selected_project (Project)
-    def getProject(self, project_name, project_list):
-        selected_project = object.Project
-        for project in project_list:
-            if project.title == project_name:
-                selected_project = project
-
-        return selected_project
+# class AddProjectsGUI(QWidget):
+#     # List of projects at time of opening
+#     project_list = []
+#
+#     # List of projects to assign
+#     to_assign = []
+#
+#     # Parent window
+#     parent_window = ""
+#
+#     # Currently selected item
+#     selected_item_all = ""
+#     selected_item_user = ""
+#
+#     # __init__: Initializes the AddProjectGUI window
+#     # ARGS: self (QWidget)
+#     # RETURNS: QWidget
+#     def __init__(self):
+#         super().__init__()
+#
+#     # initUI: Creates the initial UI for Add Projects window
+#     # ARGS: self (QWidget), project_list (List[Project]), parent_window (QWidget)
+#     # RETURNS: None
+#     def initUI(self, project_list, parent_window):
+#         # Populate project_list
+#         self.project_list = project_list
+#         self.parent_window = parent_window
+#
+#         # Left Top Panel displaying existing projects
+#         existing_projects_label = QLabel("All Projects")
+#         existing_projects = QListWidget()
+#         existing_projects.itemClicked.connect(self.updateAllProjects)
+#         existing_projects.setObjectName("existing_projects")
+#
+#         # Box for panel and label
+#         existing_projects_box = QVBoxLayout()
+#         existing_projects_box.addWidget(existing_projects_label)
+#         existing_projects_box.addWidget(existing_projects)
+#
+#         # Left Bottom panel displaying selected project info
+#         existing_selected_label = QLabel("Selected Project Details")
+#         existing_selected = QTextEdit()
+#         existing_selected.setObjectName("existing_selected")
+#
+#         # Box for panel and label
+#         existing_selected_box = QVBoxLayout()
+#         existing_selected_box.addWidget(existing_selected_label)
+#         existing_selected_box.addWidget(existing_selected)
+#
+#         # V Box for left panels
+#         left_panel_box = QVBoxLayout()
+#         left_panel_box.addLayout(existing_projects_box)
+#         left_panel_box.addLayout(existing_selected_box)
+#
+#         # Right panel displaying projects owned by current user
+#         assigned_projects_label = QLabel("Projects Assigned to User")
+#         assigned_projects = QListWidget()
+#         assigned_projects.itemClicked.connect(self.updateUserProjects)
+#         assigned_projects.setObjectName("assigned_projects")
+#
+#         # Box for top right panel
+#         assigned_projects_box = QVBoxLayout()
+#         assigned_projects_box.addWidget(assigned_projects_label)
+#         assigned_projects_box.addWidget(assigned_projects)
+#
+#         # Right bottom panel displaying selected project info
+#         assigned_selected_label = QLabel("Selected Project Details")
+#         assigned_selected = QTextEdit()
+#         assigned_selected.setObjectName("assigned_selected")
+#
+#         # Box for bottom right panel and label
+#         assigned_selected_box = QVBoxLayout()
+#         assigned_selected_box.addWidget(assigned_selected_label)
+#         assigned_selected_box.addWidget(assigned_selected)
+#
+#         # V Box for right panels
+#         right_panel_box = QVBoxLayout()
+#         right_panel_box.addLayout(assigned_projects_box)
+#         right_panel_box.addLayout(assigned_selected_box)
+#
+#         # H Box for panel boxes
+#         panel_box = QHBoxLayout()
+#         panel_box.addLayout(left_panel_box)
+#         panel_box.addLayout(right_panel_box)
+#
+#         # Button for adding project to user
+#         add_to_user = QPushButton("Add")
+#         add_to_user.clicked.connect(self.addToUser)
+#
+#         # Button to save project list
+#         save_to_user = QPushButton("Save")
+#         save_to_user.clicked.connect(self.saveToUser)
+#
+#         # Button to cancel window
+#         cancel_window = QPushButton("Cancel")
+#         cancel_window.clicked.connect(self.close)
+#
+#         # Button for removing project from user
+#         remove_from_user = QPushButton("Remove")
+#         remove_from_user.clicked.connect(self.removeFromUser)
+#
+#         # H Box for buttons
+#         button_box = QHBoxLayout()
+#         button_box.addWidget(add_to_user)
+#         button_box.addWidget(save_to_user)
+#         button_box.addWidget(cancel_window)
+#         button_box.addWidget(remove_from_user)
+#
+#         # Box to hold everything
+#         main_box = QVBoxLayout()
+#         main_box.addLayout(panel_box)
+#         main_box.addLayout(button_box)
+#
+#         # Set layout to main layout
+#         self.setLayout(main_box)
+#
+#         # Setup functions
+#         self.initLists()
+#
+#         self.setGeometry(300, 300, 500, 500)
+#         self.setWindowTitle('Add Project to User')
+#         self.setWindowIcon(QIcon("icon.png"))
+#         self.show()
+#
+#     # addToUser: Adds the currently selected project of existing_projects to the user
+#     # ARGS: self (QWidget)
+#     # RETURNS: None
+#     def addToUser(self):
+#         # Get project object
+#         real_project = self.getProject(self.selected_item_all.text(), self.project_list)
+#
+#         # Run updates for various widgets and lists
+#         self.to_assign.append(real_project)
+#         self.updateUserProjects(self.selected_item_all)
+#         self.updateUserProjectsList()
+#
+#     # removeFromUser: Removes the selected project in assigned_projects from the user
+#     # ARGS: self (QWidget)
+#     # RETURNS: None
+#     def removeFromUser(self):
+#         # Get project object
+#         selected_project = self.getProject(self.selected_item_user.text(), self.to_assign)
+#
+#         # Remove from list
+#         self.to_assign.remove(selected_project)
+#         self.updateUserProjectsList()
+#
+#     # saveToUser: saves the selected project list to the user
+#     # ARGS: self (QWidget)
+#     # RETURNS: None
+#     def saveToUser(self):
+#         self.parent_window.user_projects = self.to_assign
+#         self.close()
+#
+#     # initLists: Populates the two QListWidgets with the appropriate information
+#     # ARGS: self (QWidget)
+#     # RETURNS: None
+#     def initLists(self):
+#         # Get the QLists to update
+#         existing_projects = self.findChild(QListWidget, "existing_projects")
+#
+#         # Populate existing projects
+#         for project in self.project_list:
+#             existing_projects.addItem(project.title)
+#
+#     # updateAllProjects:
+#     # ARGS: self (QWidget), item (QListWidget item)
+#     # RETURNS: None
+#     def updateAllProjects(self, item):
+#         self.selected_item_all = item
+#
+#         # Get text window
+#         text_window = self.findChild(QTextEdit, "existing_selected")
+#
+#         # Find the project
+#         selected_project = self.getProject(item.text(), self.project_list)
+#
+#         # Set text
+#         text_window.setText(selected_project.print_project())
+#
+#     # updateUserProjects:
+#     # ARGS: self (QWidget), item (QListWidget item)
+#     # RETURNS: None
+#     def updateUserProjects(self, item):
+#         # Update highlighted item
+#         self.selected_item_user = item
+#
+#         # Get text window
+#         text_window = self.findChild(QTextEdit, "assigned_selected")
+#
+#         # Find the project
+#         selected_project = self.getProject(item.text(), self.to_assign)
+#
+#         # Set text
+#         text_window.setText(selected_project.print_project())
+#
+#     # updateUserProjectsList: Updates the list of user specific projects
+#     # ARGS: self (QWidget)
+#     # RETURNS: None
+#     def updateUserProjectsList(self):
+#         assigned_projects = self.findChild(QListWidget, "assigned_projects")
+#
+#         # Clear List
+#         assigned_projects.clear()
+#
+#         # Populate
+#         for project in self.to_assign:
+#             assigned_projects.addItem(project.title)
+#
+#     # getProject: Gets the project object given the name
+#     # ARGS: self (QWidget), project_name (String), project_list (List[Project])
+#     # RETURNS: selected_project (Project)
+#     def getProject(self, project_name, project_list):
+#         selected_project = object.Project
+#         for project in project_list:
+#             if project.title == project_name:
+#                 selected_project = project
+#
+#         return selected_project
