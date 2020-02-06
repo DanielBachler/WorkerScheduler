@@ -85,6 +85,30 @@ class DB_Connection:
         # TODO: Do we want to return only a subset of the fields in employee
         return users
 
+    # Allow user to request hours
+    def user_request_hours(self):
+        pass
+
+    # Allow user to log hours
+    def user_log_hours(self):
+        pass
+
+    # Create project
+    def create_project(self):
+        pass
+
+    # Get information on a project
+    def get_project_data(self):
+        pass
+
+    # List all projects
+    def list_projects(self):
+        pass
+
+    # Remove a project
+    def delete_project(self):
+        pass
+
     # Execute database query
     def db_command(self, stmt):
         try:
