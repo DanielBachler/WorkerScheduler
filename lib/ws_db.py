@@ -46,6 +46,10 @@ class DB_Connection:
         else:
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer primary key, employee_name varchar(64), rank integer, emp_role integer, hourly_rate real);")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer primary key, project_name varchar(64), estimated_hrs real, start_date date, end_date date, rpt int);")
+            self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer primary key, team_name varchar(32));")
+            self.db_command("CREATE TABLE IF NOT EXISTS billing_codes (pid integer, code varchar(16))")
+            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer);")
+            self.db_command("CREATE TABLE IF NOT EXISTS project_assignment(eid integer, pid integer)")
             # TODO: Table for employee hours
             self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32))")
             # TODO: Table for time assignments
@@ -108,6 +112,56 @@ class DB_Connection:
     # Remove a project
     def delete_project(self):
         pass
+
+    # Add user to team
+    def add_user_to_team(self):
+        pass
+
+    # Remove user from team
+    def remove_user_from_team(self):
+        pass
+
+    # Fetch teams for a given user
+    def get_teams_for_user(self):
+        pass
+
+    # Fetch users on a given team
+    def get_users_on_team(self):
+        pass
+
+    # Associate user with project
+    def add_user_to_project(self):
+        pass
+
+    # Remove user from project
+    def remove_user_from_project(self):
+        pass
+
+    # Fetch users on a given project
+    def get_users_for_project(self):
+        pass
+
+    # Associate billing code with project
+    def add_billing_code_for_project(self):
+        pass
+
+    # Disassociate billing code from project
+    def remove_billing_code_from_project(self):
+        pass
+
+    # Return all billing codes
+    def list_all_billing_codes(self):
+        pass
+
+    # Return all projects
+    def list_all_projects(self):
+        pass
+
+    # Return all teams
+    def list_all_teams(self):
+        pass
+
+
 
     # Execute database query
     def db_command(self, stmt):
