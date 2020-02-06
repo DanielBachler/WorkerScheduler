@@ -90,13 +90,13 @@ class DB_Connection:
         try:
             self.crs.execute(stmt)
             self.cnx.commit()
-        except:
-            print("Error executing command!", stmt)
+        except Exception as e:
+            print("Error executing command", str(e), stmt)
 
     # Execute database query
     def db_query(self, stmt):
         try:
             self.crs.execute(stmt)
             return self.crs.fetchall()
-        except:
-            print("Error executing query", stmt)
+        except Exception as e:
+            print("Error executing query", str(e), stmt)
