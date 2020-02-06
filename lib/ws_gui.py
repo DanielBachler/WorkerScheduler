@@ -204,8 +204,10 @@ class Main_UI(QMainWindow):
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if temp == QMessageBox.Yes:
-            if not self.newUserWindow.isEnabled():
+            if self.newUserWindow.isEnabled():
                 self.newUserWindow.close()
+            if self.newProjectWindow.isEnabled():
+                self.newProjectWindow.close()
             event.accept()
         else:
             event.ignore()
@@ -584,7 +586,7 @@ class NewProjectGUI(QWidget):
         # FORMS
 
         # Billing Codes: LEFT
-        billing_label = QLabel("Billing code(s)\nseparated by comma:")
+        billing_label = QLabel("Billing code(s)\nseparated by\ncomma:")
         billing_input = QLineEdit()
         billing_input.setObjectName("billing_input")
         billing_input.textEdited.connect(self.isEdited)
@@ -613,6 +615,7 @@ class NewProjectGUI(QWidget):
         # Description RIGHT
         description_label = QLabel("Description:")
         description_input = QTextEdit()
+        description_input.setMaximumHeight(self.height()/4)
         description_input.setObjectName("description_input")
         description_input.textChanged.connect(self.isEdited)
         description_box = QHBoxLayout()
@@ -634,7 +637,8 @@ class NewProjectGUI(QWidget):
         right_V_box.addLayout(expected_hours_box)
         left_V_box.addLayout(title_box)
         right_V_box.addLayout(description_box)
-        left_V_box.addLayout(user_box)
+        # Removed, use on edit form
+        #left_V_box.addLayout(user_box)
 
         # Put into main box
         main_box = QHBoxLayout()
@@ -644,13 +648,14 @@ class NewProjectGUI(QWidget):
         # Main V Box
         final_box = QVBoxLayout()
         final_box.addLayout(main_box)
+        final_box.stretch(1)
         final_box.addLayout(button_box)
 
         # Set Layout
         self.setLayout(final_box)
 
         # init geometry and show
-        self.setGeometry(300, 300, 500, 500)
+        self.setGeometry(300, 300, 500, 200)
         self.setWindowTitle('New Project Form')
         self.setWindowIcon(QIcon("icon.png"))
         self.show()
@@ -661,15 +666,16 @@ class NewProjectGUI(QWidget):
     def isEdited(self):
         self.edited = True
 
+    # (NOT FOR ADD FORM, OVERRIDE ON EDIT)
     # addUsers: Form to add users to project and set times
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUsers(self):
         pass
 
-    #
-    #
-    #
+    # save: Saves the project to the list of projects
+    # ARGS: self (QWidget)
+    # RETURNS: None
     def save(self):
         pass
 

@@ -19,12 +19,10 @@ class User:
     pay = ""
     rank = ""
     team = ""
-    mentor = ""
+    mentor = None
     employee_id = ""
-    desired_hours = ""
-    actual_hours = ""
     # Dict with project titles as keys, values are UserProject objects
-    projects = {}
+    projects = []
 
     # __init__: Initializes a given user
     # ARGS: self (User), name (String), pay (String), rank (String), team (String), mentor (String),
@@ -125,7 +123,8 @@ class Project:
     past_planned_hours = {}
 
     # __init__: Initializes a given project
-    # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String]), users (List[String?])
+    # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String])
+    #       users (List[String?]) (opt)
     # RETURNS: Project
     def __init__(self, title, description, billing_code, expected_hours, users=[]):
         self.expected_hours = expected_hours
