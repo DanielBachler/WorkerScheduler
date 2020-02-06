@@ -11,15 +11,20 @@ if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
 
+import sqlite3
+
 import mysql.connector as sql
 
 from lib import CONSTANTS as K
 from lib import ws_gui
 
+DB_TYPE = sqlite3
+
 # Manages connection with mySQL database
 class DB_Connection:
 
     cnx = None
+    crs = None
 
     def __init__(self):
         pass
@@ -27,8 +32,12 @@ class DB_Connection:
     # Login to database. Store open connection
     def db_login(self, ex):
         srv_addr, uname, pw = ex.login()
-        self.cnx = sql.connect(user=uname, password=pw, host=srv_addr, database='tws')
-        print(self.cnx)
+        if DB_TYPE is sqlite3:
+            self.cnx = sqlite3.connect("ws.db")
+            self.crs = self.cnx.cursor()
+        else:
+            self.cnx = sql.connect(user=uname, password=pw, host=srv_addr, database='tws')
+            print(self.cnx)
         print("Connected to database!")
 
     def init_db(self):
