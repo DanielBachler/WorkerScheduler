@@ -51,6 +51,7 @@ class DB_Connection:
             # TODO: Table for time assignments
             # TODO: Table for roles
             # TODO: Table for access levels
+            self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'manager');")
 
     # Return a user's information
     def get_user_info(self):
@@ -64,7 +65,12 @@ class DB_Connection:
 
     # Create a database user.
     def create_user(self):
-        pass
+        eid = 0
+        name = "Bob"
+        rank = 0
+        rate = 10.0
+        stmt = "INSERT INTO employee VALUES (%d, '%s', %d, %f);" % (eid, name, rank, rate)
+        self.db_command(stmt)
 
     # Delete a database user.
     def del_user(self):
@@ -72,4 +78,8 @@ class DB_Connection:
 
     # Execute database query
     def db_command(self, stmt):
-        pass
+        try:
+            self.crs.execute(stmt)
+            self.cnx.commit()
+        except:
+            print("Error executing command!", stmt)
