@@ -47,10 +47,10 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer primary key, employee_name varchar(64), rank integer, emp_role integer, hourly_rate real);")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer primary key, project_name varchar(64), estimated_hrs real, start_date date, end_date date, rpt int);")
             # TODO: Table for employee hours
-            # TODO: Table for company info
+            self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32))")
             # TODO: Table for time assignments
-            # TODO: Table for roles
-            # TODO: Table for access levels
+            self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_id integer primary key, role_name varchar(32));")
+            self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer primary key, level_name varchar(16))")
             self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'manager');")
 
     # Return a user's information
@@ -69,12 +69,21 @@ class DB_Connection:
         name = "Bob"
         rank = 0
         rate = 10.0
+        # TODO: Create mySQL user
         stmt = "INSERT INTO employee VALUES (%d, '%s', %d, %f);" % (eid, name, rank, rate)
         self.db_command(stmt)
 
     # Delete a database user.
     def del_user(self):
-        pass
+        name = "Bob"
+        stmt = 'DELETE FROM employee WHERE employee_name="%s";' % name
+        self.db_command(stmt)
+
+    # List all users
+    def list_users(self):
+        users = self.db_query('select * from employee;')
+        # TODO: Do we want to return only a subset of the fields in employee
+        return users
 
     # Execute database query
     def db_command(self, stmt):
@@ -83,3 +92,11 @@ class DB_Connection:
             self.cnx.commit()
         except:
             print("Error executing command!", stmt)
+
+    # Execute database query
+    def db_query(self, stmt):
+        try:
+            self.crs.execute(stmt)
+            return self.crs.fetchall()
+        except:
+            print("Error executing query", stmt)
