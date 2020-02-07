@@ -33,8 +33,10 @@ class Main_UI(QMainWindow):
     userList = []
     projectList = []
     # Class global vars for sub windows
-    newUserWindow = ""
-    newProjectWindow = ""
+    newUserWindow = NewUserGUI()
+    newProjectWindow = NewProjectGUI()
+    editUserWindow = NewUserGUI()
+    editProjectWindow = NewProjectGUI()
     # List of available ranks pulled from database
     rank_list = []
 
@@ -174,10 +176,10 @@ class Main_UI(QMainWindow):
         employeeHBox.addWidget(deleteSelectedUser)
 
         # Edit user button
-        editUserButton = QPushButton('Edit User')
-        editUserButton.setToolTip('This will allow editing of the selected employee if you have permissions')
-        editUserButton.clicked.connect(self.editSelectedUser)
-        employeeHBox.addWidget(editUserButton)
+        editButton = QPushButton('Edit Item')
+        editButton.setToolTip('This will allow editing of the selected employee if you have permissions')
+        editButton.clicked.connect(self.editSelected)
+        employeeHBox.addWidget(editButton)
 
         # Add button box to vboxR
         vboxR.addLayout(employeeHBox)
@@ -208,6 +210,10 @@ class Main_UI(QMainWindow):
                 self.newUserWindow.close()
             if self.newProjectWindow.isEnabled():
                 self.newProjectWindow.close()
+            if self.editProjectWindow.isEnabled():
+                self.editProjectWindow.close()
+            if self.editUserWindow.isEnabled():
+                self.editUserWindow.close()
             event.accept()
         else:
             event.ignore()
@@ -255,12 +261,29 @@ class Main_UI(QMainWindow):
         currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
         print("Deleting " + currentUser)
 
-    # editSelectedUser: Edits the currently highlighted user
+    # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    def editSelectedUser(self):
-        currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
-        print("Editing " + currentUser)
+    def editSelected(self):
+        # Get the item as its object type
+        currentItem = self.centralWidget().findChild(QListWidget).currentItem().text()
+        current_object = self.findItem(currentItem, self.projectList if self.view else self.userList)
+
+        if self.view:
+            # Project
+            self.editProjectWindow = NewProjectGUI()
+            self.editProjectWindow.initUI()
+            billing_codes = self.editProjectWindow.findChild(QLineEdit, "billing_input")
+            name = self.editProjectWindow.findChild(QLineEdit, "title_input")
+            expected_hours = self.editProjectWindow.findChild(QLineEdit, "expected_hours_input")
+            description = self.editProjectWindow.findChild(QTextEdit, "description_input")
+            billing_codes.setText(current_object.billing_codes)
+            name.setText(current_object.name)
+            expected_hours.setText(current_object.expected_hours)
+            description.setText(current_object.description)
+        else:
+            # User
+            pass
 
     # center: Centers the window on the screen
     # ARGS: self (QMainWindow)
@@ -293,7 +316,7 @@ class Main_UI(QMainWindow):
         # Add item based on which view is selected
         if self.view:
             for project in self.projectList:
-                left_view.addItem(project.title)
+                left_view.addItem(project.name)
         else:
             for user in self.userList:
                 left_view.addItem(user.name)
@@ -334,6 +357,14 @@ class Main_UI(QMainWindow):
         rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
         if okPressed and rank != "":
             self.rank_list.append(rank)
+
+    # findItem: Finds the given item in the given list
+    # ARGS: objectName (T), objectList (List[T])
+    # RETURNS:  object_current (T)
+    def findItem(self, objectName, objectList):
+        for object_current in objectList:
+            if objectName == object_current.name:
+                return object_current
             
 
 class NewUserGUI(QWidget):

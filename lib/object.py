@@ -115,7 +115,7 @@ class Project:
     # Needs to be list since some projects can have multiple billing codes
     billing_codes = []
     hours_edit_date = ""
-    title = ""
+    name = ""
     description = ""
     users = []
     # Dict of past hours by year, keys are years values are ints
@@ -126,10 +126,10 @@ class Project:
     # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String])
     #       users (List[String?]) (opt)
     # RETURNS: Project
-    def __init__(self, title, description, billing_code, expected_hours, users=[]):
+    def __init__(self, name, description, billing_code, expected_hours, users=[]):
         self.expected_hours = expected_hours
         self.billing_codes = billing_code
-        self.title = title
+        self.name = name
         # To print: self.hours_edit_date.strftime("%b-%d-%Y")
         self.hours_edit_date = date.today()
         self.users = users
@@ -141,7 +141,7 @@ class Project:
     def print_project(self):
         print_string = ("Title: %s\nDescription: %s\nBilling Code: %s\nExpected Hours: %s\n"
                         "Date of Last Edit: %s\nAssigned Employees: %s" %
-                        (self.title, self.description, self.printBillingCodes(), self.expected_hours,
+                        (self.name, self.description, self.printBillingCodes(), self.expected_hours,
                          self.hours_edit_date.strftime("%b-%d-%Y"), self.print_users()))
         return print_string
 
