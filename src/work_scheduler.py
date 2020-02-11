@@ -26,6 +26,7 @@ def main():
     ex = ws_gui.Main_UI(userList)
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
+    conn.init_db()
     ex.initUI()
     ex.setWindowIcon(QIcon('icon.png'))
 
