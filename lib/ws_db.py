@@ -169,7 +169,10 @@ class DB_Connection:
 
     # Return all teams
     def list_all_teams(self):
-        pass
+        res = self.db_query("SELECT * from team;")
+        if res is None:
+            print("Error executing query on database,", file=sys.stderr)
+        return res
 
     # Execute database query
     def db_command(self, stmt):
