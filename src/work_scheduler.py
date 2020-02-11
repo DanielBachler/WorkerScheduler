@@ -22,23 +22,37 @@ app = None
 
 
 def main():
-    userList = tempUserList()
-    ex = ws_gui.Main_UI(userList)
+    # TEMP
+    rank_list = ["Sr. Analyst", "Analyst", "Principle", "New Analyst", "Consultant", "Admin"]
+    projectList = tempProjectList()
+    userList = tempUserList(projectList)
+    ex = ws_gui.Main_UI()
     conn = ws_db.DB_Connection()
     conn.db_login(ex)
-    ex.initUI()
+    ex.initUI(userList, projectList, rank_list)
     ex.setWindowIcon(QIcon('icon.png'))
 
     sys.exit(app.exec_())
 
 
 # METHOD FOR TESTING
-def tempUserList():
-    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "2460239", ("Work Scheduler", "Robotics"), 20, 18)
-    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1", ("Work Scheduler", "Test"), 69, 96)
-    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2", ("Work Scheduler", "Robotics"), 40, 0)
+def tempUserList(project_list):
+    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "2460239")
+    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1")
+    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2")
     tempList = [userBrendan, userDan, userJesse]
     return tempList
+
+
+# METHOD FOR TESTING
+def tempProjectList():
+    project1 = object.Project( "Johnson Project", "A Description", ["317"], 14)
+    project2 = object.Project("Fairweather Account", "A Description", ["219"], 24)
+    project3 = object.Project("Beckham Account", "A Description", ["5656"], 12)
+    project4 = object.Project("Rivea Project", "A Description", ["555"], 120)
+    projectList = [project1, project2, project3, project4]
+    return projectList
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
