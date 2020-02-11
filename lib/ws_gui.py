@@ -33,10 +33,10 @@ class Main_UI(QMainWindow):
     userList = []
     projectList = []
     # Class global vars for sub windows
-    newUserWindow = NewUserGUI()
-    newProjectWindow = NewProjectGUI()
-    editUserWindow = NewUserGUI()
-    editProjectWindow = NewProjectGUI()
+    newUserWindow = ""
+    newProjectWindow = ""
+    editUserWindow = ""
+    editProjectWindow = ""
     # List of available ranks pulled from database
     rank_list = []
 
@@ -53,6 +53,8 @@ class Main_UI(QMainWindow):
         super().__init__()
         self.newUserWindow = NewUserGUI()
         self.newProjectWindow = NewProjectGUI()
+        self.editUserWindow = NewUserGUI()
+        self.editProjectWindow = NewProjectGUI()
 
     # login: Takes the login information and connects the database as a user
     # ARGS: self (QMainWindow)
@@ -229,7 +231,7 @@ class Main_UI(QMainWindow):
         if self.view:
             selected_project = object.Project
             for project in self.projectList:
-                if project.title == name:
+                if project.name == name:
                     selected_object = project
             right_view.setText(selected_object.print_project())
         else:
@@ -344,7 +346,7 @@ class Main_UI(QMainWindow):
         if self.view:
             left_view.clear()
             for project in self.projectList:
-                left_view.addItem(project.title)
+                left_view.addItem(project.name)
         else:
             left_view.clear()
             for user in self.userList:
@@ -586,6 +588,9 @@ class NewProjectGUI(QWidget):
     # If boxes have been edited
     edited = False
 
+    # If form has been saved
+    saved = False
+
     # __init__: Initializes the NewProjectGUI
     # ARGS: self (QWidget)
     # RETURNS: QWidget
@@ -646,18 +651,12 @@ class NewProjectGUI(QWidget):
         # Description RIGHT
         description_label = QLabel("Description:")
         description_input = QTextEdit()
-        description_input.setMaximumHeight(self.height()/4)
+        description_input.setMaximumHeight(int(self.height()/4))
         description_input.setObjectName("description_input")
         description_input.textChanged.connect(self.isEdited)
         description_box = QHBoxLayout()
         description_box.addWidget(description_label)
         description_box.addWidget(description_input)
-
-        # Users button: LEFT
-        user_button = QPushButton("Add Users")
-        user_button.clicked.connect(self.addUsers)
-        user_box = QHBoxLayout()
-        user_box.addWidget(user_button)
 
         # Boxes for left and right side
         left_V_box = QVBoxLayout()
@@ -668,8 +667,6 @@ class NewProjectGUI(QWidget):
         right_V_box.addLayout(expected_hours_box)
         left_V_box.addLayout(title_box)
         right_V_box.addLayout(description_box)
-        # Removed, use on edit form
-        #left_V_box.addLayout(user_box)
 
         # Put into main box
         main_box = QHBoxLayout()
@@ -697,18 +694,32 @@ class NewProjectGUI(QWidget):
     def isEdited(self):
         self.edited = True
 
-    # (NOT FOR ADD FORM, OVERRIDE ON EDIT)
-    # addUsers: Form to add users to project and set times
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def addUsers(self):
-        pass
-
     # save: Saves the project to the list of projects
     # ARGS: self (QWidget)
     # RETURNS: None
     def save(self):
-        pass
+        self.saved = True
+        # Get information from UI
+        billing_input = self.findChild(QLineEdit, "billing_input")
+        expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
+        title_input = self.findChild(QLineEdit, "title_input")
+        description_input = self.findChild(QTextEdit, "description_input")
+        billing_codes = billing_input.text()
+        expected_hours = expected_hours_input.text()
+        name = title_input.text()
+        description = description_input.toPlainText()
+        description_input.clear()
+
+        # Fix billing codes to either string or list
+        if "," in billing_codes:
+            print("Comma found")
+            billing_codes = billing_codes.split(",")
+
+        # Save as new object
+        tempProject = object.Project(name, description, billing_codes, expected_hours)
+        self.main_window.projectList.append(tempProject)
+        self.main_window.updateUserList()
+        self.close()
 
     # closeEvent: Changes the default closing behavior by overriding the base method
     # ARGS: self (QMainWindow), event (a QEvent) which is in this case is one of the closing events

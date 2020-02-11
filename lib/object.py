@@ -21,7 +21,7 @@ class User:
     team = ""
     mentor = None
     employee_id = ""
-    # Dict with project titles as keys, values are UserProject objects
+    # List of UserProject Objects
     projects = []
 
     # __init__: Initializes a given user
@@ -51,15 +51,13 @@ class User:
     # ARGS: self (User)
     # RETURNS: projects_string (String)
     def print_projects(self):
-        try:
+        if self.projects == []:
+            return ""
+        else:
             projects_string = ""
-
-            for project in self.projects.keys():
-                projects_string += project.title + "\n"
-
+            for project in self.projects:
+                projects_string += project.name + " " + project.billing_code
             return projects_string
-        except:
-            print("Failed to print projects")
 
     # TODO: Fix with new UserProject object
 
@@ -159,6 +157,10 @@ class Project:
     # RETURNS: codes (String)
     def printBillingCodes(self):
         codes = ""
-        for code in self.billing_codes:
-            codes += code + "\n"
+        if not isinstance(self.billing_codes, str):
+            codes = ""
+            for code in self.billing_codes:
+                codes += code + "\n"
+        else:
+            codes = self.billing_codes
         return codes
