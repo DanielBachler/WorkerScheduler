@@ -12,6 +12,7 @@ if __name__ == "__main__":
     exit(-1)
 
 import sqlite3
+import sys
 
 import mysql.connector as sql
 
@@ -111,7 +112,16 @@ class DB_Connection:
 
     # List all projects
     def list_projects(self):
-        pass
+        res = self.db_query("SELECT * from project;")
+        if res is None:
+            print("Error executing query on database,", file=sys.stderr)
+        return res
+
+    def list_employees(self):
+        res = self.db_query("SELECT * from employee;")
+        if res is None:
+            print("Error executing query on database,", file=sys.stderr)
+        return res
 
     # Remove a project
     def delete_project(self):
@@ -155,10 +165,6 @@ class DB_Connection:
 
     # Return all billing codes
     def list_all_billing_codes(self):
-        pass
-
-    # Return all projects
-    def list_all_projects(self):
         pass
 
     # Return all teams
