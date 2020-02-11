@@ -9,12 +9,14 @@
 ## GUI Wrapper for Work Scheduler
 
 # TODO:
-#   NewUserGUI: Change rank to drop down and add Admin edit ability for list
-#   NewProjectGUI: add forms, functionality (Billing code needs to be multiple entry form)
-#   Overall: Master Project list not tied to database for testing, add to main UI
-#   Projects: Modify to meet Ed's updated reqs
-#   Users: Remove hours as currently implemented and change to dictionary with projects as keys?
-#   Overall: Keep ranks as list in database
+#   NewUserGUI:
+#   NewProjectGUI:
+#   EditUserUI: Implement
+#   EditProjectUI: Implement
+#   Overall:
+#   Projects:
+#   Users:
+#   Overall: Tie in database
 
 if __name__ == "__main__":
     print("Unable to execute as script")
