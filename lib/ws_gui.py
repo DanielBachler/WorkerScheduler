@@ -714,7 +714,6 @@ class NewProjectGUI(QWidget):
 
         # Fix billing codes to either string or list
         if "," in billing_codes:
-            print("Comma found")
             billing_codes = billing_codes.split(",")
 
         # Save as new object
@@ -742,6 +741,13 @@ class NewProjectGUI(QWidget):
         else:
             event.ignore()
 
+
+class EditUserUI:
+    pass
+
+
+class EditProjectUI:
+    pass
 
 # DEPRECIATED
 # class AddProjectsGUI(QWidget):
