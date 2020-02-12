@@ -1,19 +1,19 @@
-## The Work Scheduler
-## Montana State University senior design project
-##
-## Copyright 2019
-##
-## Created: 2019-10-19 by Brendan Kristiansen
-## Worked on by Dan Bachler
-## ws_gui.py
-## GUI Wrapper for Work Scheduler
+# The Work Scheduler
+# Montana State University senior design project
+#
+# Copyright 2019
+#
+# Created: 2019-10-19 by Brendan Kristiansen
+# Worked on by Dan Bachler
+# ws_gui.py
+# GUI Wrapper for Work Scheduler
 
 # TODO:
 #   NewUserGUI:
 #   NewProjectGUI:
-#   EditUserUI: Implement
-#   EditProjectUI: Implement
-#   Overall:
+#   EditUserUI: Done?
+#   EditProjectUI: Add ability to add users to project
+#   MainUI:
 #   Projects:
 #   Users:
 #   Overall: Tie in database
@@ -87,7 +87,7 @@ class Main_UI(QMainWindow):
         # menu: exit, add new user (new window),
         # Buttons: delete selected user (prompt), edit selected user (new window)
 
-        ## Create menu bar for options
+        # Create menu bar for options
         menubar = self.menuBar()
         # Menu bar tabs
         fileMenu = menubar.addMenu('File')
@@ -137,7 +137,7 @@ class Main_UI(QMainWindow):
             # Add actions
             adminMenu.addAction(add_rank)
 
-        ## Contents of central widget
+        # Contents of central widget
 
         # Create contents of window
         centralWidget = QWidget()
@@ -260,8 +260,20 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def deletedSelectedFunc(self):
-        currentUser = self.centralWidget().findChild(QListWidget).currentItem().text()
-        print("Deleting " + currentUser)
+        try:
+            current_object = self.centralWidget().findChild(QListWidget).currentItem().text()
+            if self.view:
+                # Project
+                project = self.findItem(current_object, self.projectList)
+                self.projectList.remove(project)
+            else:
+                # User
+                user = self.findItem(current_object, self.userList)
+                self.userList.remove(user)
+            self.updateUserList()
+        except Exception as e:
+            QMessageBox.question(self, 'Error', 'Selected item is already deleted',
+                                    QMessageBox.Close, QMessageBox.Close)
 
     # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)
@@ -273,8 +285,14 @@ class Main_UI(QMainWindow):
 
         if self.view:
             # Project
-            self.editProjectWindow = NewProjectGUI()
-            self.editProjectWindow.initUI(current_object, self)
+            try:
+                self.editProjectWindow = NewProjectGUI()
+                self.editProjectWindow.is_editing = True
+                self.editProjectWindow.initUI(self)
+                self.editProjectWindow.editing(current_object)
+                self.editProjectWindow.setWindowIcon(QIcon("icon.png"))
+            except Exception as e:
+                print(e)
         else:
             # User
             try:
@@ -282,6 +300,7 @@ class Main_UI(QMainWindow):
                 self.editUserWindow.editing = True
                 self.editUserWindow.initUI(self)
                 self.editUserWindow.editUser(current_object)
+                self.editUserWindow.setWindowIcon(QIcon("icon.png"))
             except Exception as e:
                 print(e)
 
@@ -439,8 +458,8 @@ class NewUserGUI(QWidget):
         hbox_pay.addWidget(pay_edit)
 
         # Rank Combo box: LEFT
+        hbox_rank = QHBoxLayout()
         try:
-            hbox_rank = QHBoxLayout()
             rank_label = QLabel("Rank:")
             rank_edit = QComboBox()
             rank_edit.setObjectName("user_rank")
@@ -521,21 +540,14 @@ class NewUserGUI(QWidget):
     def saveUser(self):
         if self.box_edited:
             try:
-                # Save the entered user in the fields, checks?
-                name = self.findChild(QLineEdit, "user_name").text()
-                pay = self.findChild(QLineEdit, "user_pay").text()
-                rank = self.findChild(QComboBox, "user_rank").currentText()
-                team = self.findChild(QLineEdit, "user_team").text()
-                mentor = self.findChild(QLineEdit, "user_mentor").text()
-                employee_id = self.findChild(QLineEdit, "user_id").text()
-                # Place holder for projects, needs more fleshing out
-                self.made_user = object.User(name, pay, rank, team, mentor, employee_id)
+                # Get user
+                self.made_user = self.makeUser()
                 self.parent_window.userList.append(self.made_user)
                 self.parent_window.updateUserList()
                 self.saved = True
                 self.close_from_save = True
             except Exception as e:
-                print(e)
+                print(e, "Error in saveUser")
 
         self.close()
 
@@ -594,7 +606,6 @@ class NewUserGUI(QWidget):
         team = self.findChild(QLineEdit, "user_team")
         mentor = self.findChild(QLineEdit, "user_mentor")
         employee_id = self.findChild(QLineEdit, "user_id")
-        test_rank = QComboBox()
         name.setText(user.name)
         pay.setText(user.pay)
         rank.setCurrentIndex(rank.findText(user.rank))
@@ -605,22 +616,17 @@ class NewUserGUI(QWidget):
 
     # updateUser: Updates a given users entry
     # ARGS: self (QWidget)
-    # RETURNS: None?
+    # RETURNS: None
     def updateUser(self):
+        # Get user object
         self.parent_window.userList.remove(self.editing_user)
-        # Save the entered user in the fields, checks?
-        name = self.findChild(QLineEdit, "user_name").text()
-        pay = self.findChild(QLineEdit, "user_pay").text()
-        rank = self.findChild(QComboBox, "user_rank").currentText()
-        team = self.findChild(QLineEdit, "user_team").text()
-        mentor = self.findChild(QLineEdit, "user_mentor").text()
-        employee_id = self.findChild(QLineEdit, "user_id").text()
         # Place holder for projects, needs more fleshing out
-        self.made_user = object.User(name, pay, rank, team, mentor, employee_id)
+        self.made_user = self.makeUser()
         self.parent_window.userList.append(self.made_user)
         self.parent_window.updateUserList()
         self.saved = True
         self.close_from_save = True
+        self.parent_window.newSelected(QListWidgetItem(self.made_user.name))
         self.close()
 
     # findUser: Finds a given user by userID
@@ -632,14 +638,31 @@ class NewUserGUI(QWidget):
                 return user
         return None
 
+    # makeUser: Makes a user with the filled in forms
+    # ARGS: self (QWidget)
+    # RETURNS: object.User
+    def makeUser(self):
+        name = self.findChild(QLineEdit, "user_name").text()
+        pay = self.findChild(QLineEdit, "user_pay").text()
+        rank = self.findChild(QComboBox, "user_rank").currentText()
+        team = self.findChild(QLineEdit, "user_team").text()
+        mentor = self.findChild(QLineEdit, "user_mentor").text()
+        employee_id = self.findChild(QLineEdit, "user_id").text()
+        return object.User(name, pay, rank, team, mentor, employee_id)
+
 
 class NewProjectGUI(QWidget):
-    main_window = ""
+    parent_window = ""
     # If boxes have been edited
     edited = False
 
     # If form has been saved
     saved = False
+    close_from_save = False
+
+    # Editing vars
+    is_editing = False
+    editing_project = object.Project
 
     # __init__: Initializes the NewProjectGUI
     # ARGS: self (QWidget)
@@ -648,17 +671,22 @@ class NewProjectGUI(QWidget):
         super().__init__()
 
     # initUI: Creates the UI for the NewProjectGUI
-    # ARGS: self (QWidget), main_window (QMainWindow)
+    # ARGS: self (QWidget), parent_window (QMainWindow)
     # RETURNS: None
-    def initUI(self, main_window):
+    def initUI(self, parent_window):
         # Set parent window
-        self.main_window = main_window
+        self.parent_window = parent_window
 
         # BUTTONS
 
         # Save button
-        save_button = QPushButton("Save")
-        save_button.clicked.connect(self.save)
+        save_button = QPushButton
+        if not self.is_editing:
+            save_button = QPushButton("Save")
+            save_button.clicked.connect(self.save)
+        else:
+            save_button = QPushButton("Update")
+            save_button.clicked.connect(self.updateProject)
 
         # Cancel button
         cancel_button = QPushButton("Cancel")
@@ -750,31 +778,16 @@ class NewProjectGUI(QWidget):
     def save(self):
         self.saved = True
         # Get information from UI
-        billing_input = self.findChild(QLineEdit, "billing_input")
-        expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
-        title_input = self.findChild(QLineEdit, "title_input")
-        description_input = self.findChild(QTextEdit, "description_input")
-        billing_codes = billing_input.text()
-        expected_hours = expected_hours_input.text()
-        name = title_input.text()
-        description = description_input.toPlainText()
-        description_input.clear()
-
-        # Fix billing codes to either string or list
-        if "," in billing_codes:
-            billing_codes = billing_codes.split(",")
-
-        # Save as new object
-        tempProject = object.Project(name, description, billing_codes, expected_hours)
-        self.main_window.projectList.append(tempProject)
-        self.main_window.updateUserList()
+        tempProject = self.getProject()
+        self.parent_window.projectList.append(tempProject)
+        self.parent_window.updateUserList()
         self.close()
 
     # closeEvent: Changes the default closing behavior by overriding the base method
     # ARGS: self (QMainWindow), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: none
     def closeEvent(self, event):
-        if self.isEdited():
+        if self.isEdited() and not self.close_from_save:
             temp = QMessageBox.question(self, 'Cancel Confirmation',
                                         'Are you sure you want to cancel project creation?',
                                         QMessageBox.Yes | QMessageBox.No | QMessageBox.Save, QMessageBox.No)
@@ -790,146 +803,56 @@ class NewProjectGUI(QWidget):
         else:
             event.ignore()
 
-
-class EditUserUI(QWidget):
-    # The user being edited
-    user = object.User
-
-    # Main window
-    parent_window = ""
-
-    # __init__: Initializes the EditUserUI
-    # ARGS: self (QWidget)
-    # RETURNS: QWidget
-    def __init__(self):
-        super().__init__()
-
-    # initUI: Creates the UI for the window
-    # ARGS: self (QWidget), user (object.User)
+    # editing: Updates the window to contain info of editing object
+    # ARGS: self (QWidget), project (object.Project)
     # RETURNS: None
-    def initUI(self, user, parent):
-        self.parent_window = parent
-        # Create save button
-        saveButton = QPushButton('Save')
-        saveButton.clicked.connect(self.saveUser)
+    def editing(self, project=object.Project):
+        self.editing_project = project
+        self.findChild(QLineEdit, "billing_input").setText(project.formatBillingCodes())
+        self.findChild(QLineEdit, "expected_hours_input").setText(str(project.expected_hours))
+        self.findChild(QLineEdit, "title_input").setText(project.name)
+        self.findChild(QTextEdit, "description_input").setText(project.description)
+        self.edited = False
 
-        # Create cancel button
-        cancelButton = QPushButton('Cancel')
-        cancelButton.clicked.connect(self.close)
+    # updateProject: Updates an existing project instead of
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def updateProject(self):
+        # Get updated project and remove old one from list
+        self.parent_window.projectList.remove(self.editing_project)
+        project = self.getProject()
+        # Add to list and update master list in main UI
+        self.parent_window.projectList.append(project)
+        self.parent_window.updateUserList()
+        # Update closing vars
+        self.saved = True
+        self.close_from_save = True
+        # Update parent window selected pane
+        self.parent_window.newSelected(QListWidgetItem(project.name))
+        # TODO: Database updates
 
-        # Box for buttons
-        buttonBox = QHBoxLayout()
+        self.close()
 
-        # Add buttons to box
-        buttonBox.addWidget(saveButton)
-        buttonBox.addWidget(cancelButton)
+    # getProject: Create a project from the form fields
+    # ARGS: self (QWidget)
+    # RETURNS: object.Project
+    def getProject(self):
+        billing_input = self.findChild(QLineEdit, "billing_input")
+        expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
+        title_input = self.findChild(QLineEdit, "title_input")
+        description_input = self.findChild(QTextEdit, "description_input")
+        billing_codes = billing_input.text()
+        expected_hours = expected_hours_input.text()
+        name = title_input.text()
+        description = description_input.toPlainText()
+        description_input.clear()
 
-        # Create inputs and text displays each in own hbox
+        # Fix billing codes to either string or list
+        if "," in billing_codes:
+            billing_codes = billing_codes.split(",")
 
-        # Name label and editor LEFT
-        hbox_name = QHBoxLayout()
-        name_label = QLabel("User Name:")
-        name_edit = QLineEdit()
-        name_edit.textChanged.connect(self.boxEdited)
-        name_edit.setObjectName("user_name")
-        hbox_name.addWidget(name_label)
-        hbox_name.addWidget(name_edit)
-
-        # Pay label and editor RIGHT
-        hbox_pay = QHBoxLayout()
-        pay_label = QLabel("Pay:")
-        pay_edit = QLineEdit()
-        pay_edit.textEdited.connect(self.boxEdited)
-        pay_edit.setObjectName("user_pay")
-        hbox_pay.addWidget(pay_label)
-        hbox_pay.addWidget(pay_edit)
-
-        # Rank Combo box: LEFT
-        try:
-            hbox_rank = QHBoxLayout()
-            rank_label = QLabel("Rank:")
-            rank_edit = QComboBox()
-            rank_edit.setObjectName("user_rank")
-            # Set changed command
-            rank_edit.activated.connect(self.boxEdited)
-            hbox_rank.addWidget(rank_label)
-            hbox_rank.addWidget(rank_edit)
-        except Exception as e:
-            print(e)
-
-        # # Rank label and editor LEFT
-        # hbox_rank = QHBoxLayout()
-        # rank_label = QLabel("Rank:")
-        # rank_edit = QLineEdit()
-        # rank_edit.textEdited.connect(self.boxEdited)
-        # rank_edit.setObjectName("user_rank")
-        # hbox_rank.addWidget(rank_label)
-        # hbox_rank.addWidget(rank_edit)
-
-        # Team label and editor RIGHT
-        hbox_team = QHBoxLayout()
-        team_label = QLabel("Team:")
-        team_edit = QLineEdit()
-        team_edit.textEdited.connect(self.boxEdited)
-        team_edit.setObjectName("user_team")
-        hbox_team.addWidget(team_label)
-        hbox_team.addWidget(team_edit)
-
-        # Mentor label and editor RIGHT
-        hbox_mentor = QHBoxLayout()
-        mentor_label = QLabel("Mentor:")
-        mentor_edit = QLineEdit()
-        mentor_edit.textEdited.connect(self.boxEdited)
-        mentor_edit.setObjectName("user_mentor")
-        hbox_mentor.addWidget(mentor_label)
-        hbox_mentor.addWidget(mentor_edit)
-
-        # Employee ID label and editor LEFT
-        hbox_id = QHBoxLayout()
-        id_label = QLabel("Employee ID:")
-        id_edit = QLineEdit()
-        id_edit.textEdited.connect(self.boxEdited)
-        id_edit.setObjectName("user_id")
-        hbox_id.addWidget(id_label)
-        hbox_id.addWidget(id_edit)
-
-        # Box for left side column
-        leftColumnBox = QVBoxLayout()
-        leftColumnBox.addLayout(hbox_name)
-        leftColumnBox.addLayout(hbox_rank)
-        leftColumnBox.addLayout(hbox_id)
-
-        # Box for right side column
-        rightColumnBox = QVBoxLayout()
-        rightColumnBox.addLayout(hbox_pay)
-        rightColumnBox.addLayout(hbox_team)
-        rightColumnBox.addLayout(hbox_mentor)
-
-        # Box to hold columns
-        columnBox = QHBoxLayout()
-        columnBox.addLayout(leftColumnBox)
-        columnBox.addLayout(rightColumnBox)
-
-        # Put boxes into main box
-        mainVertBox = QVBoxLayout()
-        mainVertBox.addLayout(columnBox)
-        mainVertBox.addStretch(1)
-        mainVertBox.addLayout(buttonBox)
-
-        # Add to the main widget
-        self.setLayout(mainVertBox)
-
-        # Populate combo box
-        self.updateRankBox()
-
-        # Finalize self
-        self.setGeometry(300, 300, 300, 500)
-        self.setWindowTitle('New User Form')
-        self.show()
-
-
-class EditProjectUI:
-    pass
+        # Save as new object
+        return object.Project(name, description, billing_codes, expected_hours)
 
 # DEPRECIATED
 # class AddProjectsGUI(QWidget):

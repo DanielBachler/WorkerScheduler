@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-## The Work Scheduler
-## Montana State University senior design project
-##
-## Copyright 2019
-##
-## Created: 2019-10-19 by Brendan Kristiansen
-## work_scheduler.py
-## Driver for The Work Scheduler
+# The Work Scheduler
+# Montana State University senior design project
+#
+# Copyright 2019
+#
+# Created: 2019-10-19 by Brendan Kristiansen
+# work_scheduler.py
+# Driver for The Work Scheduler
 
 import sys
 from PyQt5.QtWidgets import QApplication
@@ -47,10 +47,10 @@ def tempUserList(project_list):
 
 # METHOD FOR TESTING
 def tempProjectList():
-    project1 = object.Project( "Johnson Project", "A Description", ["317"], 14)
-    project2 = object.Project("Fairweather Account", "A Description", ["219"], 24)
-    project3 = object.Project("Beckham Account", "A Description", ["5656"], 12)
-    project4 = object.Project("Rivea Project", "A Description", ["555"], 120)
+    project1 = object.Project("Johnson Project", "A Description", ["317713", "156895"], 14)
+    project2 = object.Project("Fairweather Account", "A Description", "219789", 24)
+    project3 = object.Project("Beckham Account", "A Description", "5656565", 12)
+    project4 = object.Project("Rivea Project", "A Description", "555555", 120)
     projectList = [project1, project2, project3, project4]
     return projectList
 

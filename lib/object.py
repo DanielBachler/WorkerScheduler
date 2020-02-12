@@ -164,3 +164,16 @@ class Project:
         else:
             codes = self.billing_codes
         return codes
+
+    # formatBillingCodes: Puts all the billing codes into a string with commas
+    # ARGS: self (object.Project)
+    # RETURNS: codes/self.billing_codes (String)
+    def formatBillingCodes(self):
+        if not isinstance(self.billing_codes, str):
+            codes = ""
+            for i in range(0, len(self.billing_codes)-1):
+                codes += self.billing_codes[i] + ", "
+            codes += self.billing_codes[-1]
+            return codes
+        else:
+            return self.billing_codes

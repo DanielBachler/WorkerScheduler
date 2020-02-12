@@ -2,6 +2,8 @@
   <dictionary name="Daniel">
     <words>
       <w>hbox</w>
+      <w>mbox</w>
+      <w>vbox</w>
     </words>
   </dictionary>
 </component>

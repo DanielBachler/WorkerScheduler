@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="ws" uuid="01ba1902-8d7a-4e8f-8280-1565f6f13b47">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\Daniel\Documents\GitHub\WorkerScheduler\src\ws.db</jdbc-url>
+    </data-source>
+  </component>
+</project>
