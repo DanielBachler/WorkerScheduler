@@ -80,8 +80,14 @@ class DB_Connection:
     # Create a database user.
     def create_user(self, name, rank, rate):
         # TODO: Create mySQL user
+        # TODO: Define all of these at once
+        # TODO: Use company's EID
         stmt = "INSERT INTO employee (employee_name, rank, hourly_rate) VALUES ('%s', %d, %f);" % (name, rank, rate)
         self.db_command(stmt)
+
+    # TODO: Update user by EID
+    def update_user(self):
+        pass
 
     # Delete a database user.
     def del_user(self, eid):
@@ -90,8 +96,10 @@ class DB_Connection:
 
     # List all users
     def list_users(self):
-        users = self.db_query('select * from employee;')
-        return users
+        res = self.db_query("SELECT * from employee;")
+        if res is None:
+            print("Error executing query on database,", file=sys.stderr)
+        return res
 
     # Allow user to request hours
     def user_request_hours(self):
@@ -102,6 +110,7 @@ class DB_Connection:
         pass
 
     # Create project
+    # TODO: PID's assigned by company?
     def create_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
         dt = datetime.today().strftime('%Y-%m-%d')
         stmt = 'INSERT INTO project (project_name, description, estimated_hrs, start_year, start_month, end_year, ' \
@@ -117,12 +126,6 @@ class DB_Connection:
     # List all projects
     def list_projects(self):
         res = self.db_query("SELECT * from project;")
-        if res is None:
-            print("Error executing query on database,", file=sys.stderr)
-        return res
-
-    def list_employees(self):
-        res = self.db_query("SELECT * from employee;")
         if res is None:
             print("Error executing query on database,", file=sys.stderr)
         return res
