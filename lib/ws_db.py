@@ -178,7 +178,8 @@ class DB_Connection:
 
     # Return all billing codes
     def list_all_billing_codes(self):
-        pass
+        res = self.db_query("SELECT * FROM billing_code")
+        return res
 
     # Return all teams
     def list_all_teams(self):
