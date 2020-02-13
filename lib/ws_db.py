@@ -50,7 +50,7 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer primary key, project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, start_month integer, end_year integer, end_month integer, rpt int, last_update date);")
             self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer primary key, team_name varchar(32));")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer primary key);")
-            self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code varchar(16));")
+            self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS user_project (ipid integer primary key, billing_code integer, eid integer, projected_hours real default NULL, requested_hours real default NULL, earned_hours real default 0);")
@@ -173,7 +173,8 @@ class DB_Connection:
 
     # Associate billing code with project
     def add_billing_code_for_project(self, pid, bc):
-        pass
+        stmt = 'INSERT INTO billing_code_assignment VALUES (%d, %d);' % (pid, bc)
+        self.db_command(stmt)
 
     # Disassociate billing code from project
     def remove_billing_code_from_project(self):
