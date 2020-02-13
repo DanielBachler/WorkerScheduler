@@ -13,6 +13,7 @@ if __name__ == "__main__":
 
 import sqlite3
 import sys
+from datetime import datetime
 import mysql.connector as sql
 
 from lib import CONSTANTS as K
@@ -101,8 +102,13 @@ class DB_Connection:
         pass
 
     # Create project
-    def create_project(self):
-        pass
+    def create_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
+        dt = datetime.today().strftime('%Y-%m-%d')
+        stmt = 'INSERT INTO project (project_name, description, estimated_hrs, start_year, start_month, end_year, ' \
+               'end_month, last_update) VALUES ("%s", "%s", %f, %d, %d, %d, %d, %d, "%s")' % (name, desc, est_hrs,
+                                                                                              start_yr, start_mo, end_yr,
+                                                                                              end_mo, rpt, str(dt))
+        self.db_command(stmt)
 
     # Get information on a project
     def get_project_data(self):
@@ -123,6 +129,10 @@ class DB_Connection:
 
     # Remove a project
     def delete_project(self):
+        pass
+
+    # Create a team
+    def create_team(self):
         pass
 
     # Add user to team
