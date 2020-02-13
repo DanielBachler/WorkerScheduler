@@ -132,11 +132,12 @@ class DB_Connection:
         pass
 
     # Create a team
-    def create_team(self):
-        pass
+    def create_team(self, name):
+        stmt = 'INSERT INTO team (team_name) VALUES ("%s");' % name
+        self.db_command(stmt)
 
     # Add user to team
-    def add_user_to_team(self):
+    def add_user_to_team(self, eid, tid):
         pass
 
     # Remove user from team
@@ -144,27 +145,31 @@ class DB_Connection:
         pass
 
     # Fetch teams for a given user
-    def get_teams_for_user(self):
+    def get_teams_for_user(self, eid):
         pass
 
     # Fetch users on a given team
-    def get_users_on_team(self):
+    def get_users_on_team(self, tid):
         pass
 
     # Associate user with project
-    def add_user_to_project(self):
+    def add_user_to_project(self, eid, pid):
         pass
 
     # Remove user from project
-    def remove_user_from_project(self):
+    def remove_user_from_project(self, eid, pid):
         pass
 
     # Fetch users on a given project
-    def get_users_for_project(self):
+    def get_users_for_project(self, pid):
+        pass
+
+    # Add billing code to database
+    def add_billing_code(self, bc):
         pass
 
     # Associate billing code with project
-    def add_billing_code_for_project(self):
+    def add_billing_code_for_project(self, pid, bc):
         pass
 
     # Disassociate billing code from project
