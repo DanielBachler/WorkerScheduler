@@ -138,7 +138,8 @@ class DB_Connection:
 
     # Add user to team
     def add_user_to_team(self, eid, tid):
-        pass
+        stmt = 'INSERT INTO team_membership VALUES (%d, %d);' % (tid, eid)
+        self.db_command(stmt)
 
     # Remove user from team
     def remove_user_from_team(self):
@@ -154,7 +155,8 @@ class DB_Connection:
 
     # Associate user with project
     def add_user_to_project(self, eid, pid):
-        pass
+        stmt = 'INSERT INTO project_assignment VALUES (%d, %d)' % (eid, pid)
+        self.db_command(stmt)
 
     # Remove user from project
     def remove_user_from_project(self, eid, pid):
@@ -166,7 +168,8 @@ class DB_Connection:
 
     # Add billing code to database
     def add_billing_code(self, bc):
-        pass
+        stmt = 'INSERT INTO billing_code VALUES (%d)' % bc
+        self.db_command(stmt)
 
     # Associate billing code with project
     def add_billing_code_for_project(self, pid, bc):
