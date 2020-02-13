@@ -44,6 +44,7 @@ class DB_Connection:
         if self.crs == None or self.cnx == None:
             return
         else:
+            print("Creating database")
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer primary key, employee_name varchar(64), rank integer, emp_role integer, hourly_rate real, mentor integer default NULL);")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer primary key, project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, start_month integer, end_year integer, end_month integer, rpt int, last_update date);")
             self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer primary key, team_name varchar(32));")
@@ -61,6 +62,10 @@ class DB_Connection:
 
             self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'manager');")
 
+    # Add mySQL user
+    def add_user(self):
+        pass
+
     # Return a user's information
     def get_user_info(self):
         self.db_command("GRANT ALL ON *.* to user@localhost IDENTIFIED BY 'password'; ")    # TODO
@@ -72,25 +77,19 @@ class DB_Connection:
         pass
 
     # Create a database user.
-    def create_user(self):
-        eid = 0
-        name = "Bob"
-        rank = 0
-        rate = 10.0
+    def create_user(self, name, rank, rate):
         # TODO: Create mySQL user
-        stmt = "INSERT INTO employee VALUES (%d, '%s', %d, %f);" % (eid, name, rank, rate)
+        stmt = "INSERT INTO employee (employee_name, rank, hourly_rate) VALUES ('%s', %d, %f);" % (name, rank, rate)
         self.db_command(stmt)
 
     # Delete a database user.
-    def del_user(self):
-        name = "Bob"
-        stmt = 'DELETE FROM employee WHERE employee_name="%s";' % name
+    def del_user(self, eid):
+        stmt = 'DELETE FROM employee WHERE eid=%d;' % eid
         self.db_command(stmt)
 
     # List all users
     def list_users(self):
         users = self.db_query('select * from employee;')
-        # TODO: Do we want to return only a subset of the fields in employee
         return users
 
     # Allow user to request hours
@@ -179,7 +178,7 @@ class DB_Connection:
             self.crs.execute(stmt)
             self.cnx.commit()
         except Exception as e:
-            print("Error executing command", str(e), stmt)
+            print("Error executing command", str(e), stmt, file=sys.stderr)
 
     # Execute database query
     def db_query(self, stmt):
@@ -187,4 +186,4 @@ class DB_Connection:
             self.crs.execute(stmt)
             return self.crs.fetchall()
         except Exception as e:
-            print("Error executing query", str(e), stmt)
+            print("Error executing query", str(e), stmt, file=sys.stderr)
