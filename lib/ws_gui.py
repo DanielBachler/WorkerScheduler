@@ -681,7 +681,7 @@ class AddUserInfoGUI(QWidget):
         self.show()
 
 
-# TODO: Multiple billing codes
+# TODO: Multiple billing codes, fix users being added to all projects
 class AddUsersGUI(QWidget):
     # The project to add users to
     selected_project = object.Project
@@ -697,6 +697,9 @@ class AddUsersGUI(QWidget):
 
     # List of users assigned to the project
     project_user_list = []
+
+    # Sub window for user details
+    user_info = AddUserInfoGUI
 
     # __init__: Creates an instance of AddUsersGUI
     # ARGS: self (QWidget), project (object.Project), parent_window (QWidget)
@@ -785,13 +788,17 @@ class AddUsersGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUserToProject(self):
-        pass
+        self.project_user_list.append(self.selected_all_user)
+        self.updateProjectUsersList()
+        self.user_info = AddUserInfoGUI(self.selected_project, self.selected_all_user, self)
+        self.user_info.initUI()
 
     # removeUserFromProject: Removes the selected user in project list from the project, are you sure prompt?
     # ARGS: self (QWidget)
     # RETURNS: None
     def removeUserFromProject(self):
-        pass
+        self.project_user_list.remove(self.selected_project_user)
+        self.updateProjectUsersList()
 
     # updateAllUser: Updates the current selected_all_user
     # ARGS: self (QWidget), item (QListWidgetItem)
