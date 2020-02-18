@@ -682,6 +682,7 @@ class AddUserInfoGUI(QWidget):
 
 
 # TODO: Multiple billing codes, fix users being added to all projects
+#   Send user list back up to edit window so that cancel does not save and update does
 class AddUsersGUI(QWidget):
     # The project to add users to
     selected_project = object.Project
@@ -829,6 +830,10 @@ class AddUsersGUI(QWidget):
         project_users.clear()
         for user in self.project_user_list:
             project_users.addItem(user.name)
+
+    def closeEvent(self, event):
+        self.parent_window.editing_project.users = self.project_user_list
+        event.accept()
 
 
 class NewProjectGUI(QWidget):
