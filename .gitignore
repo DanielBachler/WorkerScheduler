@@ -7,3 +7,4 @@ lib/__pycache__/ws_db.cpython-37.pyc
 lib/__pycache__/ws_gui.cpython-37.pyc
 .idea/misc.xml
 .idea/work-scheduler.iml
+*.pyc
