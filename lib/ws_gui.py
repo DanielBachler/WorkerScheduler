@@ -684,7 +684,7 @@ class AddUserInfoGUI(QWidget):
 # TODO: Multiple billing codes, fix users being added to all projects
 class AddUsersGUI(QWidget):
     # The project to add users to
-    selected_project = object.Project
+    selected_project = ""
 
     # The parent window
     parent_window = QWidget
@@ -829,6 +829,16 @@ class AddUsersGUI(QWidget):
         project_users.clear()
         for user in self.project_user_list:
             project_users.addItem(user.name)
+
+    # closeEvent: Changes the default closing behavior by overriding the base method
+    # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
+    # RETURNS: None
+    def closeEvent(self, event):
+        self.selected_all_user = object.User
+        self.selected_project_user = object.User
+        self.project_user_list = []
+        self.selected_project = object.Project
+        event.accept()
 
 
 class NewProjectGUI(QWidget):
