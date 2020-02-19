@@ -4,15 +4,15 @@
 # Copyright 2019
 #
 # Created: 2019-10-19 by Brendan Kristiansen
-# Worked on by Dan Bachler
+# Written by Dan Bachler
 # ws_gui.py
 # GUI Wrapper for Work Scheduler
 
 # TODO:
 #   NewUserGUI:
-#   NewProjectGUI:
-#   EditUserUI: Done?
-#   EditProjectUI: Add ability to add users to project
+#   NewProjectGUI: Fix closing behavior when editing
+#   EditUserUI:
+#   EditProjectUI: Fix users being added even when canceling window
 #   MainUI:
 #   Projects:
 #   Users:
@@ -779,13 +779,7 @@ class AddUsersGUI(QWidget):
         self.setWindowIcon(QIcon("icon.png"))
         self.show()
 
-    # save: Saves the current information (may not be needed)
-    # ARGS: self (QWidget)
-    # RETURNS: None
-    def save(self):
-        pass
-
-    # addUserToProject: Adds the selected user in the main list to the project (Makes new popup for information)
+    # addUserToProject: Adds the selected user in the main list to the internal list (not actual project)
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUserToProject(self):
@@ -831,14 +825,11 @@ class AddUsersGUI(QWidget):
         for user in self.project_user_list:
             project_users.addItem(user.name)
 
-    # closeEvent: Changes the default closing behavior by overriding the base method
-    # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
+    # closeEvent: Saves created user list to parent window before closing
+    # ARGS: self (QWidget), event (QEvent (closing event))
     # RETURNS: None
     def closeEvent(self, event):
-        self.selected_all_user = object.User
-        self.selected_project_user = object.User
-        self.project_user_list = []
-        self.selected_project = object.Project
+        self.parent_window.project_user_list = self.project_user_list
         event.accept()
 
 
@@ -859,6 +850,7 @@ class NewProjectGUI(QWidget):
     # Editing vars
     editing = False
     editing_project = object.Project
+    project_user_list = []
 
     # __init__: Initializes the NewProjectGUI
     # ARGS: self (QWidget)
@@ -1018,13 +1010,14 @@ class NewProjectGUI(QWidget):
         self.findChild(QTextEdit, "description_input").setText(project.description)
         self.edited = False
 
-    # updateProject: Updates an existing project instead of
+    # updateProject: Updates an existing project instead of creating a new one
     # ARGS: self (QWidget)
     # RETURNS: None
     def updateProject(self):
         # Get updated project and remove old one from list
         self.parent_window.projectList.remove(self.editing_project)
         project = self.getProject()
+        project.users = self.project_user_list
         # Add to list and update master list in main UI
         self.parent_window.projectList.append(project)
         self.parent_window.updateUserList()
@@ -1065,5 +1058,6 @@ class NewProjectGUI(QWidget):
         try:
             self.add_user_window = AddUsersGUI(self.editing_project, self)
             self.add_user_window.initUI()
+            self.edited = True
         except Exception as e:
             print(e)
