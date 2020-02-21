@@ -653,6 +653,9 @@ class NewUserGUI(QWidget):
 
 
 class AddUserInfoGUI(QWidget):
+    # Check for edits variable.
+    boxEditedVariable = False
+
     # Parent AddUsersGUI window
     parent_window = ""
 
@@ -674,12 +677,34 @@ class AddUserInfoGUI(QWidget):
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
     # RETURNS: None
+    #Jesse box
     def initUI(self):
+
+        # GUI Code.
+
+        # items
+        projectHours_Box = QHBoxLayout()
+        projectHours_Label = QLabel("Project Hours")
+        projectHours_Input = QLineEdit()
+        projectHours_Input.textEdited.connect(self.boxEdited)
+        projectHours_Input.setObjectName("projectHours_Input")
+        projectHours_Box.addWidget(projectHours_Label)
+        projectHours_Box.addWidget(projectHours_Input)
+        # buttons
+
+        # boxing
+        largeColLeft = QVBoxLayout()
+        largeColRight = QVBoxLayout()
+        largeColLeft.addLayout(projectHours_Box)
+        # Final setup and display.
+        self.setLayout(largeColLeft)
         self.setGeometry(300, 300, 300, 300)
         self.setWindowTitle("Add User Information")
         self.setWindowIcon(QIcon("icon.png"))
         self.show()
 
+    def boxEdited(self):
+        self.boxEditedVariable = True
 
 # TODO: Multiple billing codes, fix users being added to all projects
 #   Send user list back up to edit window so that cancel does not save and update does
