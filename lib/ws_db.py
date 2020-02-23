@@ -78,9 +78,16 @@ class DB_Connection:
     def set_company_info(self):
         pass
 
+    def set_admin_user(self, name):
+        self.db_command("GRANT ALL ON *.* TO '%s'@'localhost';" % name)
+        self.db_command("GRANT ALL ON *.* TO '"+name+"'@'%';")
+
     # Create a database user.
     def create_user(self, name, rank, rate):
-        # TODO: Create mySQL user
+        stmt = "CREATE USER '%s'@'localhost';" % name
+        self.db_command(stmt)
+        stmt = "CREATE USER '"+name+"'@'%';"
+        self.db_command(stmt)
         # TODO: Define all of these at once
         # TODO: Use company's EID
         stmt = "INSERT INTO employee (employee_name, rank, hourly_rate) VALUES ('%s', %d, %f);" % (name, rank, rate)
