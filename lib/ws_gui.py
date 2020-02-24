@@ -674,30 +674,79 @@ class AddUserInfoGUI(QWidget):
         self.user = user
         self.parent_window = parent_window
 
+
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
     # RETURNS: None
-    #Jesse box
+    # Jesse box
+    # TODO: Interface Projected Hours, Desired Hours and Actual Hours to user project info. Need User->Project->Project Hours, Desired Hours and Actual Hours in data base.
     def initUI(self):
 
         # GUI Code.
 
         # items
-        projectHours_Box = QHBoxLayout()
-        projectHours_Label = QLabel("Project Hours")
-        projectHours_Input = QLineEdit()
-        projectHours_Input.textEdited.connect(self.boxEdited)
-        projectHours_Input.setObjectName("projectHours_Input")
-        projectHours_Box.addWidget(projectHours_Label)
-        projectHours_Box.addWidget(projectHours_Input)
+        projectedHours_Box = QHBoxLayout()
+        projectedHours_Label = QLabel("Projected Hours")
+        projectedHours_Input = QLineEdit()
+        projectedHours_Input.textEdited.connect(self.boxEdited)
+        projectedHours_Input.setObjectName("projectedHours_Input")
+        projectedHours_Box.addWidget(projectedHours_Label)
+        projectedHours_Box.addWidget(projectedHours_Input)
+
+        desiredHours_Box = QHBoxLayout()
+        desiredHours_Label = QLabel("Desired Hours")
+        desiredHours_Input = QLineEdit()
+        desiredHours_Input.textEdited.connect(self.boxEdited)
+        desiredHours_Input.setObjectName("desiredHours_Input")
+        desiredHours_Box.addWidget(desiredHours_Label)
+        desiredHours_Box.addWidget(desiredHours_Input)
+
+        actualHours_Box = QHBoxLayout()
+        actualHours_Label = QLabel("Actual Hours")
+        actualHours_Input = QLineEdit()
+        actualHours_Input.textEdited.connect(self.boxEdited)
+        actualHours_Input.setObjectName("actualHours_Input")
+        actualHours_Box.addWidget(actualHours_Label)
+        actualHours_Box.addWidget(actualHours_Input)
+
         # buttons
+        saveButton_Box = QHBoxLayout()
+        saveButton = QPushButton("Save")
+        saveButton_Box.addWidget(saveButton)
+        #add function connection here.
+
+        cancelButton_Box = QHBoxLayout()
+        cancelButton = QPushButton("Cancel")
+        cancelButton_Box.addWidget(cancelButton)
+        # combobox
+        billingCode_Box = QHBoxLayout()
+        billingCode_Label = QLabel("Billing Code")
+        billingCode_Combobox = QComboBox()
+        if (not isinstance(self.selected_project.billing_codes, str)):
+            for i in range(len(self.selected_project.billing_codes)):
+                billingCode_Combobox.addItem(self.selected_project.billing_codes[i])
+        else:
+            billingCode_Combobox.addItem(self.selected_project.billing_codes)
+
+        billingCode_Box.addWidget(billingCode_Label)
+        billingCode_Box.addWidget(billingCode_Combobox)
 
         # boxing
-        largeColLeft = QVBoxLayout()
-        largeColRight = QVBoxLayout()
-        largeColLeft.addLayout(projectHours_Box)
+        windowBox = QVBoxLayout()
+
+        largeColTop = QVBoxLayout()
+        largeColTop.addLayout(projectedHours_Box)
+        largeColTop.addLayout(desiredHours_Box)
+        largeColTop.addLayout(actualHours_Box)
+        largeColTop.addLayout(billingCode_Box)
+        largeHorBottom = QVBoxLayout()
+        largeHorBottom.addLayout(saveButton_Box)
+        largeHorBottom.addLayout(cancelButton_Box)
+
+        windowBox.addLayout(largeColTop)
+        windowBox.addLayout(largeHorBottom)
         # Final setup and display.
-        self.setLayout(largeColLeft)
+        self.setLayout(windowBox)
         self.setGeometry(300, 300, 300, 300)
         self.setWindowTitle("Add User Information")
         self.setWindowIcon(QIcon("icon.png"))
