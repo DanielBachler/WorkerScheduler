@@ -54,19 +54,15 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer);")
-            self.db_command("CREATE TABLE IF NOT EXISTS user_project (ipid integer primary key, billing_code integer, eid integer, projected_hours real default NULL, requested_hours real default NULL, earned_hours real default 0);")
+            self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer primary key, billing_code integer, eid integer, projected_hours real default NULL, requested_hours real default NULL, earned_hours real default 0);")
             self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
-            # TODO: Table for time assignments
+            self.db_command("CREATE TABLE IF NOT EXISTS time_assignments (code integer, eid integer, mo integer, yr integer, hrs real);")
             self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_id integer primary key, role_name varchar(32));")
             self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer primary key, level_name varchar(16));")
             self.db_command("CREATE TABLE IF NOT EXISTS user_proj_past (upid integer, start_yr integer, start_mo integer, end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
             self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer, end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
 
             self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'manager');")
-
-    # Add mySQL user
-    def add_user(self):
-        pass
 
     # Return a user's information
     def get_user_info(self):
@@ -81,6 +77,7 @@ class DB_Connection:
     def set_admin_user(self, name):
         self.db_command("GRANT ALL ON *.* TO '%s'@'localhost';" % name)
         self.db_command("GRANT ALL ON *.* TO '"+name+"'@'%';")
+        self.db_command("FLUSH PRIVILEGES;")
 
     # Create a database user.
     def create_user(self, name, rank, rate):
@@ -88,6 +85,7 @@ class DB_Connection:
         self.db_command(stmt)
         stmt = "CREATE USER '"+name+"'@'%';"
         self.db_command(stmt)
+        self.set_admin_user(name)
         # TODO: Define all of these at once
         # TODO: Use company's EID
         stmt = "INSERT INTO employee (employee_name, rank, hourly_rate) VALUES ('%s', %d, %f);" % (name, rank, rate)
