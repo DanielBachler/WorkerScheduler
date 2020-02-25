@@ -12,7 +12,7 @@
 #   NewUserGUI:
 #   NewProjectGUI: Fix closing behavior when editing
 #   EditUserUI:
-#   EditProjectUI: Fix users being added even when canceling window
+#   EditProjectUI: Fix users being added even when canceling window, add functionality to info form
 #   MainUI:
 #   Projects:
 #   Users:
@@ -685,6 +685,7 @@ class AddUserInfoGUI(QWidget):
         # GUI Code.
 
         # items
+        # Projected hours
         projectedHours_Box = QHBoxLayout()
         projectedHours_Label = QLabel("Projected Hours")
         projectedHours_Input = QLineEdit()
@@ -693,6 +694,7 @@ class AddUserInfoGUI(QWidget):
         projectedHours_Box.addWidget(projectedHours_Label)
         projectedHours_Box.addWidget(projectedHours_Input)
 
+        # Desired hours
         desiredHours_Box = QHBoxLayout()
         desiredHours_Label = QLabel("Desired Hours")
         desiredHours_Input = QLineEdit()
@@ -701,6 +703,7 @@ class AddUserInfoGUI(QWidget):
         desiredHours_Box.addWidget(desiredHours_Label)
         desiredHours_Box.addWidget(desiredHours_Input)
 
+        # Actual hours
         actualHours_Box = QHBoxLayout()
         actualHours_Label = QLabel("Actual Hours")
         actualHours_Input = QLineEdit()
@@ -755,11 +758,10 @@ class AddUserInfoGUI(QWidget):
     def boxEdited(self):
         self.boxEditedVariable = True
 
-# TODO: Multiple billing codes, fix users being added to all projects
-#   Send user list back up to edit window so that cancel does not save and update does
+# TODO: Send user list back up to edit window so that cancel does not save and update does
 class AddUsersGUI(QWidget):
     # The project to add users to
-    selected_project = ""
+    selected_project = object.Project
 
     # The parent window
     parent_window = QWidget
