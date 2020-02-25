@@ -61,13 +61,13 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer primary key, level_name varchar(16));")
             self.db_command("CREATE TABLE IF NOT EXISTS user_proj_past (upid integer, start_yr integer, start_mo integer, end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
             self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer, end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
-
             self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'manager');")
 
     # Return a user's information
     def get_user_info(self):
-        self.db_command("GRANT ALL ON *.* to user@localhost IDENTIFIED BY 'password'; ")    # TODO
-        self.db_command("GRANT ALL ON *.* to user@'%' IDENTIFIED BY 'password';")           # TODO
+        pass
+        # self.db_command("GRANT ALL ON *.* to user@localhost IDENTIFIED BY 'password'; ")    # TODO
+        # self.db_command("GRANT ALL ON *.* to user@'%' IDENTIFIED BY 'password';")           # TODO
 
 
     # Set a company's information. This only needs to be done once.
