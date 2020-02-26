@@ -42,6 +42,7 @@ def tempUserList(project_list):
     userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1")
     userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2")
     tempList = [userBrendan, userDan, userJesse]
+
     return tempList
 
 
