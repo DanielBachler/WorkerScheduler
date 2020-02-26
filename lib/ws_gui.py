@@ -13,6 +13,7 @@
 #   NewProjectGUI: Fix closing behavior when editing
 #   EditUserUI:
 #   EditProjectUI: Fix users being added even when canceling window
+#   AddUserUI: Fix cancel not working, adding ghost users
 #   MainUI:
 #   Projects:
 #   Users:
@@ -683,6 +684,7 @@ class AddUserInfoGUI(QWidget):
 
 # TODO: Multiple billing codes, fix users being added to all projects
 #   Send user list back up to edit window so that cancel does not save and update does
+#   Ghost users
 class AddUsersGUI(QWidget):
     # The project to add users to
     selected_project = ""
