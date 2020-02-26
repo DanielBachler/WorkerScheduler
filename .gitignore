@@ -9,3 +9,4 @@ lib/__pycache__/ws_gui.cpython-37.pyc
 .idea/misc.xml
 .idea/work-scheduler.iml
 *.pyc
+venv/Lib/site-packages/*
