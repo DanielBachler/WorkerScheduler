@@ -10,10 +10,10 @@
 
 # TODO:
 #   NewUserGUI:
-#   NewProjectGUI: Fix closing behavior when editing
+#   NewProjectGUI:
 #   EditUserUI:
-#   EditProjectUI: Fix users being added even when canceling window, add functionality to info form
-#   MainUI:
+#   EditProjectUI: add functionality to info form
+#   MainUI: Fix closing behavior for other type prompts
 #   Projects:
 #   Users:
 #   Overall: Tie in database
@@ -26,6 +26,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from lib import object
+import copy
 
 from lib import CONSTANTS as K
 
@@ -46,8 +47,6 @@ class Main_UI(QMainWindow):
     # Class global vars for sub windows
     newUserWindow = ""
     newProjectWindow = ""
-    editUserWindow = ""
-    editProjectWindow = ""
     # List of available ranks pulled from database
     rank_list = []
 
@@ -64,8 +63,6 @@ class Main_UI(QMainWindow):
         super().__init__()
         self.newUserWindow = NewUserGUI()
         self.newProjectWindow = NewProjectGUI()
-        self.editUserWindow = NewUserGUI()
-        self.editProjectWindow = NewProjectGUI()
 
     # login: Takes the login information and connects the database as a user
     # ARGS: self (QMainWindow)
@@ -183,8 +180,8 @@ class Main_UI(QMainWindow):
         # New hbox for buttons under selected user pane
         employeeHBox = QHBoxLayout()
         # Buttons under right pane for selected employee
-        deleteSelectedUser = QPushButton('Delete User')
-        deleteSelectedUser.setToolTip('This button will permanently delete the selected employee from the database')
+        deleteSelectedUser = QPushButton('Delete')
+        deleteSelectedUser.setToolTip('This button will permanently delete the selected item from the database')
         deleteSelectedUser.clicked.connect(self.deletedSelectedFunc)
         employeeHBox.addWidget(deleteSelectedUser)
 
@@ -219,14 +216,8 @@ class Main_UI(QMainWindow):
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if temp == QMessageBox.Yes:
-            if self.newUserWindow.isEnabled():
-                self.newUserWindow.close()
-            if self.newProjectWindow.isEnabled():
-                self.newProjectWindow.close()
-            if self.editProjectWindow.isEnabled():
-                self.editProjectWindow.close()
-            if self.editUserWindow.isEnabled():
-                self.editUserWindow.close()
+            self.newUserWindow.parent_closing = True
+            self.newProjectWindow.parent_closing = True
             event.accept()
         else:
             event.ignore()
@@ -280,7 +271,7 @@ class Main_UI(QMainWindow):
                 user = findItem(current_object, self.userList)
                 self.userList.remove(user)
             self.updateUserList()
-        except Exception as e:
+        except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
                                     QMessageBox.Close, QMessageBox.Close)
 
@@ -295,21 +286,21 @@ class Main_UI(QMainWindow):
         if self.view:
             # Project
             try:
-                self.editProjectWindow = NewProjectGUI()
-                self.editProjectWindow.editing = True
-                self.editProjectWindow.initUI(self)
-                self.editProjectWindow.edit(current_object)
-                self.editProjectWindow.setWindowIcon(QIcon("icon.png"))
+                self.newProjectWindow = NewProjectGUI()
+                self.newProjectWindow.editing = True
+                self.newProjectWindow.initUI(self)
+                self.newProjectWindow.edit(current_object)
+                self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
             except Exception as e:
                 print(e)
         else:
             # User
             try:
-                self.editUserWindow = NewUserGUI()
-                self.editUserWindow.editing = True
-                self.editUserWindow.initUI(self)
-                self.editUserWindow.editUser(current_object)
-                self.editUserWindow.setWindowIcon(QIcon("icon.png"))
+                self.newUserWindow = NewUserGUI()
+                self.newUserWindow.editing = True
+                self.newUserWindow.initUI(self)
+                self.newUserWindow.editUser(current_object)
+                self.newUserWindow.setWindowIcon(QIcon("icon.png"))
             except Exception as e:
                 print(e)
 
@@ -406,6 +397,9 @@ class NewUserGUI(QWidget):
     # If Editing vars
     editing = False
     editing_user = object.User
+
+    # Closing behavior vars
+    parent_closing = False
 
     # __init__: Initializes the NewUserGUI window
     # ARGS: self (QWidget)
@@ -556,6 +550,9 @@ class NewUserGUI(QWidget):
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: None
     def closeEvent(self, event):
+        # Override closing from parent
+        if self.parent_closing:
+            event.accept()
         if self.close_from_save or not self.box_edited:
             event.accept()
         else:
@@ -674,12 +671,11 @@ class AddUserInfoGUI(QWidget):
         self.user = user
         self.parent_window = parent_window
 
-
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
     # RETURNS: None
-    # Jesse box
-    # TODO: Interface Projected Hours, Desired Hours and Actual Hours to user project info. Need User->Project->Project Hours, Desired Hours and Actual Hours in data base.
+    # TODO: Interface Projected Hours, Desired Hours and Actual Hours to user project info. Need User->Project->Project
+    #  Hours, Desired Hours and Actual Hours in data base.
     def initUI(self):
 
         # GUI Code.
@@ -721,6 +717,8 @@ class AddUserInfoGUI(QWidget):
         cancelButton_Box = QHBoxLayout()
         cancelButton = QPushButton("Cancel")
         cancelButton_Box.addWidget(cancelButton)
+        # add function connection here
+
         # combobox
         billingCode_Box = QHBoxLayout()
         billingCode_Label = QLabel("Billing Code")
@@ -758,13 +756,7 @@ class AddUserInfoGUI(QWidget):
     def boxEdited(self):
         self.boxEditedVariable = True
 
-<<<<<<< HEAD
-# TODO: Multiple billing codes, fix users being added to all projects
-#   Send user list back up to edit window so that cancel does not save and update does
-#   Ghost users
-=======
-# TODO: Send user list back up to edit window so that cancel does not save and update does
->>>>>>> 95b94a5718efe4a8bac54ef52828c7ee1971e012
+
 class AddUsersGUI(QWidget):
     # The project to add users to
     selected_project = object.Project
@@ -791,7 +783,7 @@ class AddUsersGUI(QWidget):
         super().__init__()
         self.selected_project = project
         self.parent_window = parent_window
-        self.project_user_list = project.users
+        self.project_user_list = copy.deepcopy(project.users)
 
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
@@ -874,8 +866,12 @@ class AddUsersGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def removeUserFromProject(self):
-        self.project_user_list.remove(self.selected_project_user)
-        self.updateProjectUsersList()
+        try:
+            self.project_user_list.remove(self.selected_project_user)
+            self.updateProjectUsersList()
+        except:
+            QMessageBox.question(self, 'Error', 'Selected item is already deleted',
+                                 QMessageBox.Close, QMessageBox.Close)
 
     # updateAllUser: Updates the current selected_all_user
     # ARGS: self (QWidget), item (QListWidgetItem)
@@ -933,6 +929,9 @@ class NewProjectGUI(QWidget):
     editing = False
     editing_project = object.Project
     project_user_list = []
+
+    # Closing behavior var from main parent
+    parent_closing = False
 
     # __init__: Initializes the NewProjectGUI
     # ARGS: self (QWidget)
@@ -1065,7 +1064,15 @@ class NewProjectGUI(QWidget):
     # ARGS: self (QMainWindow), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: none
     def closeEvent(self, event):
-        if self.isEdited() and not self.close_from_save:
+        # If parent is closing, force close
+        if self.parent_closing:
+            event.accept()
+        # If the form is editing and the form is not saved, prompt for cancellation
+        if self.editing and self.edited and not self.close_from_save:
+            temp = QMessageBox.question(self, 'Cancel Confirmation',
+                                        'Are you sure you want to cancel project updates?',
+                                        QMessageBox.Yes | QMessageBox.No | QMessageBox.Save, QMessageBox.No)
+        elif self.edited and (not self.close_from_save):
             temp = QMessageBox.question(self, 'Cancel Confirmation',
                                         'Are you sure you want to cancel project creation?',
                                         QMessageBox.Yes | QMessageBox.No | QMessageBox.Save, QMessageBox.No)
@@ -1073,10 +1080,15 @@ class NewProjectGUI(QWidget):
             event.accept()
             return
 
+        # Logic based on message box choice, only executes if not saved and edited
         if temp == QMessageBox.Yes:
             event.accept()
         elif temp == QMessageBox.Save:
-            self.save()
+            # Update or save based on state of window
+            if self.editing:
+                self.updateProject()
+            else:
+                self.save()
             event.accept()
         else:
             event.ignore()
