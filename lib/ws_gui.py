@@ -13,12 +13,12 @@
 #   NewProjectGUI:
 #   EditUserUI:
 #   EditProjectUI:
-#   AddUsersGUI: On save send UserProjects to users
-#   AddUserInfoGUI: Functionality
+#   AddUsersGUI:
+#   AddUserInfoGUI:
 #   MainUI: Details button
 #   Projects:
 #   Users:
-#   Overall: Tie in database, rewrite find to user unique IDS (Add function with same name for all classes)
+#   Overall: Tie in database, view by ID instead of name?
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -47,7 +47,7 @@ def findItem(objectName, objectList):
 # RETURNS:  object_current (T)
 def findItemByID(objectID, objectList):
     for object_current in objectList:
-        if objectID == object_current.getID():
+        if objectID == object_current.get_Id():
             return object_current
 
 
@@ -219,8 +219,7 @@ class Main_UI(QMainWindow):
 
         centralWidget.setLayout(hbox)
 
-        self.change_view()
-        self.center()
+        self.updateUserList()
         self.statusBar().showMessage('Ready')
         self.setGeometry(300, 300, size[0], size[1])
         self.setWindowTitle('Worker Scheduler')
@@ -236,6 +235,7 @@ class Main_UI(QMainWindow):
         if temp == QMessageBox.Yes:
             self.newUserWindow.parent_closing = True
             self.newProjectWindow.parent_closing = True
+            # TODO: Close database connection
             event.accept()
         else:
             event.ignore()
@@ -248,17 +248,12 @@ class Main_UI(QMainWindow):
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
         name = item.text()
         selected_object = ""
-        # TODO: Redo with find method
         if self.view:
             selected_object = findItem(name, self.projectList)
             right_view.setText(selected_object.print_project())
         else:
             selected_object = findItem(name, self.userList)
             right_view.setText(selected_object.print_user())
-            try:
-                print(selected_object.get_ID())
-            except Exception as e:
-                print(e)
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -323,15 +318,6 @@ class Main_UI(QMainWindow):
             except Exception as e:
                 print(e)
 
-    # center: Centers the window on the screen
-    # ARGS: self (QMainWindow)
-    # RETURNS: None
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-
     # makeNewProject: Opens new project creation UI
     # ARGS: self (QMainWindow)
     # RETURNS: None
@@ -348,6 +334,7 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def updateUserList(self):
         # Get right_view object
+        # TODO: Add names to prevent breakage
         left_view = self.findChild(QListWidget)
         left_view.clear()
 
@@ -364,29 +351,14 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def switch_user_view(self):
         self.view = False
-        self.change_view()
+        self.updateUserList()
 
     # switch_project_view: Changes the main UI to show projects
     # ARGS: self (QMainWindow)
     # RETURNS:
     def switch_project_view(self):
         self.view = True
-        self.change_view()
-
-    # change_view: Changes the currently displayed items in Main UI based on view var
-    # ARGS: self (QMainWindow)
-    # RETURNS: None
-    def change_view(self):
-        # Get the left_view object
-        left_view = self.centralWidget().findChild(QListWidget, "left_view")
-        if self.view:
-            left_view.clear()
-            for project in self.projectList:
-                left_view.addItem(project.name)
-        else:
-            left_view.clear()
-            for user in self.userList:
-                left_view.addItem(user.name)
+        self.updateUserList()
 
     # addRank: adds a new rank to the rank list
     # ARGS: self (QMainWindow)
@@ -568,6 +540,7 @@ class NewUserGUI(QWidget):
     # closeEvent: Changes the default closing behavior by overriding the base method
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: None
+    # TODO: Make not stupid
     def closeEvent(self, event):
         # Override closing from parent
         if self.parent_closing:
@@ -649,6 +622,7 @@ class NewUserGUI(QWidget):
     # findUser: Finds a given user by userID
     # ARGS: self (QWidget), user_id (String)
     # RETURNS: user (object.User) || None
+    # TODO: Remove and replace usage with global version
     def findUser(self, user_id):
         for user in self.parent_window.userList:
             if user.employee_id == user_id:
@@ -787,8 +761,9 @@ class AddUserInfoGUI(QWidget):
     def closeEvent(self, QCloseEvent):
         # If edited and not saved
         if self.boxEditedVariable and not self.saved:
-            to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel without saving?',
-                                           QMessageBox.Yes | QMessageBox.Save |QMessageBox.No, QMessageBox.No)
+            to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel without '
+                                                                        'saving?',
+                                           QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
         else:
             QCloseEvent.accept()
             return
@@ -798,7 +773,7 @@ class AddUserInfoGUI(QWidget):
         elif to_exit == QMessageBox.Save:
             self.save()
         else:
-            pass
+            QCloseEvent.ignore()
 
     # save: Saves the current information into a UserProjectObject
     # ARGS: self (QWidget)
@@ -1225,14 +1200,8 @@ class NewProjectGUI(QWidget):
                 userOb = findItemByID(user, self.parent_window.userList)
             except Exception as e:
                 print(e)
-            # Get current projects
-            currProjects = copy.deepcopy(userOb.projects)
-            userOb.projects = []
-            # Assign all projectObjects
-            userOb.projects = currProjects
             for ob in self.user_projects[user]:
                 userOb.projects.append(ob)
-                print(ob.toString())
         # TODO: Database updates
 
         self.close()
