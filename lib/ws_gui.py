@@ -12,11 +12,13 @@
 #   NewUserGUI:
 #   NewProjectGUI:
 #   EditUserUI:
-#   EditProjectUI: add functionality to info form
-#   MainUI: Fix closing behavior for other type prompts
+#   EditProjectUI:
+#   AddUsersGUI: On save send UserProjects to users
+#   AddUserInfoGUI: Functionality
+#   MainUI: Details button
 #   Projects:
 #   Users:
-#   Overall: Tie in database
+#   Overall: Tie in database, rewrite find to user unique IDS (Add function with same name for all classes)
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -37,6 +39,15 @@ from lib import CONSTANTS as K
 def findItem(objectName, objectList):
     for object_current in objectList:
         if objectName == object_current.name:
+            return object_current
+
+
+# findItemByID: Finds the given item in the given list by unique ID
+# ARGS: objectName (T), objectList (List[T])
+# RETURNS:  object_current (T)
+def findItemByID(objectID, objectList):
+    for object_current in objectList:
+        if objectID == object_current.getID():
             return object_current
 
 
@@ -87,6 +98,13 @@ class Main_UI(QMainWindow):
         self.userList = userList
         self.projectList = projectList
         self.rank_list = rank_list
+
+        # TODO: Do this with database once
+        # Assign IDS to projects
+        i = 0
+        for project in self.projectList:
+            project.id = i
+            i += 1
 
         size = (600, 600)
         # Setup main display: Pane of worker names to chose (left), pane showing selected worker info (right),
@@ -230,16 +248,17 @@ class Main_UI(QMainWindow):
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
         name = item.text()
         selected_object = ""
+        # TODO: Redo with find method
         if self.view:
-            for project in self.projectList:
-                if project.name == name:
-                    selected_object = project
+            selected_object = findItem(name, self.projectList)
             right_view.setText(selected_object.print_project())
         else:
-            for user in self.userList:
-                if user.name == name:
-                    selected_object = user
+            selected_object = findItem(name, self.userList)
             right_view.setText(selected_object.print_user())
+            try:
+                print(selected_object.get_ID())
+            except Exception as e:
+                print(e)
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -662,6 +681,9 @@ class AddUserInfoGUI(QWidget):
     # Selected user to add to project with info
     user = object.User
 
+    # Saved state
+    saved = False
+
     # __init__: Creates an instance of AddUserInfoGUI
     # ARGS: self (QWidget), project (object.Project), user (object.User), parent_window (QWidget)
     # RETURNS: self (QWidget)
@@ -674,19 +696,14 @@ class AddUserInfoGUI(QWidget):
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Interface Projected Hours, Desired Hours and Actual Hours to user project info. Need User->Project->Project
-    #  Hours, Desired Hours and Actual Hours in data base.
     def initUI(self):
-
-        # GUI Code.
-
-        # items
+        # UI Items
         # Projected hours
         projectedHours_Box = QHBoxLayout()
         projectedHours_Label = QLabel("Projected Hours")
         projectedHours_Input = QLineEdit()
         projectedHours_Input.textEdited.connect(self.boxEdited)
-        projectedHours_Input.setObjectName("projectedHours_Input")
+        projectedHours_Input.setObjectName("projectedHours")
         projectedHours_Box.addWidget(projectedHours_Label)
         projectedHours_Box.addWidget(projectedHours_Input)
 
@@ -695,7 +712,7 @@ class AddUserInfoGUI(QWidget):
         desiredHours_Label = QLabel("Desired Hours")
         desiredHours_Input = QLineEdit()
         desiredHours_Input.textEdited.connect(self.boxEdited)
-        desiredHours_Input.setObjectName("desiredHours_Input")
+        desiredHours_Input.setObjectName("desiredHours")
         desiredHours_Box.addWidget(desiredHours_Label)
         desiredHours_Box.addWidget(desiredHours_Input)
 
@@ -704,25 +721,29 @@ class AddUserInfoGUI(QWidget):
         actualHours_Label = QLabel("Actual Hours")
         actualHours_Input = QLineEdit()
         actualHours_Input.textEdited.connect(self.boxEdited)
-        actualHours_Input.setObjectName("actualHours_Input")
+        actualHours_Input.setObjectName("actualHours")
         actualHours_Box.addWidget(actualHours_Label)
         actualHours_Box.addWidget(actualHours_Input)
 
-        # buttons
+        # Buttons
+
+        # Save button
         saveButton_Box = QHBoxLayout()
         saveButton = QPushButton("Save")
         saveButton_Box.addWidget(saveButton)
-        #add function connection here.
+        saveButton.clicked.connect(self.save)
 
+        # Cancel button
         cancelButton_Box = QHBoxLayout()
         cancelButton = QPushButton("Cancel")
         cancelButton_Box.addWidget(cancelButton)
-        # add function connection here
+        cancelButton.clicked.connect(self.close)
 
         # combobox
         billingCode_Box = QHBoxLayout()
         billingCode_Label = QLabel("Billing Code")
         billingCode_Combobox = QComboBox()
+        billingCode_Combobox.setObjectName("billingCode")
         if (not isinstance(self.selected_project.billing_codes, str)):
             for i in range(len(self.selected_project.billing_codes)):
                 billingCode_Combobox.addItem(self.selected_project.billing_codes[i])
@@ -753,8 +774,78 @@ class AddUserInfoGUI(QWidget):
         self.setWindowIcon(QIcon("icon.png"))
         self.show()
 
+    # boxEdited: Changes state of edited variable
+    # ARGS: self (QWidget)
+    # RETURNS: None
     def boxEdited(self):
         self.boxEditedVariable = True
+
+    # TODO: On edit prompt for close
+    # closeEvent: Modifies closing behavior
+    # ARGS: self (QWidget), QCloseEvent (QCloseEvent)
+    # RETURNS: None
+    def closeEvent(self, QCloseEvent):
+        # If edited and not saved
+        if self.boxEditedVariable and not self.saved:
+            to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel without saving?',
+                                           QMessageBox.Yes | QMessageBox.Save |QMessageBox.No, QMessageBox.No)
+        else:
+            QCloseEvent.accept()
+            return
+
+        if to_exit == QMessageBox.Yes:
+            QCloseEvent.accept()
+        elif to_exit == QMessageBox.Save:
+            self.save()
+        else:
+            pass
+
+    # save: Saves the current information into a UserProjectObject
+    # ARGS: self (QWidget)
+    # RETURNS: None
+    def save(self):
+        try:
+            # Get items
+            projectedHours = self.findChild(QLineEdit, "projectedHours")
+            desiredHours = self.findChild(QLineEdit, "desiredHours")
+            actualHours = self.findChild(QLineEdit, "actualHours")
+            billingCode = self.findChild(QComboBox, "billingCode")
+
+            # Get information from widgets
+            pH = projectedHours.text()
+            dH = desiredHours.text()
+            aH = actualHours.text()
+            bC = billingCode.currentText()
+
+            # TODO: Make this better
+            # Try and convert to ints
+            try:
+                pH = int(pH)
+            except:
+                pass
+
+            try:
+                dH = int(dH)
+            except:
+                dH = None
+
+            try:
+                aH = int(aH)
+            except:
+                aH = None
+
+            # Make UserProject object
+            userProject = object.UserProject(bC, pH, dH, aH)
+            if self.user.employee_id in self.parent_window.parent_window.user_projects.keys():
+                self.parent_window.parent_window.user_projects[self.user.employee_id].append(userProject)
+            else:
+                self.parent_window.parent_window.user_projects[self.user.employee_id] = [userProject]
+
+            # Mark as saved and close
+            self.saved = True
+            self.close()
+        except Exception as e:
+            print(e)
 
 
 class AddUsersGUI(QWidget):
@@ -857,10 +948,13 @@ class AddUsersGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUserToProject(self):
-        self.project_user_list.append(self.selected_all_user)
-        self.updateProjectUsersList()
-        self.user_info = AddUserInfoGUI(self.selected_project, self.selected_all_user, self)
-        self.user_info.initUI()
+        try:
+            self.project_user_list.append(self.selected_all_user)
+            self.updateProjectUsersList()
+            self.user_info = AddUserInfoGUI(self.selected_project, self.selected_all_user, self)
+            self.user_info.initUI()
+        except Exception as e:
+            print(e)
 
     # removeUserFromProject: Removes the selected user in project list from the project, are you sure prompt?
     # ARGS: self (QWidget)
@@ -932,6 +1026,9 @@ class NewProjectGUI(QWidget):
 
     # Closing behavior var from main parent
     parent_closing = False
+
+    # Dictionary of UserProjects to add if saving
+    user_projects = {}
 
     # __init__: Initializes the NewProjectGUI
     # ARGS: self (QWidget)
@@ -1120,6 +1217,22 @@ class NewProjectGUI(QWidget):
         self.close_from_save = True
         # Update parent window selected pane
         self.parent_window.newSelected(QListWidgetItem(project.name))
+
+        # Update users with UserProjects
+        for user in self.user_projects.keys():
+            # Find user
+            try:
+                userOb = findItemByID(user, self.parent_window.userList)
+            except Exception as e:
+                print(e)
+            # Get current projects
+            currProjects = copy.deepcopy(userOb.projects)
+            userOb.projects = []
+            # Assign all projectObjects
+            userOb.projects = currProjects
+            for ob in self.user_projects[user]:
+                userOb.projects.append(ob)
+                print(ob.toString())
         # TODO: Database updates
 
         self.close()

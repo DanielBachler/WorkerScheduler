@@ -51,13 +51,19 @@ class User:
     # ARGS: self (User)
     # RETURNS: projects_string (String)
     def print_projects(self):
-        if self.projects == []:
+        if not self.projects:
             return ""
         else:
             projects_string = ""
             for project in self.projects:
                 projects_string += project.name + " " + project.billing_code
             return projects_string
+
+    # getID: returns the unique id (employee_id)
+    # ARGS: self (object.User)
+    # RETURNS employee_id (string)
+    def get_Id(self):
+        return self.employee_id
 
     # TODO: Fix with new UserProject object
 
@@ -78,16 +84,19 @@ class UserProject:
     projected_hours = 0
     # Default is none, to differentiate from desired of 0
     desired_hours = None
-    actual_hours = 0
+    actual_hours = None
     # Dict of past hours by year, keys are years values are ints
     past_actual_hours = {}
     past_planned_hours = {}
 
     # __init__: Initializes a user project
-    # ARGS:
+    # ARGS: billing_code (String), projected_hours (int), desired_hours (int | None), actual_hours (int | None)
     # Returns: self (object.UserProject)
-    def __init__(self):
-        pass
+    def __init__(self, billing_code, projected_hours, desired_hours=None, actual_hours=None):
+        self.billing_code = billing_code
+        self.projected_hours = projected_hours
+        self.desired_hours = desired_hours
+        self.actual_hours = actual_hours
 
     # planned_vs_desired: Calculates the planned vs desired hours diff
     # ARGS: self (object.UserProject)
@@ -107,6 +116,14 @@ class UserProject:
     def actual_vs_desired(self):
         return self.actual_hours - self.desired_hours
 
+    # toString: Converts data into printable string
+    # ARGS: self (object.UserProject)
+    # RETURNS: toRet (String)
+    def toString(self):
+        toRet = "Billing code: " + self.billing_code + "\nProject Hours: " + str(self.projected_hours) + "\nDesired " \
+                "Hours: " + str(self.desired_hours) + "\nActual Hours: " + str(self.actual_hours)
+        return toRet
+
 
 class Project:
     expected_hours = 0
@@ -116,6 +133,7 @@ class Project:
     name = ""
     description = ""
     users = []
+    id = 0
     # Dict of past hours by year, keys are years values are ints
     past_actual_hours = {}
     past_planned_hours = {}
@@ -179,3 +197,9 @@ class Project:
             return codes
         else:
             return self.billing_codes
+
+    # getID: Returns the unique id (id)
+    # ARGS: self (object.Project)
+    # RETURNS: id (int)
+    def getId(self):
+        return self.id
