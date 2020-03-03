@@ -196,21 +196,21 @@ class Main_UI(QMainWindow):
         # Search
 
         # New hbox for buttons under selected user pane
-        employeeHBox = QHBoxLayout()
+        buttonHBox = QHBoxLayout()
         # Buttons under right pane for selected employee
         deleteSelectedUser = QPushButton('Delete')
         deleteSelectedUser.setToolTip('This button will permanently delete the selected item from the database')
         deleteSelectedUser.clicked.connect(self.deletedSelectedFunc)
-        employeeHBox.addWidget(deleteSelectedUser)
+        buttonHBox.addWidget(deleteSelectedUser)
 
         # Edit user button
         editButton = QPushButton('Edit Item')
         editButton.setToolTip('This will allow editing of the selected employee if you have permissions')
         editButton.clicked.connect(self.editSelected)
-        employeeHBox.addWidget(editButton)
+        buttonHBox.addWidget(editButton)
 
         # Add button box to vboxR
-        vboxR.addLayout(employeeHBox)
+        vboxR.addLayout(buttonHBox)
 
         # Finalize box
         hbox.addLayout(vboxL)
@@ -334,8 +334,7 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def updateUserList(self):
         # Get right_view object
-        # TODO: Add names to prevent breakage
-        left_view = self.findChild(QListWidget)
+        left_view = self.findChild(QListWidget, "left_view")
         left_view.clear()
 
         # Add item based on which view is selected
@@ -538,33 +537,29 @@ class NewUserGUI(QWidget):
         self.close()
 
     # closeEvent: Changes the default closing behavior by overriding the base method
+    #           : If parent closing, accept.  If not saved and edited, prompt, otherwise close
     # ARGS: self (QWidget), event (a QEvent) which is in this case is one of the closing events
     # RETURNS: None
-    # TODO: Make not stupid
     def closeEvent(self, event):
         # Override closing from parent
         if self.parent_closing:
             event.accept()
-        if self.close_from_save or not self.box_edited:
+        # If not edited, close
+        if not self.box_edited:
             event.accept()
-        else:
-            if self.saved:
-                to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel?',
-                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            else:
-                temp_mbox = QMessageBox()
-                temp_mbox.setStandardButtons(QMessageBox.Yes | QMessageBox.Save | QMessageBox.No)
-                temp_mbox.setDefaultButton(QMessageBox.Save)
-                temp_mbox.setWindowTitle('Cancel Confirmation')
-                temp_mbox.setInformativeText("You haven't saved, are you sure you want to cancel?")
-                to_exit = temp_mbox.exec()
-
+        # If edited and not saved prompt
+        elif self.box_edited and not self.saved:
+            to_exit = QMessageBox.question(self, 'Cancel Confirmation', "You haven't saved, are you sure you want "
+                                                                            "to cancel?",
+                                               QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
             if to_exit == QMessageBox.Yes:
                 event.accept()
             elif to_exit == QMessageBox.Save:
                 self.saveUser()
             else:
                 event.ignore()
+        else:
+            event.accept()
 
     # boxEdited: Changes the state of box_edited when any text is edited
     # ARGS: self (QWidget)
@@ -618,16 +613,6 @@ class NewUserGUI(QWidget):
         self.close_from_save = True
         self.parent_window.newSelected(QListWidgetItem(self.made_user.name))
         self.close()
-
-    # findUser: Finds a given user by userID
-    # ARGS: self (QWidget), user_id (String)
-    # RETURNS: user (object.User) || None
-    # TODO: Remove and replace usage with global version
-    def findUser(self, user_id):
-        for user in self.parent_window.userList:
-            if user.employee_id == user_id:
-                return user
-        return None
 
     # makeUser: Makes a user with the filled in forms
     # ARGS: self (QWidget)
@@ -754,7 +739,6 @@ class AddUserInfoGUI(QWidget):
     def boxEdited(self):
         self.boxEditedVariable = True
 
-    # TODO: On edit prompt for close
     # closeEvent: Modifies closing behavior
     # ARGS: self (QWidget), QCloseEvent (QCloseEvent)
     # RETURNS: None

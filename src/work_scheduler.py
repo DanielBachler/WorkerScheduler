@@ -38,9 +38,9 @@ def main():
 
 # METHOD FOR TESTING
 def tempUserList(project_list):
-    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "2460239")
-    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "1")
-    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "2")
+    userDan = object.User("Dan", "9.95", "1", "Capstone", "Gary", "246239")
+    userBrendan = object.User("Brendan", "15", "1", "Capstone", "NA", "123456")
+    userJesse = object.User("Jesse", "20", "1", "Capstone", "NA", "987654")
     tempList = [userBrendan, userDan, userJesse]
     return tempList
 
