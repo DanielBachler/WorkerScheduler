@@ -9,6 +9,7 @@
 # work_scheduler.py
 # Driver for The Work Scheduler
 
+import time
 import sys
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
@@ -56,7 +57,13 @@ def tempProjectList():
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    main()
+    try:
+        app = QApplication(sys.argv)
+        main()
+    except Exception as e:
+        print("********** BEGIN EXCEPTION **********")
+        print(str(e))
+        print(e.with_traceback())
+        inpt = input("Press enter to continue...")
 else:
     print("Unable to import as module")
