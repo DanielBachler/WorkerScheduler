@@ -20,6 +20,7 @@
 #   Projects:
 #   Users:
 #   Overall: Tie in database, view by ID instead of name?
+#           Keep all objects internally by ID and display name by fetching from database
 
 if __name__ == "__main__":
     print("Unable to execute as script")
