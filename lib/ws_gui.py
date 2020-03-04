@@ -16,6 +16,7 @@
 #   AddUsersGUI:
 #   AddUserInfoGUI:
 #   MainUI: Details button (Popup window with full details about object, change right view to be overview)
+#           Use a QTreeView to allow for collapsing users and projects on details tab
 #   Projects:
 #   Users:
 #   Overall: Tie in database, view by ID instead of name?
