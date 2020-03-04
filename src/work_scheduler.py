@@ -28,9 +28,9 @@ def main():
     projectList = tempProjectList()
     userList = tempUserList(projectList)
     ex = ws_gui.Main_UI()
-    conn = ws_db.DB_Connection()
-    conn.db_login(ex)
-    conn.init_db()
+    #conn = ws_db.DB_Connection()
+    #conn.db_login(ex)
+    #conn.init_db()
     ex.initUI(userList, projectList, rank_list)
     ex.setWindowIcon(QIcon('icon.png'))
 

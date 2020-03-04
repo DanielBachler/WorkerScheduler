@@ -59,7 +59,7 @@ class User:
                 projects_string += project.name + " " + project.billing_code
             return projects_string
 
-    # getID: returns the unique id (employee_id)
+    # get_ID: returns the unique id (employee_id)
     # ARGS: self (object.User)
     # RETURNS employee_id (string)
     def get_Id(self):
@@ -198,8 +198,8 @@ class Project:
         else:
             return self.billing_codes
 
-    # getID: Returns the unique id (id)
+    # get_ID: Returns the unique id (id)
     # ARGS: self (object.Project)
     # RETURNS: id (int)
-    def getId(self):
+    def get_Id(self):
         return self.id

@@ -56,9 +56,11 @@ class Main_UI(QMainWindow):
     # Class global vars for users and projects
     userList = []
     projectList = []
+
     # Class global vars for sub windows
     newUserWindow = ""
     newProjectWindow = ""
+
     # List of available ranks pulled from database
     rank_list = []
 
@@ -67,6 +69,9 @@ class Main_UI(QMainWindow):
 
     # View variable, F = users, T = projects
     view = False
+
+    # Currently selected item
+    current_selected = None
 
     # __init__: Initializes the main UI
     # ARGS: self (QMainWindow)
@@ -204,6 +209,12 @@ class Main_UI(QMainWindow):
         deleteSelectedUser.clicked.connect(self.deletedSelectedFunc)
         buttonHBox.addWidget(deleteSelectedUser)
 
+        # Details button (opens new window)
+        details_button = QPushButton("Details")
+        details_button.setToolTip("Click to show a window with more detailed information about item")
+        details_button.clicked.connect(self.details)
+        buttonHBox.addWidget(details_button)
+
         # Edit user button
         editButton = QPushButton('Edit Item')
         editButton.setToolTip('This will allow editing of the selected employee if you have permissions')
@@ -255,6 +266,7 @@ class Main_UI(QMainWindow):
         else:
             selected_object = findItem(name, self.userList)
             right_view.setText(selected_object.print_user())
+        self.current_selected = selected_object
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -276,19 +288,24 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def deletedSelectedFunc(self):
         try:
-            current_object = self.centralWidget().findChild(QListWidget).currentItem().text()
-            if self.view:
-                # Project
-                project = findItem(current_object, self.projectList)
-                self.projectList.remove(project)
+            if self.current_selected is not None:
+                if self.view:
+                    # Project
+                    self.projectList.remove(self.current_selected)
+                else:
+                    # User
+                    self.userList.remove(self.current_selected)
+                self.updateUserList()
+                self.current_selected = None
+                # Get right pane
+                right_view = self.centralWidget().findChild(QTextEdit, "right_view")
+                right_view.clear()
             else:
-                # User
-                user = findItem(current_object, self.userList)
-                self.userList.remove(user)
-            self.updateUserList()
+                QMessageBox.question(self, 'Error', 'No item selected to delete',
+                                        QMessageBox.Close, QMessageBox.Close)
         except:
-            QMessageBox.question(self, 'Error', 'Selected item is already deleted',
-                                    QMessageBox.Close, QMessageBox.Close)
+            QMessageBox.question(self, 'Error', 'An unexpected error occured',
+                                 QMessageBox.Close, QMessageBox.Close)
 
     # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)
@@ -367,6 +384,18 @@ class Main_UI(QMainWindow):
         rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
         if okPressed and rank != "":
             self.rank_list.append(rank)
+
+    # details: Gives a popup box with more details about selected item
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    def details(self):
+        # If current item is not none do thing
+        if self.current_selected is not None:
+            print("Details of %s" % self.current_selected.get_Id())
+        # Else give error prompt
+        else:
+            QMessageBox.question(self, 'Error', 'No item selected',
+                                 QMessageBox.Close, QMessageBox.Close)
 
 
 class NewUserGUI(QWidget):
