@@ -18,7 +18,7 @@
 #   MainUI: Details button
 #   Projects:
 #   Users:
-#   Overall: Tie in database, view by ID instead of name?
+#   Overall: Tie in database, view by Name (ID)
 
 if __name__ == "__main__":
     print("Unable to execute as script")
