@@ -32,6 +32,7 @@ import copy
 
 from lib import CONSTANTS as K
 
+# TODO: REDO BOTH OF THESE IN DBCALL.PY, REFACTOR ALL CALLS IN HERE TO USE THOSE
 
 # findItem: Finds the given item in the given list
 # ARGS: objectName (T), objectList (List[T])
@@ -95,6 +96,7 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def initUI(self, userList, projectList, rank_list):
         # Init global vars
+        # TODO: REMOVE ONCE DB IS IMPLEMENTED
         self.userList = userList
         self.projectList = projectList
         self.rank_list = rank_list
@@ -152,6 +154,7 @@ class Main_UI(QMainWindow):
         projectMenu.addAction(switchViewProject)
 
         # Admin menu, only create if user is admin rank
+        # FIX WITH DB CALL FOR ADMIN CHECK FOR ALL ADMIN APPS
         if self.admin:
             # Menu bar item
             adminMenu = menubar.addMenu("Admin")
@@ -219,7 +222,9 @@ class Main_UI(QMainWindow):
 
         centralWidget.setLayout(hbox)
 
+        # FIX WITH DB CALL
         self.updateUserList()
+
         self.statusBar().showMessage('Ready')
         self.setGeometry(300, 300, size[0], size[1])
         self.setWindowTitle('Worker Scheduler')
@@ -243,6 +248,7 @@ class Main_UI(QMainWindow):
     # newSelected: Changes the displayed text in right side panel of QMainWindow
     # ARGS: self (QMainWindow), item (a QListWidget List item)
     # RETURNS: None
+    # TODO: FIX WITH DB CALL, SEARCH DB FOR ID ONLY
     def newSelected(self, item):
         # Get right_view object
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
@@ -267,12 +273,14 @@ class Main_UI(QMainWindow):
     # save: Saves the current state of local database to database server
     # ARGS: self (QMainWindow)
     # RETURNS: None
+    # TODO: IMPLEMENT THIS SOMEHOW
     def save(self):
         pass
 
     # deleteSelectedUserFunc: Deletes the user passed to it, called by the delete button on main GUI panel
     # ARGS: self (QMainWindow)
     # RETURNS: None
+    # TODO: REDO WITH DB CALL
     def deletedSelectedFunc(self):
         try:
             current_object = self.centralWidget().findChild(QListWidget).currentItem().text()
@@ -292,6 +300,7 @@ class Main_UI(QMainWindow):
     # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)
     # RETURNS: None
+    # TODO: REDO WITH DB CALL
     def editSelected(self):
         # Get the item as its object type
         currentItem = self.centralWidget().findChild(QListWidget).currentItem().text()
@@ -332,6 +341,7 @@ class Main_UI(QMainWindow):
     # updateUserList: Updates the QListWidget when a new item is added or item is edited
     # ARGS: self (QMainWindow)
     # RETURNS: None
+    # TODO: REDO WITH DB CALL
     def updateUserList(self):
         # Get right_view object
         left_view = self.findChild(QListWidget, "left_view")
@@ -362,6 +372,7 @@ class Main_UI(QMainWindow):
     # addRank: adds a new rank to the rank list
     # ARGS: self (QMainWindow)
     # RETURNS: None
+    # TODO: ADD RANK TO DB
     def addRank(self):
         rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
         if okPressed and rank != "":
@@ -522,11 +533,13 @@ class NewUserGUI(QWidget):
     # saveUser: Saves the user currently being created, makes sure that all req fields are filled
     # ARGS: self (QWidget)
     # RETURNS: None
+    # TODO: FIX WITH DB CALL
     def saveUser(self):
         if self.box_edited:
             try:
                 # Get user
                 self.made_user = self.makeUser()
+                # TODO: REPLACE WITH PUSH TO DB CALL
                 self.parent_window.userList.append(self.made_user)
                 self.parent_window.updateUserList()
                 self.saved = True
@@ -570,6 +583,7 @@ class NewUserGUI(QWidget):
     # updateRankBox: updates the rank combo box if new item is added
     # ARGS: None
     # RETURNS: None
+    # TODO: REDO WITH DB CALL
     def updateRankBox(self):
         # Get combo box object
         rank_edit = self.findChild(QComboBox, "user_rank")
@@ -577,6 +591,7 @@ class NewUserGUI(QWidget):
         rank_edit.clear()
         # Repopulate
         rank_edit.addItem("")
+        # TODO: REPLACE WITH DB CALL FOR RANK LIST
         for rank in self.parent_window.rank_list:
             rank_edit.addItem(rank)
 
@@ -602,15 +617,19 @@ class NewUserGUI(QWidget):
     # updateUser: Updates a given users entry
     # ARGS: self (QWidget)
     # RETURNS: None
+    # TODO: REDO WITH DB CALL
     def updateUser(self):
         # Get user object
+        # TODO: REPLACE WITH REMOVE FROM DB CALL
         self.parent_window.userList.remove(self.editing_user)
         # Place holder for projects, needs more fleshing out
         self.made_user = self.makeUser()
+        # TODO: REPLACE WITH ADD USER TO DB CALL
         self.parent_window.userList.append(self.made_user)
         self.parent_window.updateUserList()
         self.saved = True
         self.close_from_save = True
+        # TODO: REDO WITH NAME AND ID
         self.parent_window.newSelected(QListWidgetItem(self.made_user.name))
         self.close()
 
