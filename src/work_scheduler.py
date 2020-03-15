@@ -11,6 +11,7 @@
 
 import time
 import sys
+sys.path.append('../')
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 
