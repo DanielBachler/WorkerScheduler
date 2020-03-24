@@ -37,7 +37,7 @@ def get_ranks():
 
 # Push current rank list
 def update_ranks(ranks):
-    """Update ranks
+    """Update ranks in database
 
     :param ranks: List of ranks
 
@@ -47,7 +47,7 @@ def update_ranks(ranks):
 
 # Send object (User, Project, UserProject) to db
 def update_user(user):
-    """Update a user
+    """Update a user in database
 
     :param user: Updated uer
 
@@ -56,7 +56,7 @@ def update_user(user):
     pass
 
 def update_project(proj):
-    """Update a project
+    """Update a project in database
 
     :param proj: Updated project
 
@@ -65,7 +65,7 @@ def update_project(proj):
     pass
 
 def update_userproj(uproj):
-    """Update a user project
+    """Update a user project in database
 
     :param uproj: Updated user project
 
