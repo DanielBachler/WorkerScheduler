@@ -129,11 +129,10 @@ class DB_Connection:
         pass
 
     # Create project
-    # TODO: PID's assigned by company?
     def create_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
         dt = datetime.today().strftime('%Y-%m-%d')
         stmt = 'INSERT INTO project (project_name, description, estimated_hrs, start_year, start_month, end_year, ' \
-               'end_month, last_update) VALUES ("%s", "%s", %f, %d, %d, %d, %d, %d, "%s")' % (name, desc, est_hrs,
+               'end_month, rpt, last_update) VALUES ("%s", "%s", %f, %s, %s, %s, %s, %d, "%s")' % (name, desc, est_hrs,
                                                                                               start_yr, start_mo, end_yr,
                                                                                               end_mo, rpt, str(dt))
         self.db_command(stmt)
