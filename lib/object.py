@@ -9,6 +9,8 @@
 
 from datetime import date
 
+from lib import dbcalls
+
 if __name__ == "__main__":
     print("Unable to execute as script")
     exit(-1)
@@ -58,6 +60,10 @@ class User:
             for project in self.projects:
                 projects_string += project.name + " " + project.billing_code
             return projects_string
+
+    def push(self):
+        # TODO
+        pass
 
     # getID: returns the unique id (employee_id)
     # ARGS: self (object.User)
@@ -115,6 +121,10 @@ class UserProject:
     # RETURNS: (int)
     def actual_vs_desired(self):
         return self.actual_hours - self.desired_hours
+
+    def push(self):
+        # TODO
+        pass
 
     # toString: Converts data into printable string
     # ARGS: self (object.UserProject)
@@ -199,6 +209,10 @@ class Project:
             return codes
         else:
             return self.billing_codes
+
+    def push(self):
+        # TODO
+        pass
 
     # getID: Returns the unique id (id)
     # ARGS: self (object.Project)

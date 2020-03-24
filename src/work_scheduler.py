@@ -18,6 +18,7 @@ from lib import ws_gui
 from lib import ws_db
 from lib import CONSTANTS as K
 from lib import object
+from lib import dbcalls
 
 app = None
 
@@ -29,6 +30,7 @@ def main():
     userList = tempUserList(projectList)
     ex = ws_gui.Main_UI()
     conn = ws_db.DB_Connection()
+    dbcalls.init_dbwrapper(conn)
     conn.db_login(ex)
     conn.init_db()
     ex.initUI(userList, projectList, rank_list)
