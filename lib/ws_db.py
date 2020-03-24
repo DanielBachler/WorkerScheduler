@@ -48,7 +48,7 @@ class DB_Connection:
         else:
             print("Creating database")
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer not null, employee_name varchar(64),"
-                            "rank integer, emp_role integer, hourly_rate real, mentor integer default NULL);")
+                            "rank integer, emp_role integer, hourly_rate real, mentor varchar(32) default NULL);")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer not null auto_increment, "
                             "project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, "
                             "start_month integer, end_year integer, end_month integer, rpt int, last_update date,"
@@ -92,7 +92,7 @@ class DB_Connection:
         self.db_command("FLUSH PRIVILEGES;")
 
     # Create a database user.
-    def create_user(self, name, rank, rate):
+    def create_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
         stmt = "CREATE USER '%s'@'localhost';" % name
         self.db_command(stmt)
         stmt = "CREATE USER '"+name+"'@'%';"
@@ -100,7 +100,8 @@ class DB_Connection:
         self.set_admin_user(name)
         # TODO: Define all of these at once
         # TODO: Use company's EID
-        stmt = "INSERT INTO employee (employee_name, rank, hourly_rate) VALUES ('%s', %d, %f);" % (name, rank, rate)
+        stmt = '''INSERT INTO employee(eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES 
+                    (%s, "%s", %s, %f, "%s", %s);''' % (str(eid), name, str(role), float(rate), str(mentor), str(rank))
         self.db_command(stmt)
 
     # TODO: Update user by EID
