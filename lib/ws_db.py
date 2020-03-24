@@ -48,14 +48,15 @@ class DB_Connection:
         else:
             print("Creating database")
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer not null, employee_name varchar(64),"
-                            "rank integer, emp_role integer, hourly_rate real, mentor varchar(32) default NULL);")
+                            "rank integer, emp_role integer, hourly_rate real, mentor varchar(32) default NULL,"
+                            "PRIMARY KEY (eid));")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer not null auto_increment, "
                             "project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, "
                             "start_month integer, end_year integer, end_month integer, rpt int, last_update date,"
                             "PRIMARY KEY (pid));")
             self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer not null auto_increment,"
                             "team_name varchar(32), PRIMARY KEY (tid));")
-            self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer not null);")
+            self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer not null primary key);")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer);")
