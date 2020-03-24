@@ -25,14 +25,16 @@ app = None
 
 def main():
     # TEMP
-    rank_list = ["Sr. Analyst", "Analyst", "Principle", "New Analyst", "Consultant", "Admin"]
-    projectList = tempProjectList()
-    userList = tempUserList(projectList)
+
     ex = ws_gui.Main_UI()
     conn = ws_db.DB_Connection()
     dbcalls.init_dbwrapper(conn)
     conn.db_login(ex)
     conn.init_db()
+
+    rank_list = ["Sr. Analyst", "Analyst", "Principle", "New Analyst", "Consultant", "Admin"]
+    projectList = tempProjectList()
+    userList = tempUserList(projectList)
     ex.initUI(userList, projectList, rank_list)
     ex.setWindowIcon(QIcon('icon.png'))
 
