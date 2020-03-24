@@ -162,15 +162,24 @@ class Project:
     def __init__(self, name, description, billing_code, expected_hours, users=None):
         if users is None:
             users = []
+        else:
+            self.users = users
         self.expected_hours = expected_hours
         self.billing_codes = billing_code
         self.name = name
         # To print: self.hours_edit_date.strftime("%b-%d-%Y")
         self.hours_edit_date = date.today()
-        self.users = users
         self.description = description
 
         self.push()
+
+        for user in users:
+            # TODO: do something
+            pass
+
+        for code in billing_code:
+            # TODO: do something
+            pass
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
@@ -218,8 +227,7 @@ class Project:
             return self.billing_codes
 
     def push(self):
-        # TODO
-        pass
+        dbcalls.update_project(self.name, self.description, self.expected_hours, self.hours_edit_date)
 
     # getID: Returns the unique id (id)
     # ARGS: self (object.Project)
