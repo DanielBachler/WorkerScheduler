@@ -47,21 +47,33 @@ class DB_Connection:
             return
         else:
             print("Creating database")
-            self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer primary key, employee_name varchar(64), rank integer, emp_role integer, hourly_rate real, mentor integer default NULL);")
-            self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer primary key, project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, start_month integer, end_year integer, end_month integer, rpt int, last_update date);")
-            self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer primary key, team_name varchar(32));")
-            self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer primary key);")
+            self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer not null, employee_name varchar(64),"
+                            "rank integer, emp_role integer, hourly_rate real, mentor integer default NULL);")
+            self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer not null auto_increment, "
+                            "project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, "
+                            "start_month integer, end_year integer, end_month integer, rpt int, last_update date,"
+                            "PRIMARY KEY (pid));")
+            self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer not null auto_increment,"
+                            "team_name varchar(32), PRIMARY KEY (tid));")
+            self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer not null);")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer);")
             self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer);")
-            self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer primary key, billing_code integer, eid integer, projected_hours real default NULL, requested_hours real default NULL, earned_hours real default 0);")
+            self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer not null auto_increment,"
+                            "billing_code integer, eid integer, projected_hours real default NULL,"
+                            "requested_hours real default NULL, earned_hours real default 0, PRIMARY KEY(pid));")
             self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
-            self.db_command("CREATE TABLE IF NOT EXISTS time_assignments (code integer, eid integer, mo integer, yr integer, hrs real);")
-            self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_id integer primary key, role_name varchar(32));")
-            self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer primary key, level_name varchar(16));")
-            self.db_command("CREATE TABLE IF NOT EXISTS user_proj_past (upid integer, start_yr integer, start_mo integer, end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
-            self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer, end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
-            self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'manager');")
+            self.db_command("CREATE TABLE IF NOT EXISTS time_assignments (code integer, eid integer, mo integer,"
+                            "yr integer, hrs real);")
+            self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_id integer not null auto_increment,"
+                            "role_name varchar(32), PRIMARY KEY (role_id));")
+            self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer not null primary key,"
+                            "level_name varchar(16));")
+            self.db_command("CREATE TABLE IF NOT EXISTS user_proj_past (upid integer, start_yr integer, start_mo integer,"
+                            "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
+            self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer,"
+                            "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
+            self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'Hector');")
 
     # Return a user's information
     def get_user_info(self):
