@@ -20,7 +20,14 @@ def db_get_ids():
 
     """
 
-    return []
+    result = []
+
+    all_users = base.list_users()
+
+    for emp in all_users:
+        result.append((emp[1], emp[0]))
+
+    return result
 
 # Search project and user by ID, return full row (as object?)
 ## FIXME: Get project by ID or user by iD? (this should be 2 different functions if so)
