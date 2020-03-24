@@ -62,8 +62,8 @@ def check_user_exists(eid):
     exists = base.db_query("SELECT count(*) FROM employee WHERE eid = %d;" % int(eid))
     return exists[0][0] > 0
 
-def check_project_exists(pid):
-    exists = base.db_query("SELECT count(*) FROM project WHERE pid = %d;" % int(pid))
+def check_project_exists(name):
+    exists = base.db_query('''SELECT count(*) FROM project WHERE project_name = "%s";''' % str(name))
     return exists[0][0] > 0
 
 # Send object (User, Project, UserProject) to db
@@ -75,7 +75,7 @@ def update_user(eid, name, role, rate, mentor, rank):
     """
 
     exists = check_user_exists(eid)
-    if exists:
+    if not exists:
         if mentor is None:
             mentor = "NULL"
         base.create_user(eid, name, rank=rank, rate=rate, role=role, mentor=mentor)
@@ -83,14 +83,20 @@ def update_user(eid, name, role, rate, mentor, rank):
         pass
         # TODO: Update
 
-def update_project(proj):
+def update_project(name, description, exp_hours, last_update, rpt=False, start_mo="NULL", start_yr="NULL", end_mo="NULL",
+                    end_yr="NULL"):
     """Update a project in database
 
     :param proj: Updated project
 
     """
 
-    pass
+    exists = check_project_exists(name)
+    if not exists:
+        base.create_project(name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt)
+    else:
+        # TODO
+        pass
 
 def update_userproj(uproj):
     """Update a user project in database
