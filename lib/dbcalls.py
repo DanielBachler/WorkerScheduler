@@ -53,14 +53,22 @@ def update_ranks(ranks):
     pass
 
 # Send object (User, Project, UserProject) to db
-def update_user(user):
+def update_user(eid, name, role, rate, mentor, rank):
     """Update a user in database
 
     :param user: Updated uer
 
     """
 
-    pass
+    exists = base.db_query("SELECT count(*) FROM employee WHERE eid = %d;" % int(eid))
+    print(exists)
+    if exists[0][0] == 0:
+        if mentor is None:
+            mentor = "NULL"
+        base.create_user(eid, name, rank=rank, rate=rate, role=role, mentor=mentor)
+    else:
+        pass
+        # TODO: Update
 
 def update_project(proj):
     """Update a project in database
@@ -118,13 +126,6 @@ def rm_user(user_id):
     """
 
     pass
-
-# Update object in DB with a passed in object (not sure if needs to be separate from send object to DB
-#   This does not really need to be a new method with current implementation, as objects get deleted, remade then put in
-#   May want to make it a new method for clarity, not sure how database prefers ops to be
-## FIXME: Not sure what this means
-# TODO: Given an object and its known ID be able to modify its entry in the database
-#       I wasnt sure if deleting the object and replacing it was easier than overwriting the existing one
 
 # Push new rank to DB
 ## TODO: Is this redundant with `update_ranks()`?
