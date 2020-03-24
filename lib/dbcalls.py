@@ -58,6 +58,10 @@ def update_ranks(ranks):
 
     pass
 
+def associate_billing_code(pid, code):
+    base.add_billing_code(code)
+    base.add_billing_code_for_project(pid, code)
+
 def check_user_exists(eid):
     exists = base.db_query("SELECT count(*) FROM employee WHERE eid = %d;" % int(eid))
     return exists[0][0] > 0
@@ -95,8 +99,12 @@ def update_project(name, description, exp_hours, last_update, rpt=False, start_m
     if not exists:
         base.create_project(name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt)
     else:
-        # TODO
+        # TODO: update
         pass
+
+def get_pid(name):
+    pid = base.db_query('''SELECT pid FROM project WHERE project_name="%s"''' % name)
+    return pid[0][0]
 
 def update_userproj(uproj):
     """Update a user project in database
@@ -107,9 +115,6 @@ def update_userproj(uproj):
 
     pass
 
-# Have projects be given unique ID in database upon creation (in here or elsewhere)
-## FIXME: Database gives IDs to rows automatically upon insertion. Do we really need this function?
-# TODO: No, all we need is the ability to get and reference IDs if they are made by db good enough
 
 # Check if logged in user is admin return (bool)
 def is_admin(eid):
@@ -121,11 +126,6 @@ def is_admin(eid):
     """
 
     return True
-
-# Push all changes to DB? (May not be needed due to the way we are refactoring
-## FIXME: More specific
-# TODO: After looking at how the refactor will go, this function is most likely not needed.
-#       Since all changes are pushed to db at time of change
 
 # Delete user or project by ID, return None if it fails/object is already deleted
 def rm_proj(proj_id):

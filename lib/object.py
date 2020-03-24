@@ -172,14 +172,14 @@ class Project:
         self.description = description
 
         self.push()
+        self.id = self.get_pid()
 
         for user in users:
-            # TODO: do something
-            pass
+            # Brendan to Dan: We need the users variable to be a list of UID's.
+            dbcalls.base.add_user_to_project(user, self.id)
 
         for code in billing_code:
-            # TODO: do something
-            pass
+            dbcalls.associate_billing_code()
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
@@ -228,6 +228,9 @@ class Project:
 
     def push(self):
         dbcalls.update_project(self.name, self.description, self.expected_hours, self.hours_edit_date)
+
+    def get_pid(self):
+        return dbcalls.get_pid(self.name)
 
     # getID: Returns the unique id (id)
     # ARGS: self (object.Project)
