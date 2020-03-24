@@ -124,6 +124,8 @@ class UserProject:
                 "Hours: " + str(self.desired_hours) + "\nActual Hours: " + str(self.actual_hours)
         return toRet
 
+    def __str__(self):
+        return self.toString()
 
 class Project:
     expected_hours = 0
