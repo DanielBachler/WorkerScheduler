@@ -52,6 +52,10 @@ def update_ranks(ranks):
 
     pass
 
+def check_user_exists(eid):
+    exists = base.db_query("SELECT count(*) FROM employee WHERE eid = %d;" % int(eid))
+    return exists[0][0] > 0
+
 # Send object (User, Project, UserProject) to db
 def update_user(eid, name, role, rate, mentor, rank):
     """Update a user in database
@@ -60,9 +64,8 @@ def update_user(eid, name, role, rate, mentor, rank):
 
     """
 
-    exists = base.db_query("SELECT count(*) FROM employee WHERE eid = %d;" % int(eid))
-    print(exists)
-    if exists[0][0] == 0:
+    exists = check_user_exists(eid)
+    if exists:
         if mentor is None:
             mentor = "NULL"
         base.create_user(eid, name, rank=rank, rate=rate, role=role, mentor=mentor)
