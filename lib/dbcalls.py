@@ -33,6 +33,12 @@ def db_get_ids():
 ## FIXME: Get project by ID or user by iD? (this should be 2 different functions if so)
 # TODO: Seperate functions then, need one for each
 
+def get_user(eid):
+    pass
+
+def get_project(pid):
+    pass
+
 # Return current rank list
 def get_ranks():
     """Fetch ranks from database
@@ -54,6 +60,10 @@ def update_ranks(ranks):
 
 def check_user_exists(eid):
     exists = base.db_query("SELECT count(*) FROM employee WHERE eid = %d;" % int(eid))
+    return exists[0][0] > 0
+
+def check_project_exists(pid):
+    exists = base.db_query("SELECT count(*) FROM project WHERE pid = %d;" % int(pid))
     return exists[0][0] > 0
 
 # Send object (User, Project, UserProject) to db
