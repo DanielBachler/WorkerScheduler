@@ -38,6 +38,8 @@ class User:
         self.mentor = mentor
         self.employee_id = employee_id
 
+        self.push()
+
     # print_user: Makes a string of the information for the selected user in a formatted fashion
     # ARGS: self (User)
     # RETURNS: print_string (String)
@@ -104,6 +106,8 @@ class UserProject:
         self.desired_hours = desired_hours
         self.actual_hours = actual_hours
 
+        self.push()
+
     # planned_vs_desired: Calculates the planned vs desired hours diff
     # ARGS: self (object.UserProject)
     # RETURNS: (int)
@@ -164,6 +168,8 @@ class Project:
         self.hours_edit_date = date.today()
         self.users = users
         self.description = description
+
+        self.push()
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
