@@ -35,7 +35,8 @@ class User:
         self.pay = pay
         self.rank = rank
         self.team = team
-        self.mentor = mentor
+        if mentor != "NA":
+            self.mentor = mentor
         self.employee_id = employee_id
 
         self.push()
@@ -64,8 +65,8 @@ class User:
             return projects_string
 
     def push(self):
-        # TODO
-        pass
+        role = 0    # Brendan to Dan: Set this to something appropriate
+        dbcalls.update_user(self.employee_id, self.name, role, self.pay, self.mentor, self.rank)
 
     # getID: returns the unique id (employee_id)
     # ARGS: self (object.User)
