@@ -32,10 +32,16 @@ def db_get_ids():
 # TODO: Seperate functions then, need one for each
 
 def get_user(eid):
-    pass
+    user = base.db_query('''SELECT * FROM employee WHERE eid=%d;''' % eid)
+    if user is None:
+        return user
+    return user[0]
 
-def get_project(pid):
-    pass
+def get_project(name):
+    proj = base.db_query('''SELECT * FROM project WHERE project_name="%s"''' % name)
+    if proj is None:
+        return proj
+    return proj[0]
 
 # Return current rank list
 def get_ranks():
@@ -133,7 +139,7 @@ def rm_proj(proj_id):
 
     """
 
-    pass
+    base.delete_project(proj_id)
 
 def rm_user(user_id):
     """ Remove user from database
@@ -142,7 +148,7 @@ def rm_user(user_id):
 
     """
 
-    pass
+    base.del_user(user_id)
 
 # Push new rank to DB
 ## TODO: Is this redundant with `update_ranks()`?

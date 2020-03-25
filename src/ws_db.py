@@ -147,7 +147,8 @@ class DB_Connection:
         return res
 
     # Remove a project
-    def delete_project(self):
+    def delete_project(self, pid):
+        # TODO
         pass
 
     # Create a team
