@@ -1,5 +1,3 @@
-from lib import object
-
 base = None
 
 def init_dbwrapper(db):

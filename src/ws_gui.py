@@ -27,10 +27,9 @@ if __name__ == "__main__":
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
-from lib import object
+from src import object
 import copy
 
-from lib import CONSTANTS as K
 
 # TODO: REDO BOTH OF THESE IN DBCALL.PY, REFACTOR ALL CALLS IN HERE TO USE THOSE
 

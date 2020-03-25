@@ -9,16 +9,14 @@
 # work_scheduler.py
 # Driver for The Work Scheduler
 
-import time
 import sys
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 
-from lib import ws_gui
-from lib import ws_db
-from lib import CONSTANTS as K
-from lib import object
-from lib import dbcalls
+from src import ws_gui
+from src import ws_db
+from src import object
+from src import dbcalls
 
 app = None
 
