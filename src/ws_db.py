@@ -135,6 +135,11 @@ class DB_Connection:
                                                                                               end_mo, rpt, str(dt))
         self.db_command(stmt)
 
+    def add_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
+        stmt = '''INSERT INTO user_project (billing_code, eid, proj_hours, requested_hours, earned_hours) VALUES 
+                    (%d, %d, %s, %s, %s);''' % (code, eid, str(proj_hours), str(req_hrs), str(earn_hours))
+        self.db_command(stmt)
+
     # Get information on a project
     def get_project_data(self):
         pass
