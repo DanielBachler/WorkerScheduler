@@ -131,8 +131,8 @@ class UserProject:
         return self.actual_hours - self.desired_hours
 
     def push(self):
-        # TODO
-        pass
+        dbcalls.update_userproj(self.billing_code, self.owner, proj_hrs=self.projected_hours, des_hrs=self.desired_hours,
+                                act_hrs=self.actual_hours)
 
     # toString: Converts data into printable string
     # ARGS: self (object.UserProject)
