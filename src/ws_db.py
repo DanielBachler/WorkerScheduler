@@ -102,9 +102,11 @@ class DB_Connection:
                     (%s, "%s", %s, %f, "%s", %s);''' % (str(eid), name, str(role), float(rate), str(mentor), str(rank))
         self.db_command(stmt)
 
-    # TODO: Update user by EID
-    def update_user(self):
-        pass
+    # Update user by EID
+    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
+        stmt = '''UPDATE employee SET employee_name="%s", rank=%s, emp_role=%s, hourly_rate=%s, mentor="%s" WHERE
+                    eid=%d;''' % (name, str(rank), str(role), str(rate), mentor, eid)
+        self.db_command(stmt)
 
     # Delete a database user.
     def del_user(self, eid):
@@ -149,9 +151,9 @@ class DB_Connection:
         self.db_command(stmt)
 
     def update_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
-        stmt = '''UPDATE user_project SET billing_code=%d, eid=%d, projected_hours=%d, requested_hours=%d,
-                    earned_hours=%d WHERE billing_code=%d AND eid=%d;''' % (code, eid, proj_hours, req_hrs, earn_hours,
-                                                                            code, eid)
+        stmt = '''UPDATE user_project SET billing_code=%d, eid=%d, projected_hours=%s, requested_hours=%s,
+                    earned_hours=%s WHERE billing_code=%d AND eid=%d;''' % (code, eid, str(proj_hours), str(req_hrs),
+                                                                            str(earn_hours), code, eid)
         self.db_command(stmt)
 
     # Get information on a project

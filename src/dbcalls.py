@@ -87,13 +87,12 @@ def update_user(eid, name, role, rate, mentor, rank):
     """
 
     exists = check_user_exists(eid)
+    if mentor is None:
+        mentor = "NULL"
     if not exists:
-        if mentor is None:
-            mentor = "NULL"
         base.create_user(eid, name, rank=rank, rate=rate, role=role, mentor=mentor)
     else:
-        pass
-        # TODO: Update
+        base.update_user(eid, name, rank=rank, rate=rate, role=role, mentor=mentor)
 
 def update_project(name, description, exp_hours, last_update, rpt=False, start_mo="NULL", start_yr="NULL", end_mo="NULL",
                     end_yr="NULL"):
@@ -113,7 +112,7 @@ def get_pid(name):
     pid = base.db_query('''SELECT pid FROM project WHERE project_name="%s"''' % name)
     return pid[0][0]
 
-def update_userproj(code, owner, proj_hrs, des_hrs, act_hrs):
+def update_userproj(code, owner, proj_hrs="NULL", des_hrs="NULL", act_hrs="NULL"):
     """Update a user project in database
 
     :param uproj: Updated user project
