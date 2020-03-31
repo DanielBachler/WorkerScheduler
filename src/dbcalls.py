@@ -74,6 +74,10 @@ def check_project_exists(name):
     exists = base.db_query('''SELECT count(*) FROM project WHERE project_name = "%s";''' % str(name))
     return exists[0][0] > 0
 
+def check_uproj_exists(eid, code):
+    exists = base.db_query('''SELECT count(*) FROM user_project WHERE eid = %d AND billing_code = %d;''' % (eid, code))
+    return exists[0][0] > 0
+
 # Send object (User, Project, UserProject) to db
 def update_user(eid, name, role, rate, mentor, rank):
     """Update a user in database
@@ -110,15 +114,19 @@ def get_pid(name):
     pid = base.db_query('''SELECT pid FROM project WHERE project_name="%s"''' % name)
     return pid[0][0]
 
-def update_userproj(uproj):
+def update_userproj(code, owner, proj_hrs, des_hrs, act_hrs):
     """Update a user project in database
 
     :param uproj: Updated user project
 
     """
 
-    pass
-
+    exists = check_uproj_exists(owner, code)
+    if not exists:
+        base.add_userproj(code, owner, proj_hrs, des_hrs, act_hrs)
+    else:
+        # TODO: Update
+        pass
 
 # Check if logged in user is admin return (bool)
 def is_admin(eid):
