@@ -124,8 +124,7 @@ def update_userproj(code, owner, proj_hrs, des_hrs, act_hrs):
     if not exists:
         base.add_userproj(code, owner, proj_hrs, des_hrs, act_hrs)
     else:
-        # TODO: Update
-        pass
+        base.update_userproj(code, owner, proj_hrs, des_hrs, act_hrs)
 
 # Check if logged in user is admin return (bool)
 def is_admin(eid):

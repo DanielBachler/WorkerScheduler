@@ -144,8 +144,14 @@ class DB_Connection:
         self.db_command(stmt)
 
     def add_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
-        stmt = '''INSERT INTO user_project (billing_code, eid, proj_hours, requested_hours, earned_hours) VALUES 
+        stmt = '''INSERT INTO user_project (billing_code, eid, projected_hours, requested_hours, earned_hours) VALUES 
                     (%d, %d, %s, %s, %s);''' % (code, eid, str(proj_hours), str(req_hrs), str(earn_hours))
+        self.db_command(stmt)
+
+    def update_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
+        stmt = '''UPDATE user_project SET billing_code=%d, eid=%d, projected_hours=%d, requested_hours=%d,
+                    earned_hours=%d WHERE billing_code=%d AND eid=%d;''' % (code, eid, proj_hours, req_hrs, earn_hours,
+                                                                            code, eid)
         self.db_command(stmt)
 
     # Get information on a project
