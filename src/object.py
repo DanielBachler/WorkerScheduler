@@ -98,14 +98,17 @@ class UserProject:
     past_actual_hours = {}
     past_planned_hours = {}
 
+    owner = 0
+
     # __init__: Initializes a user project
     # ARGS: billing_code (String), projected_hours (int), desired_hours (int | None), actual_hours (int | None)
     # Returns: self (object.UserProject)
-    def __init__(self, billing_code, projected_hours, desired_hours=None, actual_hours=None):
+    def __init__(self, billing_code, projected_hours, desired_hours=None, actual_hours=None, owner=0):
         self.billing_code = billing_code
         self.projected_hours = projected_hours
         self.desired_hours = desired_hours
         self.actual_hours = actual_hours
+        self.owner = owner
 
         self.push()
 
