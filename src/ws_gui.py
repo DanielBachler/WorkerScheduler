@@ -9,16 +9,8 @@
 # GUI Wrapper for Work Scheduler
 
 # TODO:
-#   NewUserGUI:
-#   NewProjectGUI:
-#   EditUserUI:
-#   EditProjectUI:
-#   AddUsersGUI:
-#   AddUserInfoGUI:
-#   MainUI: Details button
-#   Projects:
-#   Users:
-#   Overall: Tie in database, view by Name (ID)
+#   Overall: Fix view to have name and ID,
+#            Ensure nothing broke from DB refactor
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -29,6 +21,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from src import object
 import copy
+from src import dbcalls
 
 
 # TODO: REDO BOTH OF THESE IN DBCALL.PY, REFACTOR ALL CALLS IN HERE TO USE THOSE
@@ -52,14 +45,11 @@ def findItemByID(objectID, objectList):
 
 
 class Main_UI(QMainWindow):
-    # Class global vars for users and projects
-    userList = []
-    projectList = []
     # Class global vars for sub windows
     newUserWindow = ""
     newProjectWindow = ""
     # List of available ranks pulled from database
-    rank_list = []
+    rank_list = dbcalls.get_ranks()
 
     # If current user is admin, debug set to TRUE
     admin = True
@@ -94,18 +84,6 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow), userList (List[User]), projectList (List[Project])
     # RETURNS: None
     def initUI(self, userList, projectList, rank_list):
-        # Init global vars
-        # TODO: REMOVE ONCE DB IS IMPLEMENTED
-        self.userList = userList
-        self.projectList = projectList
-        self.rank_list = rank_list
-
-        # TODO: Do this with database once
-        # Assign IDS to projects
-        i = 0
-        for project in self.projectList:
-            project.id = i
-            i += 1
 
         size = (600, 600)
         # Setup main display: Pane of worker names to chose (left), pane showing selected worker info (right),
@@ -247,17 +225,19 @@ class Main_UI(QMainWindow):
     # newSelected: Changes the displayed text in right side panel of QMainWindow
     # ARGS: self (QMainWindow), item (a QListWidget List item)
     # RETURNS: None
-    # TODO: FIX WITH DB CALL, SEARCH DB FOR ID ONLY
+    # TODO: Ensure functionality
     def newSelected(self, item):
         # Get right_view object
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
-        name = item.text()
-        selected_object = ""
+        id = item.text()
+        # DB CALL HERE
         if self.view:
-            selected_object = findItem(name, self.projectList)
+            selected_object = dbcalls.get_user(id)
+            # selected_object = findItem(name, self.projectList)
             right_view.setText(selected_object.print_project())
         else:
-            selected_object = findItem(name, self.userList)
+            selected_object = dbcalls.get_project(id)
+            # selected_object = findItem(name, self.userList)
             right_view.setText(selected_object.print_user())
 
     # makeNewUser: Creates a new user object and adds them to the database
@@ -269,13 +249,6 @@ class Main_UI(QMainWindow):
         self.newUserWindow.initUI(self)
         self.newUserWindow.setWindowIcon(QIcon('icon.png'))
 
-    # save: Saves the current state of local database to database server
-    # ARGS: self (QMainWindow)
-    # RETURNS: None
-    # TODO: IMPLEMENT THIS SOMEHOW
-    def save(self):
-        pass
-
     # deleteSelectedUserFunc: Deletes the user passed to it, called by the delete button on main GUI panel
     # ARGS: self (QMainWindow)
     # RETURNS: None
@@ -285,12 +258,16 @@ class Main_UI(QMainWindow):
             current_object = self.centralWidget().findChild(QListWidget).currentItem().text()
             if self.view:
                 # Project
-                project = findItem(current_object, self.projectList)
-                self.projectList.remove(project)
+                project = dbcalls.get_project(current_object)
+                dbcalls.rm_proj(project.id)
+                # project = findItem(current_object, self.projectList)
+                # self.projectList.remove(project)
             else:
                 # User
-                user = findItem(current_object, self.userList)
-                self.userList.remove(user)
+                user = dbcalls.get_user(current_object)
+                dbcalls.rm_user(user.employee_id)
+                # user = findItem(current_object, self.userList)
+                # self.userList.remove(user)
             self.updateUserList()
         except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
@@ -299,13 +276,17 @@ class Main_UI(QMainWindow):
     # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: REDO WITH DB CALL
+    # TODO: Ensure functionality
     def editSelected(self):
         # Get the item as its object type
         currentItem = self.centralWidget().findChild(QListWidget).currentItem().text()
-        current_object = findItem(currentItem, self.projectList if self.view else self.userList)
-
+        current_object = None
         if self.view:
+            current_object = dbcalls.get_project(currentItem)
+        else:
+            current_object = dbcalls.get_user(currentItem)
+
+        if self.view and current_object is not None:
             # Project
             try:
                 self.newProjectWindow = NewProjectGUI()
@@ -315,7 +296,7 @@ class Main_UI(QMainWindow):
                 self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
             except Exception as e:
                 print(e)
-        else:
+        elif current_object is not None:
             # User
             try:
                 self.newUserWindow = NewUserGUI()
@@ -325,6 +306,9 @@ class Main_UI(QMainWindow):
                 self.newUserWindow.setWindowIcon(QIcon("icon.png"))
             except Exception as e:
                 print(e)
+        else:
+            QMessageBox.question(self, 'Error', 'An unexpected error occurred trying to edit selected item',
+                                 QMessageBox.Close, QMessageBox.Close)
 
     # makeNewProject: Opens new project creation UI
     # ARGS: self (QMainWindow)
@@ -340,7 +324,7 @@ class Main_UI(QMainWindow):
     # updateUserList: Updates the QListWidget when a new item is added or item is edited
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: REDO WITH DB CALL
+    # TODO: Ensure functionality
     def updateUserList(self):
         # Get right_view object
         left_view = self.findChild(QListWidget, "left_view")
@@ -348,11 +332,11 @@ class Main_UI(QMainWindow):
 
         # Add item based on which view is selected
         if self.view:
-            for project in self.projectList:
-                left_view.addItem(project.name)
+            for project_id in dbcalls.db_get_project_ids():
+                left_view.addItem(project_id)
         else:
-            for user in self.userList:
-                left_view.addItem(user.name)
+            for user in dbcalls.db_get_ids():
+                left_view.addItem(user)
 
     # switch_user_view: Changes the main UI to show users
     # ARGS: self (QMainWindow),
@@ -371,11 +355,11 @@ class Main_UI(QMainWindow):
     # addRank: adds a new rank to the rank list
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: ADD RANK TO DB
+    # TODO: Ensure functionality
     def addRank(self):
         rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
         if okPressed and rank != "":
-            self.rank_list.append(rank)
+            dbcalls.add_rank(rank)
 
 
 class NewUserGUI(QWidget):
@@ -532,14 +516,14 @@ class NewUserGUI(QWidget):
     # saveUser: Saves the user currently being created, makes sure that all req fields are filled
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: FIX WITH DB CALL
+    # TODO: Ensure Functionality
     def saveUser(self):
         if self.box_edited:
             try:
                 # Get user
                 self.made_user = self.makeUser()
-                # TODO: REPLACE WITH PUSH TO DB CALL
-                self.parent_window.userList.append(self.made_user)
+                dbcalls.update_user(self.made_user.employee_id, self.made_user.name, None,  # TODO: what is roll??
+                                    self.made_user.pay, self.made_user.mentor, self.made_user.rank)
                 self.parent_window.updateUserList()
                 self.saved = True
                 self.close_from_save = True
@@ -582,7 +566,7 @@ class NewUserGUI(QWidget):
     # updateRankBox: updates the rank combo box if new item is added
     # ARGS: None
     # RETURNS: None
-    # TODO: REDO WITH DB CALL
+    # TODO: Ensure functionality
     def updateRankBox(self):
         # Get combo box object
         rank_edit = self.findChild(QComboBox, "user_rank")
@@ -590,8 +574,7 @@ class NewUserGUI(QWidget):
         rank_edit.clear()
         # Repopulate
         rank_edit.addItem("")
-        # TODO: REPLACE WITH DB CALL FOR RANK LIST
-        for rank in self.parent_window.rank_list:
+        for rank in dbcalls.get_ranks():
             rank_edit.addItem(rank)
 
     # editUser: Sets up the UI to edit a user
@@ -616,15 +599,12 @@ class NewUserGUI(QWidget):
     # updateUser: Updates a given users entry
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: REDO WITH DB CALL
+    # TODO: Ensure functionality
     def updateUser(self):
-        # Get user object
-        # TODO: REPLACE WITH REMOVE FROM DB CALL
-        self.parent_window.userList.remove(self.editing_user)
         # Place holder for projects, needs more fleshing out
         self.made_user = self.makeUser()
-        # TODO: REPLACE WITH ADD USER TO DB CALL
-        self.parent_window.userList.append(self.made_user)
+        dbcalls.update_user(self.made_user.employee_id, self.made_user.name, None,  # TODO: What is role?
+                            self.made_user.pay, self.made_user.mentor, self.made_user.rank)
         self.parent_window.updateUserList()
         self.saved = True
         self.close_from_save = True
@@ -1126,11 +1106,13 @@ class NewProjectGUI(QWidget):
     # save: Saves the project to the list of projects
     # ARGS: self (QWidget)
     # RETURNS: None
+    # TODO: Fix?
     def save(self):
         self.saved = True
         # Get information from UI
         tempProject = self.getProject()
-        self.parent_window.projectList.append(tempProject)
+        dbcalls.update_project(tempProject.name, tempProject.description, tempProject.expected_hours,
+                               tempProject.hours_edit_date, tempProject.repeating)
         self.parent_window.updateUserList()
         self.close()
 
@@ -1181,13 +1163,14 @@ class NewProjectGUI(QWidget):
     # updateProject: Updates an existing project instead of creating a new one
     # ARGS: self (QWidget)
     # RETURNS: None
+    # TODO: Fix?
     def updateProject(self):
-        # Get updated project and remove old one from list
-        self.parent_window.projectList.remove(self.editing_project)
+        # Get updated project and append to DB
         project = self.getProject()
         project.users = self.project_user_list
         # Add to list and update master list in main UI
-        self.parent_window.projectList.append(project)
+        dbcalls.update_project(project.name, project.description, project.expected_hours, project.hours_edit_date,
+                               project.repeating)
         self.parent_window.updateUserList()
         # Update closing vars
         self.saved = True

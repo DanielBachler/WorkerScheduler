@@ -1,5 +1,6 @@
 base = None
 
+
 def init_dbwrapper(db):
     """ Initialize this wrapper
 
@@ -9,6 +10,12 @@ def init_dbwrapper(db):
 
     global base
     base = db
+
+
+# TODO: Make one of these for projects
+def db_get_project_ids():
+    pass
+
 
 # Pull user names and IDS, return both in form (name, id)
 def db_get_ids():
@@ -27,18 +34,18 @@ def db_get_ids():
 
     return result
 
-# Search project and user by ID, return full row (as object?)
-## FIXME: Get project by ID or user by iD? (this should be 2 different functions if so)
-# TODO: Seperate functions then, need one for each
 
+# Search project and user by ID, return full row (as object?)
+# TODO: Return a user object
 def get_user(eid):
     user = base.db_query('''SELECT * FROM employee WHERE eid=%d;''' % eid)
     if user is None:
         return user
     return user[0]
 
-def get_project(name):
-    proj = base.db_query('''SELECT * FROM project WHERE project_name="%s"''' % name)
+# TODO: Return a project object and search by id
+def get_project(pid):
+    proj = base.db_query('''SELECT * FROM project WHERE project_name="%s"''' % pid)
     if proj is None:
         return proj
     return proj[0]

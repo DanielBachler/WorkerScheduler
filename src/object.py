@@ -154,6 +154,7 @@ class Project:
     description = ""
     users = []
     id = 0
+    repeating = False
     # Dict of past hours by year, keys are years values are ints
     past_actual_hours = {}
     past_planned_hours = {}
@@ -162,7 +163,7 @@ class Project:
     # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String])
     #       users (List[String?]) (opt)
     # RETURNS: Project
-    def __init__(self, name, description, billing_code, expected_hours, users=None):
+    def __init__(self, name, description, billing_code, expected_hours, users=None, repeating=False):
         if users is None:
             users = []
         else:
@@ -173,6 +174,7 @@ class Project:
         # To print: self.hours_edit_date.strftime("%b-%d-%Y")
         self.hours_edit_date = date.today()
         self.description = description
+        self.repeating = repeating
 
         self.push()
         self.id = self.get_pid()
