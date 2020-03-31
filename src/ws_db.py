@@ -135,6 +135,14 @@ class DB_Connection:
                                                                                               end_mo, rpt, str(dt))
         self.db_command(stmt)
 
+    # Create project
+    def update_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
+        dt = datetime.today().strftime('%Y-%m-%d')
+        stmt = '''UPDATE project SET project_name="%s", description="%s", estimated_hrs="%s", start_year=%d,
+                    start_month=%d, end_year=%d, end_month=%d, rpt=%s, last_update="%s" WHERE project_name="%s";''' \
+               % (name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt, dt, name)
+        self.db_command(stmt)
+
     def add_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
         stmt = '''INSERT INTO user_project (billing_code, eid, proj_hours, requested_hours, earned_hours) VALUES 
                     (%d, %d, %s, %s, %s);''' % (code, eid, str(proj_hours), str(req_hrs), str(earn_hours))

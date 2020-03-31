@@ -107,8 +107,7 @@ def update_project(name, description, exp_hours, last_update, rpt=False, start_m
     if not exists:
         base.create_project(name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt)
     else:
-        # TODO: update
-        pass
+        base.update_project(name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt)
 
 def get_pid(name):
     pid = base.db_query('''SELECT pid FROM project WHERE project_name="%s"''' % name)
