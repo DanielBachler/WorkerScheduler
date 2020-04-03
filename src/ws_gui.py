@@ -23,27 +23,6 @@ from src import object
 import copy
 from src import dbcalls
 
-
-# TODO: REDO BOTH OF THESE IN DBCALL.PY, REFACTOR ALL CALLS IN HERE TO USE THOSE
-
-# findItem: Finds the given item in the given list
-# ARGS: objectName (T), objectList (List[T])
-# RETURNS:  object_current (T)
-def findItem(objectName, objectList):
-    for object_current in objectList:
-        if objectName == object_current.name:
-            return object_current
-
-
-# findItemByID: Finds the given item in the given list by unique ID
-# ARGS: objectName (T), objectList (List[T])
-# RETURNS:  object_current (T)
-def findItemByID(objectID, objectList):
-    for object_current in objectList:
-        if objectID == object_current.get_Id():
-            return object_current
-
-
 class Main_UI(QMainWindow):
     # Class global vars for sub windows
     newUserWindow = ""
