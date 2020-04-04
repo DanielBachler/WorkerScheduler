@@ -14,7 +14,10 @@ def init_dbwrapper(db):
 
 # TODO: Make one of these for projects
 def db_get_project_ids():
-    all = base.db_query('''SELECT pid FROM project''')
+    res = base.db_query('''SELECT pid FROM project''')
+    all = []
+    for i in res:
+        all.append(i[0])
     return all
 
 
