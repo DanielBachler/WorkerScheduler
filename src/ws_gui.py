@@ -206,14 +206,18 @@ class Main_UI(QMainWindow):
     def newSelected(self, item):
         # Get right_view object
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
-        id = item.text()
+        name = item.text()
         # DB CALL HERE
         if self.view:
-            selected_object = dbcalls.get_user(id)
+            pid = dbcalls.get_pid(name)
+            selected_object = dbcalls.get_project(pid)
+            # TODO: Fix dbcalls.get_project to return project object
             # selected_object = findItem(name, self.projectList)
             right_view.setText(selected_object.print_project())
         else:
-            selected_object = dbcalls.get_project(id)
+            uid = dbcalls.get_user(name)
+            selected_object = dbcalls.get_user(uid)
+            # TODO: Fix dbcalls.get_user to return user object
             # selected_object = findItem(name, self.userList)
             right_view.setText(selected_object.print_user())
 
@@ -310,7 +314,8 @@ class Main_UI(QMainWindow):
         # Add item based on which view is selected
         if self.view:
             for project_id in dbcalls.db_get_project_ids():
-                left_view.addItem(project_id)
+                name = dbcalls.get_project(project_id)[1]
+                left_view.addItem(name)
         else:
             for user, ID in dbcalls.db_get_ids():
                 left_view.addItem(user)
@@ -904,12 +909,14 @@ class AddUsersGUI(QWidget):
     # updateAllUser: Updates the current selected_all_user
     # ARGS: self (QWidget), item (QListWidgetItem)
     # RETURNS: None
+    # TODO: Fix with DB
     def updateAllUser(self, item):
         self.selected_all_user = findItem(item.text(), self.parent_window.parent_window.userList)
 
     # updateProjectUser: Updates the current selected_project_user
     # ARGS: self (QWidget), item (QListWidgetItem)
     # RETURNS: None
+    # TODO: Fix with DB
     def updateProjectUser(self, item):
         self.selected_project_user = findItem(item.text(), self.project_user_list)
 
@@ -1087,10 +1094,7 @@ class NewProjectGUI(QWidget):
     def save(self):
         self.saved = True
         # Get information from UI
-        tempProject = self.getProject()
-        print(tempProject.print_project())
-        dbcalls.update_project(tempProject.name, tempProject.description, tempProject.expected_hours,
-                               tempProject.hours_edit_date, tempProject.repeating)
+        self.getProject()
         self.parent_window.updateUserList()
         self.close()
 
@@ -1187,12 +1191,8 @@ class NewProjectGUI(QWidget):
         if "," in billing_codes:
             billing_codes = billing_codes.split(",")
 
-        # Save as new object
-        #try:
-        return object.Project(name, description, billing_codes, expected_hours)
-        #except Exception as e:
-            #print(e)
-        #return None
+        # Save as new object to db through constructor
+        object.Project(name, description, billing_codes, expected_hours)
 
     # addUsers: Opens a window where users can be added to a project
     # ARGS: self (QWidget)
