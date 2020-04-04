@@ -35,7 +35,6 @@ def main():
     userList = tempUserList(projectList)
 
     dbcalls.update_ranks(rank_list)
-    dummy = dbcalls.get_ranks()
 
     ex.initUI(userList, projectList, rank_list)
     ex.setWindowIcon(QIcon('icon.png'))
