@@ -80,9 +80,6 @@ class Main_UI(QMainWindow):
         exitAction = QAction('Exit Application', self)
         exitAction.triggered.connect(self.close)
 
-        saveAction = QAction('Save', self)
-        saveAction.triggered.connect(self.save)
-
         # Actions for user menu
         newUserAction = QAction('Add New User', self)
         newUserAction.triggered.connect(self.makeNewUser)
@@ -98,7 +95,6 @@ class Main_UI(QMainWindow):
         switchViewProject.triggered.connect(self.switch_project_view)
 
         # Add actions to file menu
-        fileMenu.addAction(saveAction)
         fileMenu.addAction(exitAction)
 
         # Add actions to user menu
@@ -314,7 +310,7 @@ class Main_UI(QMainWindow):
             for project_id in dbcalls.db_get_project_ids():
                 left_view.addItem(project_id)
         else:
-            for user in dbcalls.db_get_ids():
+            for user, ID in dbcalls.db_get_ids():
                 left_view.addItem(user)
 
     # switch_user_view: Changes the main UI to show users
@@ -1090,6 +1086,7 @@ class NewProjectGUI(QWidget):
         self.saved = True
         # Get information from UI
         tempProject = self.getProject()
+        print(tempProject.print_project())
         dbcalls.update_project(tempProject.name, tempProject.description, tempProject.expected_hours,
                                tempProject.hours_edit_date, tempProject.repeating)
         self.parent_window.updateUserList()
@@ -1174,22 +1171,28 @@ class NewProjectGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: object.Project
     def getProject(self):
-        billing_input = self.findChild(QLineEdit, "billing_input")
-        expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
-        title_input = self.findChild(QLineEdit, "title_input")
-        description_input = self.findChild(QTextEdit, "description_input")
-        billing_codes = billing_input.text()
-        expected_hours = expected_hours_input.text()
-        name = title_input.text()
-        description = description_input.toPlainText()
-        description_input.clear()
+        try:
+            print("Creating project")
+            billing_input = self.findChild(QLineEdit, "billing_input")
+            expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
+            title_input = self.findChild(QLineEdit, "title_input")
+            description_input = self.findChild(QTextEdit, "description_input")
+            billing_codes = billing_input.text()
+            expected_hours = expected_hours_input.text()
+            name = title_input.text()
+            description = description_input.toPlainText()
+            description_input.clear()
 
-        # Fix billing codes to either string or list
-        if "," in billing_codes:
-            billing_codes = billing_codes.split(",")
+            # Fix billing codes to either string or list
+            if "," in billing_codes:
+                billing_codes = billing_codes.split(",")
 
-        # Save as new object
-        return object.Project(name, description, billing_codes, expected_hours)
+            # Save as new object
+            print("Project created")
+            return object.Project(name, description, billing_codes, expected_hours)
+        except Exception as e:
+            print(e)
+        return None
 
     # addUsers: Opens a window where users can be added to a project
     # ARGS: self (QWidget)
