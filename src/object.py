@@ -66,7 +66,7 @@ class User:
 
     def push(self):
         role = 0    # Brendan to Dan: Set this to something appropriate
-        dbcalls.update_user(self.employee_id, self.name, role, self.pay, self.mentor, self.rank)
+        dbcalls.update_user(self.employee_id, str(self.name), str(role), str(self.pay), str(self.mentor), str(self.rank))
 
     # getID: returns the unique id (employee_id)
     # ARGS: self (object.User)
@@ -184,7 +184,7 @@ class Project:
             dbcalls.base.add_user_to_project(user, self.id)
 
         for code in billing_code:
-            dbcalls.associate_billing_code()
+            dbcalls.associate_billing_code(self.get_pid(), code)
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
@@ -232,7 +232,8 @@ class Project:
             return self.billing_codes
 
     def push(self):
-        dbcalls.update_project(self.name, self.description, self.expected_hours, self.hours_edit_date)
+        dbcalls.update_project(self.name, self.description, self.expected_hours, last_update=self.hours_edit_date,
+                               rpt=self.repeating)
 
     def get_pid(self):
         return dbcalls.get_pid(self.name)

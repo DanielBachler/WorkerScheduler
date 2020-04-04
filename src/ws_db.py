@@ -138,11 +138,13 @@ class DB_Connection:
         self.db_command(stmt)
 
     # Create project
-    def update_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
-        dt = datetime.today().strftime('%Y-%m-%d')
-        stmt = '''UPDATE project SET project_name="%s", description="%s", estimated_hrs="%s", start_year=%d,
-                    start_month=%d, end_year=%d, end_month=%d, rpt=%s, last_update="%s" WHERE project_name="%s";''' \
-               % (name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt, dt, name)
+    def update_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt, last_update=""):
+        dt = last_update if last_update == "" else datetime.today().strftime('%Y-%m-%d')
+        repeat = "1" if rpt else "0"
+
+        stmt = '''UPDATE project SET project_name="%s", description="%s", estimated_hrs=%s, start_year=%s,
+                    start_month=%s, end_year=%s, end_month=%s, rpt=%s, last_update="%s" WHERE project_name="%s";''' \
+               % (name, desc, str(est_hrs), str(start_yr), str(start_mo), str(end_yr), str(end_mo), repeat, dt, name)
         self.db_command(stmt)
 
     def add_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
@@ -209,12 +211,13 @@ class DB_Connection:
 
     # Add billing code to database
     def add_billing_code(self, bc):
-        stmt = 'INSERT INTO billing_code VALUES (%d)' % bc
+        print("New billing code:", bc)
+        stmt = 'INSERT INTO billing_code VALUES (%s)' % str(bc)
         self.db_command(stmt)
 
     # Associate billing code with project
     def add_billing_code_for_project(self, pid, bc):
-        stmt = 'INSERT INTO billing_code_assignment VALUES (%d, %d);' % (pid, bc)
+        stmt = 'INSERT INTO billing_code_assignment VALUES (%s, %s);' % (str(pid), str(bc))
         self.db_command(stmt)
 
     # Disassociate billing code from project
