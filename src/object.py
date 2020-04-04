@@ -41,6 +41,21 @@ class User:
 
         self.push()
 
+    # Create user from database entry
+    @classmethod
+    def from_db_row(cls, row):
+        if row is None:
+            return None
+        eid = row[0]
+        name = row[1]
+        rank = row[2]
+        role = 1   # TODO: Use this as an admin flag
+        rate = row[4]
+        mentor = row[5]
+
+        new_user = cls(name, rate, rank, "", mentor, eid)
+        return new_user
+
     # print_user: Makes a string of the information for the selected user in a formatted fashion
     # ARGS: self (User)
     # RETURNS: print_string (String)
