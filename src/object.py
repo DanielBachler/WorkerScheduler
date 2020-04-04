@@ -162,7 +162,7 @@ class Project:
     # __init__: Initializes a given project
     # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String])
     # RETURNS: Project
-    def __init__(self, name, description, billing_code, expected_hours, users=None, repeating=False):
+    def __init__(self, name, description, billing_code, expected_hours, users=[], repeating=False):
         # if users is None:
         self.users = []
         # else:
