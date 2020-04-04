@@ -210,16 +210,20 @@ class Main_UI(QMainWindow):
         # DB CALL HERE
         if self.view:
             pid = dbcalls.get_pid(name)
-            selected_object = dbcalls.get_project(pid)
-            # TODO: Fix dbcalls.get_project to return project object
+            selected_object_row = dbcalls.get_project(pid)
+            project = object.Project.create_from_db_row(selected_object_row)
             # selected_object = findItem(name, self.projectList)
-            right_view.setText(selected_object.print_project())
+            right_view.setText(project.print_project())
         else:
+            # TODO: Test
             uid = dbcalls.get_user(name)
-            selected_object = dbcalls.get_user(uid)
-            # TODO: Fix dbcalls.get_user to return user object
+            selected_object_row = dbcalls.get_user(uid)
+            user = object.User.from_db_row(selected_object_row)
             # selected_object = findItem(name, self.userList)
-            right_view.setText(selected_object.print_user())
+            try:
+                right_view.setText(user.print_user())
+            except Exception as e:
+                print(e)
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)

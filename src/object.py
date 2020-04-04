@@ -203,6 +203,15 @@ class Project:
         except Exception as e:
             print(e)
 
+    # create_from_db_row: Creates a project object from a DB row
+    # ARGS: row (List[db row])
+    # RETURNS: object.Project
+    @classmethod
+    def create_from_db_row(cls, row):
+        if row is None:
+            return None
+
+
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
     # RETURNS: None
