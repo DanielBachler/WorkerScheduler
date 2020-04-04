@@ -38,16 +38,14 @@ def db_get_ids():
 
     return result
 
-
-# Search project and user by ID, return full row (as object?)
-# TODO: Return a user object
+# Return a user object
 def get_user(eid):
     user = base.db_query('''SELECT * FROM employee WHERE eid=%d;''' % eid)
     if user is None:
         return user
     return user[0]
 
-# TODO: Return a project object and search by id
+# Return a project object and search by id
 def get_project(pid):
     proj = base.db_query('''SELECT * FROM project WHERE pid="%s"''' % str(pid))
     if proj is None:
@@ -61,7 +59,13 @@ def get_ranks():
     :return: List of ranks
 
     """
-    return []
+    res = base.db_query('''SELECT * from emp_role;''')
+    all = []
+
+    for i in res:
+        all.append(i[1])
+
+    return all
 
 # Push current rank list
 def update_ranks(ranks):
@@ -166,9 +170,3 @@ def rm_user(user_id):
     """
 
     base.del_user(user_id)
-
-# Push new rank to DB
-## TODO: Is this redundant with `update_ranks()`?
-#        Dan: No, this function adds a new rank to the db, 'update_ranks()' pulls the master rank list from db
-def add_rank(rank):
-    pass
