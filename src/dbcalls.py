@@ -71,7 +71,8 @@ def update_ranks(ranks):
 
     """
 
-    pass
+    for rank in ranks:
+        base.add_rank(rank)
 
 def associate_billing_code(pid, code):
     base.add_billing_code(code)

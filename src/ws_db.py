@@ -184,6 +184,11 @@ class DB_Connection:
         stmt = 'INSERT INTO team_membership VALUES (%d, %d);' % (tid, eid)
         self.db_command(stmt)
 
+    # Add employee rank to database
+    def add_rank(self, rank):
+        stmt = '''INSERT INTO emp_role (role_name) VALUES ("%s");''' % str(rank)
+        self.db_command(stmt)
+
     # Remove user from team
     def remove_user_from_team(self):
         pass
