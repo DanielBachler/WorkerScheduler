@@ -175,15 +175,18 @@ class Project:
         self.description = description
         self.repeating = repeating
 
-        self.push()
-        self.id = self.get_pid()
+        try:
+            self.push()
+            self.id = self.get_pid()
 
-        for user in users:
-            # Brendan to Dan: We need the users variable to be a list of UID's.
-            dbcalls.base.add_user_to_project(user, self.id)
+            # for user in users:
+            #     # Brendan to Dan: We need the users variable to be a list of UID's.
+            #     dbcalls.base.add_user_to_project(user, self.id)
 
-        for code in billing_code:
-            dbcalls.associate_billing_code(self.get_pid(), code)
+            for code in billing_code:
+                dbcalls.associate_billing_code(self.get_pid(), code)
+        except Exception as e:
+            print(e)
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)

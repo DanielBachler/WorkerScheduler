@@ -28,7 +28,7 @@ class Main_UI(QMainWindow):
     newUserWindow = ""
     newProjectWindow = ""
     # List of available ranks pulled from database
-    rank_list = dbcalls.get_ranks()
+    rank_list = None
 
     # If current user is admin, debug set to TRUE
     admin = True
@@ -63,6 +63,8 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow), userList (List[User]), projectList (List[Project])
     # RETURNS: None
     def initUI(self, userList, projectList, rank_list):
+
+        self.rank_list = dbcalls.get_ranks()
 
         size = (600, 600)
         # Setup main display: Pane of worker names to chose (left), pane showing selected worker info (right),
@@ -1171,28 +1173,26 @@ class NewProjectGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: object.Project
     def getProject(self):
-        try:
-            print("Creating project")
-            billing_input = self.findChild(QLineEdit, "billing_input")
-            expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
-            title_input = self.findChild(QLineEdit, "title_input")
-            description_input = self.findChild(QTextEdit, "description_input")
-            billing_codes = billing_input.text()
-            expected_hours = expected_hours_input.text()
-            name = title_input.text()
-            description = description_input.toPlainText()
-            description_input.clear()
+        billing_input = self.findChild(QLineEdit, "billing_input")
+        expected_hours_input = self.findChild(QLineEdit, "expected_hours_input")
+        title_input = self.findChild(QLineEdit, "title_input")
+        description_input = self.findChild(QTextEdit, "description_input")
+        billing_codes = billing_input.text()
+        expected_hours = expected_hours_input.text()
+        name = title_input.text()
+        description = description_input.toPlainText()
+        description_input.clear()
 
-            # Fix billing codes to either string or list
-            if "," in billing_codes:
-                billing_codes = billing_codes.split(",")
+        # Fix billing codes to either string or list
+        if "," in billing_codes:
+            billing_codes = billing_codes.split(",")
 
-            # Save as new object
-            print("Project created")
-            return object.Project(name, description, billing_codes, expected_hours)
-        except Exception as e:
-            print(e)
-        return None
+        # Save as new object
+        #try:
+        return object.Project(name, description, billing_codes, expected_hours)
+        #except Exception as e:
+            #print(e)
+        #return None
 
     # addUsers: Opens a window where users can be added to a project
     # ARGS: self (QWidget)
