@@ -14,7 +14,8 @@ def init_dbwrapper(db):
 
 # TODO: Make one of these for projects
 def db_get_project_ids():
-    pass
+    all = base.db_query('''SELECT pid FROM project''')
+    return all
 
 
 # Pull user names and IDS, return both in form (name, id)
@@ -45,7 +46,7 @@ def get_user(eid):
 
 # TODO: Return a project object and search by id
 def get_project(pid):
-    proj = base.db_query('''SELECT * FROM project WHERE project_name="%s"''' % pid)
+    proj = base.db_query('''SELECT * FROM project WHERE pid="%s"''' % str(pid))
     if proj is None:
         return proj
     return proj[0]
