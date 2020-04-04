@@ -163,10 +163,10 @@ class Project:
     # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String])
     # RETURNS: Project
     def __init__(self, name, description, billing_code, expected_hours, users=None, repeating=False):
-        if users is None:
-            users = []
-        else:
-            self.users = users
+        # if users is None:
+        self.users = []
+        # else:
+        #     self.users = users
         self.expected_hours = expected_hours
         self.billing_codes = billing_code
         self.name = name

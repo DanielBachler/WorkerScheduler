@@ -54,9 +54,9 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer not null auto_increment,"
                             "team_name varchar(32), PRIMARY KEY (tid));")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer not null primary key);")
-            self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer);")
-            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer);")
-            self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer);")
+            self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer, PRIMARY KEY (pid, code));")
+            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer, PRIMARY KEY (tid, eid));")
+            self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer, PRIMARY KEY (eid, pid));")
             self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer not null auto_increment,"
                             "billing_code integer, eid integer, projected_hours real default NULL,"
                             "requested_hours real default NULL, earned_hours real default 0, PRIMARY KEY(pid));")
