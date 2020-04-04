@@ -105,7 +105,7 @@ class DB_Connection:
     # Update user by EID
     def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
         stmt = '''UPDATE employee SET employee_name="%s", rank=%s, emp_role=%s, hourly_rate=%s, mentor="%s" WHERE
-                    eid=%d;''' % (name, str(rank), str(role), str(rate), mentor, eid)
+                    eid=%s;''' % (name, str(rank), str(role), str(rate), mentor, str(eid))
         self.db_command(stmt)
 
     # Delete a database user.
