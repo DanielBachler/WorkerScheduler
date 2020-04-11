@@ -11,6 +11,12 @@
 # TODO:
 #   Overall: Fix view to have name and ID,
 #            Ensure nothing broke from DB refactor
+#            Add ID's to projects in QListWidget?
+#   Things that are broken:
+#                           Adding user with form (access denied),
+#                           Adding project brings up cancel menu,
+#                           Adding project does not work (no crash),
+#                           Adding new rank causes crash (not admin?)
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -206,24 +212,33 @@ class Main_UI(QMainWindow):
     def newSelected(self, item):
         # Get right_view object
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
-        name = item.text()
-        # DB CALL HERE
         if self.view:
-            pid = dbcalls.get_pid(name)
-            selected_object_row = dbcalls.get_project(pid)
-            project = object.Project.create_from_db_row(selected_object_row)
-            # selected_object = findItem(name, self.projectList)
-            right_view.setText(project.print_project())
-        else:
-            # TODO: Test
-            uid = dbcalls.get_user(name)
-            selected_object_row = dbcalls.get_user(uid)
-            user = object.User.from_db_row(selected_object_row)
-            # selected_object = findItem(name, self.userList)
+            name = item.text()
             try:
-                right_view.setText(user.print_user())
+                pid = dbcalls.get_pid(name)
+                selected_object_row = dbcalls.get_project(pid)
+                project = object.Project.create_from_db_row(selected_object_row)
+                # selected_object = findItem(name, self.projectList)
+                right_view.setText(project.print_project())
+            except Exception as e:
+                print("Exception:", e)
+                print("PID: %s" % pid)
+                print("Selected row:", selected_object_row)
+        else:
+            id = item.data(Qt.UserRole)
+            try:
+                # TODO: Fix list objects to have user ID's too
+                # uid = dbcalls.get_user(id)
+                selected_object_row = dbcalls.get_user(id)
+                user = object.User.from_db_row(selected_object_row)
+                try:
+                    right_view.setText(user.print_user())
+                except Exception as e:
+                    print(e)
             except Exception as e:
                 print(e)
+                print("UID:", uid)
+                print("Selected row:", selected_object_row)
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -322,7 +337,9 @@ class Main_UI(QMainWindow):
                 left_view.addItem(name)
         else:
             for user, ID in dbcalls.db_get_ids():
-                left_view.addItem(user)
+                item = QListWidgetItem(user)
+                item.setData(Qt.UserRole, ID)
+                left_view.addItem(item)
 
     # switch_user_view: Changes the main UI to show users
     # ARGS: self (QMainWindow),

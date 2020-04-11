@@ -40,7 +40,7 @@ def db_get_ids():
 
 # Return a user object
 def get_user(eid):
-    user = base.db_query('''SELECT * FROM employee WHERE eid=%d;''' % eid)
+    user = base.db_query('''SELECT * FROM employee WHERE eid=%s;''' % eid)
     if user is None:
         return user
     return user[0]

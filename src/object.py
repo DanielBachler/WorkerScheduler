@@ -206,10 +206,17 @@ class Project:
     # create_from_db_row: Creates a project object from a DB row
     # ARGS: row (List[db row])
     # RETURNS: object.Project
+    # TODO: WTF is going on with db rows for projects?  Missing a lot of values
     @classmethod
     def create_from_db_row(cls, row):
         if row is None:
             return None
+        title = row[1]
+        desc = row[2]
+        bc = []
+        hours = row[3]
+        new_proj = cls(title, desc, bc, hours)
+        return new_proj
 
 
     # print_project: Makes a string for a project in a formatted manor
