@@ -9,14 +9,33 @@
 # GUI Wrapper for Work Scheduler
 
 # TODO:
-#   Overall: Fix view to have name and ID,
-#            Ensure nothing broke from DB refactor
-#            Add ID's to projects in QListWidget?
+#   Overall:
+#       Fix view to have name and ID (maybe not)
+#       Ensure nothing broke from DB refactor (it did)
+#       Add ID's to projects in QListWidget? (maybe)
+#       Fix project user forms with new ID format (going to be a mess)
+#       Why does clicking on user(/projects?) cause db updates?
 #   Things that are broken:
-#                           Adding user with form (access denied),
-#                           Adding project brings up cancel menu,
-#                           Adding project does not work (no crash),
-#                           Adding new rank causes crash (not admin?)
+#       Adding user with form (access denied, which is ok),
+#       Adding project does not work (no crash),
+#           must be real number, not str
+#       Adding new rank causes crash (not admin?) (may also be db error)
+#       Editing user does not populate the form
+#       Updating user does not work
+#           NoneType object has no attribute print_user,
+#           ---
+#           Error executing query 1054 (42S22): Unknown column 'None'
+#           in 'where clause' SELECT * FROM employee WHERE eid=None;
+#           ---
+#       Cannot delete user, gives user already deleted error (dumb try catch?)
+#       Editing project crashes program (why God)
+#   Things that need to be done and I need Brendan for:
+#       NewProjectGUI.updateProject(): Updating users to be associated with project
+#           May not need to be done since it can be referenced from project, should be done for ease of access
+#       dbcalls.get_project(): Fix row information, missing some and other info not available right now
+#           Ex: ID (might be there), billing codes
+#       dbcalls.update_project(): Needs to have project ID as reference instead of name
+#
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -28,6 +47,7 @@ from PyQt5.QtGui import QIcon
 from src import object
 import copy
 from src import dbcalls
+
 
 class Main_UI(QMainWindow):
     # Class global vars for sub windows
@@ -208,7 +228,6 @@ class Main_UI(QMainWindow):
     # newSelected: Changes the displayed text in right side panel of QMainWindow
     # ARGS: self (QMainWindow), item (a QListWidget List item)
     # RETURNS: None
-    # TODO: Ensure functionality
     def newSelected(self, item):
         # Get right_view object
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
@@ -227,7 +246,6 @@ class Main_UI(QMainWindow):
         else:
             id = item.data(Qt.UserRole)
             try:
-                # TODO: Fix list objects to have user ID's too
                 # uid = dbcalls.get_user(id)
                 selected_object_row = dbcalls.get_user(id)
                 user = object.User.from_db_row(selected_object_row)
@@ -237,7 +255,7 @@ class Main_UI(QMainWindow):
                     print(e)
             except Exception as e:
                 print(e)
-                print("UID:", uid)
+                print("UID:", id)
                 print("Selected row:", selected_object_row)
 
     # makeNewUser: Creates a new user object and adds them to the database
@@ -252,19 +270,21 @@ class Main_UI(QMainWindow):
     # deleteSelectedUserFunc: Deletes the user passed to it, called by the delete button on main GUI panel
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: REDO WITH DB CALL
+    # TODO: Make sure working (need higher access login)
     def deletedSelectedFunc(self):
         try:
-            current_object = self.centralWidget().findChild(QListWidget).currentItem().text()
+            current_object = self.centralWidget().findChild(QListWidget).currentItem()
             if self.view:
                 # Project
-                project = dbcalls.get_project(current_object)
+                title = current_object.text()
+                project = dbcalls.get_project(title)
                 dbcalls.rm_proj(project.id)
                 # project = findItem(current_object, self.projectList)
                 # self.projectList.remove(project)
             else:
                 # User
-                user = dbcalls.get_user(current_object)
+                id = current_object.data(Qt.UserRole)
+                user = dbcalls.get_user(id)
                 dbcalls.rm_user(user.employee_id)
                 # user = findItem(current_object, self.userList)
                 # self.userList.remove(user)
@@ -279,12 +299,12 @@ class Main_UI(QMainWindow):
     # TODO: Ensure functionality
     def editSelected(self):
         # Get the item as its object type
-        currentItem = self.centralWidget().findChild(QListWidget).currentItem().text()
+        currentItem = self.centralWidget().findChild(QListWidget).currentItem()
         current_object = None
         if self.view:
-            current_object = dbcalls.get_project(currentItem)
+            current_object = dbcalls.get_project(currentItem.text())
         else:
-            current_object = dbcalls.get_user(currentItem)
+            current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
 
         if self.view and current_object is not None:
             # Project
@@ -979,7 +999,6 @@ class NewProjectGUI(QWidget):
 
     # If form has been saved
     saved = False
-    close_from_save = False
 
     # Editing vars
     editing = False
@@ -1111,11 +1130,25 @@ class NewProjectGUI(QWidget):
     # save: Saves the project to the list of projects
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Fix?
+    # TODO: Fix
     def save(self):
         self.saved = True
-        # Get information from UI
-        self.getProject()
+        # Create project from info in UI
+        project = self.getProject()
+        # Try to push to db
+        try:
+            project.push()
+            project.id = project.get_pid()
+
+            # TODO: Fix with db calls after fixing user forms
+            # for user in users:
+            #     # Brendan to Dan: We need the users variable to be a list of UID's.
+            #     dbcalls.base.add_user_to_project(user, self.id)
+
+            for code in project.billing_codes:
+                dbcalls.associate_billing_code(project.getId(), code)
+        except Exception as e:
+            print(e)
         self.parent_window.updateUserList()
         self.close()
 
@@ -1127,11 +1160,11 @@ class NewProjectGUI(QWidget):
         if self.parent_closing:
             event.accept()
         # If the form is editing and the form is not saved, prompt for cancellation
-        if self.editing and self.edited and not self.close_from_save:
+        if self.editing and self.edited and not self.saved:
             temp = QMessageBox.question(self, 'Cancel Confirmation',
                                         'Are you sure you want to cancel project updates?',
                                         QMessageBox.Yes | QMessageBox.No | QMessageBox.Save, QMessageBox.No)
-        elif self.edited and (not self.close_from_save):
+        elif self.edited and (not self.saved):
             temp = QMessageBox.question(self, 'Cancel Confirmation',
                                         'Are you sure you want to cancel project creation?',
                                         QMessageBox.Yes | QMessageBox.No | QMessageBox.Save, QMessageBox.No)
@@ -1166,30 +1199,34 @@ class NewProjectGUI(QWidget):
     # updateProject: Updates an existing project instead of creating a new one
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Fix?
+    # TODO: Fix
     def updateProject(self):
         # Get updated project and append to DB
         project = self.getProject()
         project.users = self.project_user_list
         # Add to list and update master list in main UI
+        # TODO: Fix method to use project ID as identifier
         dbcalls.update_project(project.name, project.description, project.expected_hours, project.hours_edit_date,
                                project.repeating)
+        # Update mainUI window to show new project in list
         self.parent_window.updateUserList()
         # Update closing vars
         self.saved = True
-        self.close_from_save = True
-        # Update parent window selected pane
+        # Update parent window to show updated project info
         self.parent_window.newSelected(QListWidgetItem(project.name))
 
         # Update users with UserProjects
+        # TODO: Figure out how to do with db
         for user in self.user_projects.keys():
             # Find user
+            userOb = None
             try:
                 userOb = findItemByID(user, self.parent_window.userList)
             except Exception as e:
                 print(e)
-            for ob in self.user_projects[user]:
-                userOb.projects.append(ob)
+            if userOb is not None:
+                for ob in self.user_projects[user]:
+                    userOb.projects.append(ob)
         # TODO: Database updates
 
         self.close()
@@ -1213,7 +1250,7 @@ class NewProjectGUI(QWidget):
             billing_codes = billing_codes.split(",")
 
         # Save as new object to db through constructor
-        object.Project(name, description, billing_codes, expected_hours)
+        return object.Project(name, description, billing_codes, expected_hours)
 
     # addUsers: Opens a window where users can be added to a project
     # ARGS: self (QWidget)

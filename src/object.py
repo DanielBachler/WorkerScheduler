@@ -160,6 +160,7 @@ class UserProject:
     def __str__(self):
         return self.toString()
 
+
 class Project:
     expected_hours = 0
     # Needs to be list since some projects can have multiple billing codes
@@ -177,11 +178,13 @@ class Project:
     # __init__: Initializes a given project
     # ARGS: self (Project), title (String), description (String), expected_hours (int), billing_code (List[String])
     # RETURNS: Project
-    def __init__(self, name, description, billing_code, expected_hours, users=[], repeating=False):
-        # if users is None:
-        self.users = []
-        # else:
-        #     self.users = users
+    def __init__(self, name, description, billing_code, expected_hours, users=None, repeating=False):
+        # If no users given, set to empty list
+        if users is None:
+            self.users = []
+        # Otherwise assign users (will be list of uid's)
+        else:
+            self.users = users
         self.expected_hours = expected_hours
         self.billing_codes = billing_code
         self.name = name
@@ -189,19 +192,6 @@ class Project:
         self.hours_edit_date = date.today()
         self.description = description
         self.repeating = repeating
-
-        try:
-            self.push()
-            self.id = self.get_pid()
-
-            # for user in users:
-            #     # Brendan to Dan: We need the users variable to be a list of UID's.
-            #     dbcalls.base.add_user_to_project(user, self.id)
-
-            for code in billing_code:
-                dbcalls.associate_billing_code(self.get_pid(), code)
-        except Exception as e:
-            print(e)
 
     # create_from_db_row: Creates a project object from a DB row
     # ARGS: row (List[db row])
@@ -216,8 +206,8 @@ class Project:
         bc = []
         hours = row[3]
         new_proj = cls(title, desc, bc, hours)
+        new_proj.id = row[0]
         return new_proj
-
 
     # print_project: Makes a string for a project in a formatted manor
     # ARGS: self (Project)
@@ -232,6 +222,7 @@ class Project:
     # print_users: Makes a formatted string for the users assigned to a project
     # ARGS: self (Project)
     # RETURNS: user_string (String)
+    # TODO: Redo to pull names using the UID list
     def print_users(self):
         user_string = ""
         for user in self.users:
