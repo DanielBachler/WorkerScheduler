@@ -10,16 +10,31 @@
 
 # TODO:
 #   Overall:
-#       Fix view to have name and ID (maybe not)
+#       Fix view to have name and ID (maybe not) done with QListWidgetItem data
 #       Ensure nothing broke from DB refactor (it did)
-#       Add ID's to projects in QListWidget? (maybe)
-#       Fix project user forms with new ID format (going to be a mess)
-#       Why does clicking on user(/projects?) cause db updates?
+#       Add ID's to projects in QListWidget? (maybe) Yes
+#       Fix project user forms with new ID format (going to be a mess) Not needed lmao
+#       Get admin flag working
+#       Allow pasting into server window
+#       Ability to remove ranks if admin
 #   Things that are broken:
-#       Adding user with form (access denied, which is ok),
+#       Adding user with form (doesnt crash at least):
+#           (Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost' CREATE USER
+#           'Joe'@'localhost';
+#           Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'%' CREATE USER 'Joe'@'%';
+#           Error executing command 1054 (42S22): Unknown column 'Analyst' in 'field list' INSERT INTO employee
+#           (eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES
+#           (111222, "Joe", 0, 75.000000, "Steve", Analyst);
+#           Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost'
+#           CREATE USER 'Joe'@'localhost';
+#           Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'%' CREATE USER 'Joe'@'%';
+#           Error executing command 1054 (42S22): Unknown column 'None' in 'field list' INSERT INTO employee
+#           (eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES
+#           (111222, "Joe", None, 75.000000, "Steve", Analyst);)
 #       Adding project does not work (no crash),
 #           must be real number, not str
-#       Adding new rank causes crash (not admin?) (may also be db error)
+#           'tuple' object has no attribute 'name'
+#           Some disconnect in the project.push method to the dbcalls.updateproject()
 #       Editing user does not populate the form
 #       Updating user does not work
 #           NoneType object has no attribute print_user,
@@ -29,6 +44,8 @@
 #           ---
 #       Cannot delete user, gives user already deleted error (dumb try catch?)
 #       Editing project crashes program (why God)
+#       WTF is rank box doing? (multiple rank lists in one?)
+#           May be caused by pushing rank list to db (it is, in w_s.py the ranks are appended each launch)
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
@@ -141,8 +158,14 @@ class Main_UI(QMainWindow):
             # Actions
             add_rank = QAction("Add new rank", self)
             add_rank.triggered.connect(self.addRank)
+
+            remove_rank = QAction("Remove a rank", self)
+            remove_rank.setToolTip("This will only remove the rank from the choice list\n"
+                                   "Existing users with the rank will keep it.")
+            remove_rank.triggered.connect(self.removeRank)
             # Add actions
             adminMenu.addAction(add_rank)
+            adminMenu.addAction(remove_rank)
 
         # Contents of central widget
 
@@ -382,7 +405,18 @@ class Main_UI(QMainWindow):
     def addRank(self):
         rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
         if okPressed and rank != "":
-            dbcalls.add_rank(rank)
+            dbcalls.update_ranks([rank])
+        # Clear current rank list and refresh
+        self.rank_list = None
+        self.rank_list = dbcalls.get_ranks()
+
+    # removeRank: removes a rank from the rank list in DB
+    # ARGS: self (QMainWindow)
+    # RETURNS: None
+    # TODO: Implement
+    def removeRank(self):
+        pass
+        # QInputDialog with drop down of possible ranks, the selected one to be removed
 
 
 class NewUserGUI(QWidget):
