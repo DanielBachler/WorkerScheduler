@@ -17,6 +17,13 @@
 #       Get admin flag working
 #       Allow pasting into server window
 #       Ability to remove ranks if admin
+#       For users view:
+#           Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
+#           hours for that project.  Link to object.UserProject
+#       For project view:
+#           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
+#           or that project.  Link to object.UserProject
+#       Overall, move buttons for list to under list on main view, then add new button for the logging feature.
 #   Things that are broken:
 #       Adding user with form (doesnt crash at least):
 #           (Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost' CREATE USER
@@ -52,7 +59,10 @@
 #       dbcalls.get_project(): Fix row information, missing some and other info not available right now
 #           Ex: ID (might be there), billing codes
 #       dbcalls.update_project(): Needs to have project ID as reference instead of name
-#
+#       Updating users does this:
+#           'NoneType' object has no attribute 'print_user';
+#           Error executing query 1054 (42S22): Unknown column 'None' in '
+#           where clause' SELECT * FROM employee WHERE eid=None;
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -328,6 +338,7 @@ class Main_UI(QMainWindow):
             current_object = dbcalls.get_project(currentItem.text())
         else:
             current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
+            current_object = object.User.from_db_row(current_object)
 
         if self.view and current_object is not None:
             # Project
@@ -645,12 +656,12 @@ class NewUserGUI(QWidget):
         team = self.findChild(QLineEdit, "user_team")
         mentor = self.findChild(QLineEdit, "user_mentor")
         employee_id = self.findChild(QLineEdit, "user_id")
-        name.setText(user.name)
-        pay.setText(user.pay)
-        rank.setCurrentIndex(rank.findText(user.rank))
-        team.setText(user.team)
-        mentor.setText(user.mentor)
-        employee_id.setText(user.employee_id)
+        name.setText(str(user.name))
+        pay.setText(str(user.pay))
+        rank.setCurrentIndex(rank.findText(str(user.rank)))
+        team.setText(str(user.team))
+        mentor.setText(str(user.mentor))
+        employee_id.setText(str(user.employee_id))
         self.box_edited = False
 
     # updateUser: Updates a given users entry
