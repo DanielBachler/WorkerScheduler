@@ -45,7 +45,7 @@ class DB_Connection:
         else:
             print("Creating database")
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer not null, employee_name varchar(64),"
-                            "rank integer, emp_role integer, hourly_rate real, mentor varchar(32) default NULL,"
+                            "rank varchar(32), emp_role integer, hourly_rate real, mentor varchar(32) default NULL,"
                             "PRIMARY KEY (eid));")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer not null auto_increment, "
                             "project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, "
@@ -63,7 +63,7 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
             self.db_command("CREATE TABLE IF NOT EXISTS time_assignments (code integer, eid integer, mo integer,"
                             "yr integer, hrs real);")
-            self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_name varchar(32) primary key);")
+            self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_name varchar(32), primary key (role_name));")
             self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer not null primary key,"
                             "level_name varchar(16));")
             self.db_command("CREATE TABLE IF NOT EXISTS user_proj_past (upid integer, start_yr integer, start_mo integer,"
@@ -98,7 +98,7 @@ class DB_Connection:
         # TODO: Define all of these at once
         # TODO: Use company's EID
         stmt = '''INSERT INTO employee(eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES 
-                    (%s, "%s", %s, %f, "%s","%s");''' % (str(eid), name, str(role), float(rate), str(mentor), str(rank))
+                    (%s, "%s",%s, %f, "%s","%s");''' % (str(eid), name, str(role), float(rate), str(mentor), str(rank))
         self.db_command(stmt)
 
     # Update user by EID
@@ -131,7 +131,7 @@ class DB_Connection:
     def create_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
         dt = datetime.today().strftime('%Y-%m-%d')
         stmt = 'INSERT INTO project (project_name, description, estimated_hrs, start_year, start_month, end_year, ' \
-               'end_month, rpt, last_update) VALUES ("%s", "%s", %f, %s, %s, %s, %s, %d, "%s")' % (name, desc, est_hrs,
+               'end_month, rpt, last_update) VALUES ("%s", "%s", %f, %s, %s, %s, %s, %d, "%s")' % (name, desc, float(est_hrs),
                                                                                               start_yr, start_mo, end_yr,
                                                                                               end_mo, rpt, str(dt))
         self.db_command(stmt)

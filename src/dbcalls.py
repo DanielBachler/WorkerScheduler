@@ -63,7 +63,7 @@ def get_ranks():
     all = []
 
     for i in res:
-        all.append(i[1])
+        all.append(i[0])
 
     return all
 
