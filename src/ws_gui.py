@@ -23,7 +23,7 @@
 #       For project view:
 #           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
 #           or that project.  Link to object.UserProject
-#       Overall, move buttons for list to under list on main view, then add new button for the logging feature.
+#       Move buttons for list to under list on main view, then add new button for the logging feature.
 #   Things that are broken:
 #       Adding user with form (doesnt crash at least):
 #           (Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost' CREATE USER
