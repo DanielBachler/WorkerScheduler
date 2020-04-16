@@ -211,6 +211,14 @@ class Main_UI(QMainWindow):
 
         # Search
 
+        # Projects / Assigned User List
+        project_assigned_user_list_box = QListWidget()
+        project_assigned_user_list_box.setObjectName("project_assigned_user_list_box")
+        project_assigned_user_list_box.setFixedHeight(left_view.height())
+        project_assigned_user_list_box.setItemAlignment(Qt.AlignLeft)
+        vboxR.addWidget(project_assigned_user_list_box)
+
+
         # New hbox for buttons under selected user pane
         buttonHBox = QHBoxLayout()
         # Buttons under right pane for selected employee
