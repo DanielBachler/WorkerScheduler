@@ -45,6 +45,15 @@ def get_user(eid):
         return user
     return user[0]
 
+# Return a user object
+def is_user_admin(eid):
+    user = base.db_query('''SELECT emp_role FROM employee WHERE eid=%s;''' % eid)
+    if user is None:
+        return False
+
+    return user[0][0] > 0
+
+
 # Return a project object and search by id
 def get_project(pid):
     proj = base.db_query('''SELECT * FROM project WHERE pid="%s"''' % str(pid))
