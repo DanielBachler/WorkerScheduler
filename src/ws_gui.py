@@ -101,15 +101,19 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: server_addr (String), username (String), password (String)
     def login(self):
-        server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
-        if okPressed and server_addr != '':
-            pass
-        username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
-        if okPressed and server_addr != '':
-            pass
-        password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
-        if okPressed and server_addr != '':
-            pass
+        #server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
+        #if okPressed and server_addr != '':
+            #pass
+        #username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
+        #if okPressed and server_addr != '':
+            #pass
+        #password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
+        #if okPressed and server_addr != '':
+            #pass
+        # Debug/dev stuff
+        server_addr = "db.jessearstein.com"
+        username = "billy"
+        password = "12345"
         return server_addr, username, password
 
     # initUI: Creates the UI for the main UI
@@ -394,9 +398,11 @@ class Main_UI(QMainWindow):
 
         # Add item based on which view is selected
         if self.view:
-            for project_id in dbcalls.db_get_project_ids():
-                name = dbcalls.get_project(project_id)[1]
-                left_view.addItem(name)
+            for name, ID in dbcalls.db_get_project_ids():
+                print(name)
+                item = QListWidgetItem(name)
+                item.setData(Qt.UserRole, ID)
+                left_view.addItem(item)
         else:
             for user, ID in dbcalls.db_get_ids():
                 item = QListWidgetItem(user)
