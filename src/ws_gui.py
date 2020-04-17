@@ -21,6 +21,7 @@
 #           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
 #           or that project.  Link to object.UserProject
 #       Edit project form to have repeating
+#       Fix closing of all windows to close with master window
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Clicking a deleted user on another instance crashes the program
@@ -845,25 +846,9 @@ class AddUserInfoGUI(QWidget):
             aH = actualHours.text()
             bC = billingCode.currentText()
 
-            # TODO: Make this better
-            # Try and convert to ints
-            try:
-                pH = int(pH)
-            except:
-                pass
-
-            try:
-                dH = int(dH)
-            except:
-                dH = None
-
-            try:
-                aH = int(aH)
-            except:
-                aH = None
-
             # Make UserProject object
-            userProject = object.UserProject(bC, pH, dH, aH)
+            # TODO: Finish fixing this
+            userProject = object.UserProject(self.selected_project.getId(), self.user.employee_id, bC, pH, dH, aH)
             if self.user.employee_id in self.parent_window.parent_window.user_projects.keys():
                 self.parent_window.parent_window.user_projects[self.user.employee_id].append(userProject)
             else:
@@ -902,7 +887,14 @@ class AddUsersGUI(QWidget):
         super().__init__()
         self.selected_project = project
         self.parent_window = parent_window
-        self.project_user_list = copy.deepcopy(project.users)
+        # TODO: test
+        user_project_objects = dbcalls.get_projects_users(project.getId())
+        # Get users given the eids
+        if user_project_objects is not None:
+            for row in user_project_objects:
+                user = dbcalls.get_user(row[2])
+                name = user[1]
+                self.project_user_list.append((row[2], name))
 
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
@@ -976,12 +968,17 @@ class AddUsersGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUserToProject(self):
+        self.project_user_list.append((self.selected_all_user.data(Qt.UserRole), self.selected_all_user.text()))
+        self.updateProjectUsersList()
         try:
-            self.project_user_list.append(self.selected_all_user)
-            self.updateProjectUsersList()
-            self.user_info = AddUserInfoGUI(self.selected_project, self.selected_all_user, self)
+            # Make a user from selected all user
+            selected_all_user_row = dbcalls.get_user(self.selected_all_user.data(Qt.UserRole))
+            selected_all_user = object.User.from_db_row(selected_all_user_row)
+            print(selected_all_user.print_user())
+            self.user_info = AddUserInfoGUI(self.selected_project, selected_all_user, self)
             self.user_info.initUI()
         except Exception as e:
+            print("Broke making new window")
             print(e)
 
     # removeUserFromProject: Removes the selected user in project list from the project, are you sure prompt?
@@ -989,7 +986,8 @@ class AddUsersGUI(QWidget):
     # RETURNS: None
     def removeUserFromProject(self):
         try:
-            self.project_user_list.remove(self.selected_project_user)
+            to_rm = (self.selected_all_user.data(Qt.UserRole), self.selected_all_user.text())
+            self.project_user_list.remove(to_rm)
             self.updateProjectUsersList()
         except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
@@ -998,16 +996,15 @@ class AddUsersGUI(QWidget):
     # updateAllUser: Updates the current selected_all_user
     # ARGS: self (QWidget), item (QListWidgetItem)
     # RETURNS: None
-    # TODO: Fix with DB
     def updateAllUser(self, item):
-        self.selected_all_user = findItem(item.text(), self.parent_window.parent_window.userList)
+        # Get user id from item
+        self.selected_all_user = item
 
     # updateProjectUser: Updates the current selected_project_user
     # ARGS: self (QWidget), item (QListWidgetItem)
     # RETURNS: None
-    # TODO: Fix with DB
     def updateProjectUser(self, item):
-        self.selected_project_user = findItem(item.text(), self.project_user_list)
+        self.selected_project_user = item
 
     # updateAllUsersList: Updates the QListWidget with the current version of userList
     # ARGS: self (QWidget)
@@ -1015,8 +1012,10 @@ class AddUsersGUI(QWidget):
     def updateAllUsersList(self):
         all_users = self.findChild(QListWidget, "all_users")
         all_users.clear()
-        for user in self.parent_window.parent_window.userList:
-            all_users.addItem(user.name)
+        for name, id in dbcalls.db_get_ids():
+            item = QListWidgetItem(name)
+            item.setData(Qt.UserRole, id)
+            all_users.addItem(item)
 
     # updateProjectUsersList: Updates the QListWidget with the current version of userList
     # ARGS: self (QWidget)
@@ -1024,8 +1023,10 @@ class AddUsersGUI(QWidget):
     def updateProjectUsersList(self):
         project_users = self.findChild(QListWidget, "project_users")
         project_users.clear()
-        for user in self.project_user_list:
-            project_users.addItem(user.name)
+        for id, name in self.project_user_list:
+            item = QListWidgetItem(name)
+            item.setData(Qt.UserRole, id)
+            project_users.addItem(item)
 
     # closeEvent: Saves created user list to parent window before closing
     # ARGS: self (QWidget), event (QEvent (closing event))
@@ -1190,10 +1191,6 @@ class NewProjectGUI(QWidget):
         except Exception as e:
             print("Broke in pushing project and getting id")
             print(e)
-        # TODO: Fix with db calls after fixing user forms
-        # for user in users:
-        #     # Brendan to Dan: We need the users variable to be a list of UID's.
-        #     dbcalls.base.add_user_to_project(user, self.id)
         try:
             for code in project.billing_codes:
                 dbcalls.associate_billing_code(project.getId(), code)
