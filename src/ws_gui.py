@@ -22,16 +22,13 @@
 #           or that project.  Link to object.UserProject
 #       Change edit user form to disallow editing of eid
 #       When switching views clear right hand windows
+#       Edit project form to have repeating
 #   Things that are broken:
-#       Updating user sort of works, cannot change teams or create user with a team
+#       Teams are not implemented at all.
 #       Cannot delete user, gives user already deleted error (dumb try catch?)
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
-#       Updating users does this:
-#           'NoneType' object has no attribute 'print_user';
-#           Error executing query 1054 (42S22): Unknown column 'None' in '
-#           where clause' SELECT * FROM employee WHERE eid=None;
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -1254,31 +1251,34 @@ class NewProjectGUI(QWidget):
     def updateProject(self):
         # Get updated project and append to DB
         project = self.getProject()
+        project.id = self.editing_project.id
         project.users = self.project_user_list
         # Add to list and update master list in main UI
         # TODO: Fix method to use project ID as identifier
-        dbcalls.update_project(project.name, project.description, project.expected_hours, project.hours_edit_date,
-                               project.repeating)
+        dbcalls.update_project(project.id, project.name, project.description, project.expected_hours,
+                               project.hours_edit_date, project.repeating)
         # Update mainUI window to show new project in list
         self.parent_window.updateUserList()
         # Update closing vars
         self.saved = True
         # Update parent window to show updated project info
-        self.parent_window.newSelected(QListWidgetItem(project.name))
+        item = QListWidgetItem(project.name)
+        item.setData(Qt.UserRole, project.id)
+        self.parent_window.newSelected(item)
 
         # Update users with UserProjects
         # TODO: Figure out how to do with db
-        for user in self.user_projects.keys():
-            # Find user
-            userOb = None
-            try:
-                userOb = findItemByID(user, self.parent_window.userList)
-            except Exception as e:
-                print(e)
-            if userOb is not None:
-                for ob in self.user_projects[user]:
-                    userOb.projects.append(ob)
-        # TODO: Database updates
+        # for user in self.user_projects.keys():
+        #     # Find user
+        #     userOb = None
+        #     try:
+        #         userOb = findItemByID(user, self.parent_window.userList)
+        #     except Exception as e:
+        #         print(e)
+        #     if userOb is not None:
+        #         for ob in self.user_projects[user]:
+        #             userOb.projects.append(ob)
+        # # TODO: Database updates
 
         self.close()
 
