@@ -62,6 +62,21 @@ def get_project(pid):
     return proj[0]
 
 # Return current rank list
+def get_bc_assignments():
+    """Fetch billing code assignments from database
+
+    :return: List of tuples (PID, code)
+
+    """
+    res = base.db_query('''SELECT * from billing_code_assignment;''')
+    all = []
+
+    for i in res:
+        all.append(i[0], i[1])
+
+    return all
+
+# Return current rank list
 def get_ranks():
     """Fetch ranks from database
 
