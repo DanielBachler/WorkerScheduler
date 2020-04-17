@@ -676,8 +676,10 @@ class NewUserGUI(QWidget):
         self.parent_window.updateUserList()
         self.saved = True
         self.close_from_save = True
-        # TODO: REDO WITH NAME AND ID
-        self.parent_window.newSelected(QListWidgetItem(self.made_user.name))
+        # TODO: REDO WITH NAME AND ID (should work)
+        qlistitem = QListWidgetItem(self.made_user.name)
+        qlistitem.setData(Qt.UserRole, self.made_user.employee_id)
+        self.parent_window.newSelected(qlistitem)
         self.close()
 
     # makeUser: Makes a user with the filled in forms

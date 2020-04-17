@@ -25,6 +25,8 @@ class User:
     employee_id = ""
     # List of UserProject Objects
     projects = []
+    # If a user is an admin
+    role = False
 
     # __init__: Initializes a given user
     # ARGS: self (User), name (String), pay (String), rank (String), team (String), mentor (String),
@@ -46,6 +48,9 @@ class User:
     def from_db_row(cls, row):
         if row is None:
             return None
+        # Debug
+        print(row)
+
         eid = row[0]
         name = row[1]
         rank = row[2]
