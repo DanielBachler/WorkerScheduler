@@ -201,7 +201,7 @@ class Main_UI(QMainWindow):
         # Pane Right
         right_view = QTextEdit()
         right_view.setObjectName("right_view")
-        right_view.setFixedHeight(left_view.height())
+        right_view.setFixedHeight(left_view.height()/2)
         right_view.setAlignment(Qt.AlignLeft)
         right_view.setReadOnly(True)
         vboxR.addWidget(right_view)
@@ -210,6 +210,14 @@ class Main_UI(QMainWindow):
         left_view.itemClicked.connect(self.newSelected)
 
         # Search
+
+        # Projects / Assigned User List
+        project_assigned_user_list_box = QListWidget()
+        project_assigned_user_list_box.setObjectName("project_assigned_user_list_box")
+        project_assigned_user_list_box.setFixedHeight(left_view.height()/2)
+        project_assigned_user_list_box.setItemAlignment(Qt.AlignLeft)
+        vboxR.addWidget(project_assigned_user_list_box)
+
 
         # New hbox for buttons under selected user pane
         buttonHBox = QHBoxLayout()
