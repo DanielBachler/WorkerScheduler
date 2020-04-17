@@ -197,7 +197,7 @@ def get_pid(name):
     return pid[0][0]
 
 
-def update_userproj(code, owner, proj_hrs="NULL", des_hrs="NULL", act_hrs="NULL"):
+def update_userproj(pid, code, owner, proj_hrs="NULL", des_hrs="NULL", act_hrs="NULL"):
     """Update a user project in database
 
     :param uproj: Updated user project
@@ -206,9 +206,9 @@ def update_userproj(code, owner, proj_hrs="NULL", des_hrs="NULL", act_hrs="NULL"
 
     exists = check_uproj_exists(owner, code)
     if not exists:
-        base.add_userproj(code, owner, proj_hrs, des_hrs, act_hrs)
+        base.add_userproj(pid, code, owner, proj_hrs, des_hrs, act_hrs)
     else:
-        base.update_userproj(code, owner, proj_hrs, des_hrs, act_hrs)
+        base.update_userproj(pid, code, owner, proj_hrs, des_hrs, act_hrs)
 
 
 # Check if logged in user is admin return (bool)
