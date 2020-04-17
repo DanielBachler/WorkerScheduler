@@ -10,10 +10,7 @@
 
 # TODO:
 #   Overall:
-#       Fix view to have name and ID (maybe not) done with QListWidgetItem data
 #       Ensure nothing broke from DB refactor (it did)
-#       Add ID's to projects in QListWidget? (maybe) Yes
-#       Fix project user forms with new ID format (going to be a mess) Not needed lmao
 #       Get admin flag working
 #       Allow pasting into server window
 #       Ability to remove ranks if admin
@@ -23,7 +20,6 @@
 #       For project view:
 #           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
 #           or that project.  Link to object.UserProject
-#       Move buttons for list to under list on main view, then add new button for the logging feature.
 #       Change edit user form to disallow editing of eid
 #       When switching views clear right hand windows
 #   Things that are broken:
@@ -40,21 +36,9 @@
 #           Error executing command 1054 (42S22): Unknown column 'None' in 'field list' INSERT INTO employee
 #           (eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES
 #           (111222, "Joe", None, 75.000000, "Steve", Analyst);)
-#       Adding project does not work (no crash),
-#           must be real number, not str
-#           'tuple' object has no attribute 'name'
-#           Some disconnect in the project.push method to the dbcalls.updateproject()
-#       Editing user does not populate the form
-#       Updating user does not work
-#           NoneType object has no attribute print_user,
-#           ---
-#           Error executing query 1054 (42S22): Unknown column 'None'
-#           in 'where clause' SELECT * FROM employee WHERE eid=None;
-#           ---
+#       Updating user sort of works, cannot change teams or create user with a team
 #       Cannot delete user, gives user already deleted error (dumb try catch?)
 #       Editing project crashes program (why God)
-#       WTF is rank box doing? (multiple rank lists in one?)
-#           May be caused by pushing rank list to db (it is, in w_s.py the ranks are appended each launch)
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
