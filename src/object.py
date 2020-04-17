@@ -209,10 +209,12 @@ class Project:
         print(row)
         title = row[1]
         desc = row[2]
+        # TODO: Reference billing codes
         bc = []
         hours = row[3]
         new_proj = cls(title, desc, bc, hours)
         new_proj.id = row[0]
+        new_proj.hours_edit_date = date.today()
         return new_proj
 
     # print_project: Makes a string for a project in a formatted manor
@@ -240,26 +242,25 @@ class Project:
     # RETURNS: codes (String)
     def printBillingCodes(self):
         codes = ""
-        if not isinstance(self.billing_codes, str):
-            codes = ""
-            for code in self.billing_codes:
-                codes += code + "\n"
-        else:
-            codes = self.billing_codes
+        for code in self.billing_codes:
+            codes += code + "\n"
         return codes
 
     # formatBillingCodes: Puts all the billing codes into a string with commas
     # ARGS: self (object.Project)
     # RETURNS: codes/self.billing_codes (String)
     def formatBillingCodes(self):
-        if not isinstance(self.billing_codes, str):
+        codes = ""
+        if len(self.billing_codes) == 1:
+            codes = self.billing_codes[0]
+        elif len(self.billing_codes) == 0:
             codes = ""
+        else:
             for i in range(0, len(self.billing_codes)-1):
                 codes += self.billing_codes[i] + ", "
             codes += self.billing_codes[-1]
-            return codes
-        else:
-            return self.billing_codes
+        return codes
+
 
     def push(self):
         dbcalls.update_project(self.getId(), self.name, self.description, self.expected_hours, last_update=self.hours_edit_date,

@@ -386,7 +386,6 @@ class Main_UI(QMainWindow):
     # updateUserList: Updates the QListWidget when a new item is added or item is edited
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: Ensure functionality
     def updateUserList(self):
         # Get right_view object
         left_view = self.findChild(QListWidget, "left_view")
@@ -1255,7 +1254,11 @@ class NewProjectGUI(QWidget):
     # RETURNS: None
     def edit(self, project=object.Project):
         self.editing_project = project
-        self.findChild(QLineEdit, "billing_input").setText(project.formatBillingCodes())
+        try:
+            self.findChild(QLineEdit, "billing_input").setText(project.formatBillingCodes())
+        except Exception as e:
+            print(e)
+            print("Broke trying to format billing codes")
         self.findChild(QLineEdit, "expected_hours_input").setText(str(project.expected_hours))
         self.findChild(QLineEdit, "title_input").setText(project.name)
         self.findChild(QTextEdit, "description_input").setText(project.description)
