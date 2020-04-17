@@ -20,13 +20,11 @@
 #       For project view:
 #           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
 #           or that project.  Link to object.UserProject
-#       Change edit user form to disallow editing of eid
-#       When switching views clear right hand windows
 #       Edit project form to have repeating
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Clicking a deleted user on another instance crashes the program
-#       2 instances simultaniously editing one object causes second edit to override changes from first edit.
+#       2 instances simultaneously editing one object causes second edit to override changes from first edit.
 #       Not selecting user and hitting edit button causes crash
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
@@ -396,6 +394,9 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def switch_user_view(self):
         self.view = False
+        # Get right hand view and clear it
+        right_view = self.centralWidget().findChild(QTextEdit, "right_view")
+        right_view.clear()
         self.updateUserList()
 
     # switch_project_view: Changes the main UI to show projects
@@ -403,6 +404,9 @@ class Main_UI(QMainWindow):
     # RETURNS:
     def switch_project_view(self):
         self.view = True
+        # Get right hand view and clear it
+        right_view = self.centralWidget().findChild(QTextEdit, "right_view")
+        right_view.clear()
         self.updateUserList()
 
     # addRank: adds a new rank to the rank list
@@ -658,6 +662,7 @@ class NewUserGUI(QWidget):
         team.setText(str(user.team))
         mentor.setText(str(user.mentor))
         employee_id.setText(str(user.employee_id))
+        employee_id.setReadOnly(True)
         self.box_edited = False
 
     # updateUser: Updates a given users entry

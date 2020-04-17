@@ -70,7 +70,6 @@ class DB_Connection:
                             "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
             self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer,"
                             "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
-            self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'Hector');")
 
     # Return a user's information
     def get_user_info(self):
