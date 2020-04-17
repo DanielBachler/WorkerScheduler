@@ -26,6 +26,7 @@
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Cannot delete user, gives user already deleted error (dumb try catch?)
+#       Clicking a deleted user on another instance crashes the program
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
@@ -277,6 +278,7 @@ class Main_UI(QMainWindow):
                 print(e)
                 print("UID:", id)
                 print("Selected row:", selected_object_row)
+        self.updateUserList()
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -294,24 +296,19 @@ class Main_UI(QMainWindow):
     def deletedSelectedFunc(self):
         try:
             current_object = self.centralWidget().findChild(QListWidget).currentItem()
+            id = current_object.data(Qt.UserRole)
+            result = ""
             if self.view:
                 # Project
-                title = current_object.text()
-                project = dbcalls.get_project(title)
-                dbcalls.rm_proj(project.id)
-                # project = findItem(current_object, self.projectList)
-                # self.projectList.remove(project)
+                result = dbcalls.rm_proj(id)
             else:
                 # User
-                id = current_object.data(Qt.UserRole)
-                user = dbcalls.get_user(id)
-                dbcalls.rm_user(user.employee_id)
-                # user = findItem(current_object, self.userList)
-                # self.userList.remove(user)
+                result = dbcalls.rm_user(id)
             self.updateUserList()
         except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
                                     QMessageBox.Close, QMessageBox.Close)
+            self.updateUserList()
 
     # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)

@@ -48,8 +48,6 @@ class User:
     def from_db_row(cls, row):
         if row is None:
             return None
-        # Debug
-        print(row)
 
         eid = row[0]
         name = row[1]
