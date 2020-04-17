@@ -23,28 +23,11 @@
 #       Change edit user form to disallow editing of eid
 #       When switching views clear right hand windows
 #   Things that are broken:
-#       Adding user with form (doesnt crash at least):
-#           (Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost' CREATE USER
-#           'Joe'@'localhost';
-#           Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'%' CREATE USER 'Joe'@'%';
-#           Error executing command 1054 (42S22): Unknown column 'Analyst' in 'field list' INSERT INTO employee
-#           (eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES
-#           (111222, "Joe", 0, 75.000000, "Steve", Analyst);
-#           Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost'
-#           CREATE USER 'Joe'@'localhost';
-#           Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'%' CREATE USER 'Joe'@'%';
-#           Error executing command 1054 (42S22): Unknown column 'None' in 'field list' INSERT INTO employee
-#           (eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES
-#           (111222, "Joe", None, 75.000000, "Steve", Analyst);)
 #       Updating user sort of works, cannot change teams or create user with a team
 #       Cannot delete user, gives user already deleted error (dumb try catch?)
-#       Editing project crashes program (why God)
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
-#       dbcalls.get_project(): Fix row information, missing some and other info not available right now
-#           Ex: ID (might be there), billing codes
-#       dbcalls.update_project(): Needs to have project ID as reference instead of name
 #       Updating users does this:
 #           'NoneType' object has no attribute 'print_user';
 #           Error executing query 1054 (42S22): Unknown column 'None' in '

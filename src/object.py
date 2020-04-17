@@ -206,13 +206,21 @@ class Project:
     def create_from_db_row(cls, row):
         if row is None:
             return None
-        print(row)
         title = row[1]
         desc = row[2]
-        # TODO: Reference billing codes
-        bc = []
+        # Pull all billing codes from db and associate the right ones
+        try:
+            all_billing_codes = dbcalls.get_bc_assignments()
+            billing_codes = []
+            for id, bc in all_billing_codes:
+                if id == row[0]:
+                    billing_codes.append(bc)
+        except Exception as e:
+            print(e)
+            print("New shit broke")
+        # Get the hours for the project
         hours = row[3]
-        new_proj = cls(title, desc, bc, hours)
+        new_proj = cls(title, desc, billing_codes, hours)
         new_proj.id = row[0]
         new_proj.hours_edit_date = date.today()
         return new_proj
@@ -243,7 +251,7 @@ class Project:
     def printBillingCodes(self):
         codes = ""
         for code in self.billing_codes:
-            codes += code + "\n"
+            codes += str(code) + "\n"
         return codes
 
     # formatBillingCodes: Puts all the billing codes into a string with commas
@@ -252,13 +260,13 @@ class Project:
     def formatBillingCodes(self):
         codes = ""
         if len(self.billing_codes) == 1:
-            codes = self.billing_codes[0]
+            codes = str(self.billing_codes[0])
         elif len(self.billing_codes) == 0:
             codes = ""
         else:
             for i in range(0, len(self.billing_codes)-1):
-                codes += self.billing_codes[i] + ", "
-            codes += self.billing_codes[-1]
+                codes += str(self.billing_codes[i]) + ", "
+            codes += str(self.billing_codes[-1])
         return codes
 
 

@@ -72,7 +72,7 @@ def get_bc_assignments():
     all = []
 
     for i in res:
-        all.append(i[0], i[1])
+        all.append((i[0], i[1]))
 
     return all
 
