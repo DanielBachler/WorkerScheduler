@@ -206,6 +206,7 @@ class Project:
     def create_from_db_row(cls, row):
         if row is None:
             return None
+        print(row)
         title = row[1]
         desc = row[2]
         bc = []
