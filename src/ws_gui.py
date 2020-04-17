@@ -410,19 +410,20 @@ class Main_UI(QMainWindow):
         # Add item based on which view is selected
         if self.view:
             try:
-                for name, ID in dbcalls.db_get_project_ids():
-                    print(name)
+                for ID, name in dbcalls.db_get_project_ids():
                     item = QListWidgetItem(name)
                     item.setData(Qt.UserRole, ID)
                     left_view.addItem(item)
             except Exception as e:
                 print(e)
-                print(dbcalls.db_get_project_ids())
         else:
-            for user, ID in dbcalls.db_get_ids():
-                item = QListWidgetItem(user)
-                item.setData(Qt.UserRole, ID)
-                left_view.addItem(item)
+            try:
+                for user, ID in dbcalls.db_get_ids():
+                    item = QListWidgetItem(user)
+                    item.setData(Qt.UserRole, ID)
+                    left_view.addItem(item)
+            except Exception as e:
+                print(e)
 
     # switch_user_view: Changes the main UI to show users
     # ARGS: self (QMainWindow),
