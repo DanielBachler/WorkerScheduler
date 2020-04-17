@@ -25,8 +25,9 @@
 #       Edit project form to have repeating
 #   Things that are broken:
 #       Teams are not implemented at all.
-#       Cannot delete user, gives user already deleted error (dumb try catch?)
 #       Clicking a deleted user on another instance crashes the program
+#       2 instances simultaniously editing one object causes second edit to override changes from first edit.
+#       Not selecting user and hitting edit button causes crash
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
@@ -278,7 +279,7 @@ class Main_UI(QMainWindow):
                 print(e)
                 print("UID:", id)
                 print("Selected row:", selected_object_row)
-        self.updateUserList()
+        #self.updateUserList()
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
@@ -315,38 +316,42 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     # TODO: Ensure functionality
     def editSelected(self):
-        # Get the item as its object type
-        currentItem = self.centralWidget().findChild(QListWidget).currentItem()
-        current_object = None
-        if self.view:
-            current_object = dbcalls.get_project((currentItem.data(Qt.UserRole)))
-            current_object = object.Project.create_from_db_row(current_object)
-        else:
-            current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
-            current_object = object.User.from_db_row(current_object)
+        try:
+            # Get the item as its object type
+            currentItem = self.centralWidget().findChild(QListWidget).currentItem()
+            current_object = None
+            if self.view:
+                current_object = dbcalls.get_project((currentItem.data(Qt.UserRole)))
+                current_object = object.Project.create_from_db_row(current_object)
+            else:
+                current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
+                current_object = object.User.from_db_row(current_object)
 
-        if self.view and current_object is not None:
-            # Project
-            try:
-                self.newProjectWindow = NewProjectGUI()
-                self.newProjectWindow.editing = True
-                self.newProjectWindow.initUI(self)
-                self.newProjectWindow.edit(current_object)
-                self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
-            except Exception as e:
-                print(e)
-        elif current_object is not None:
-            # User
-            try:
-                self.newUserWindow = NewUserGUI()
-                self.newUserWindow.editing = True
-                self.newUserWindow.initUI(self)
-                self.newUserWindow.editUser(current_object)
-                self.newUserWindow.setWindowIcon(QIcon("icon.png"))
-            except Exception as e:
-                print(e)
-        else:
-            QMessageBox.question(self, 'Error', 'An unexpected error occurred trying to edit selected item',
+            if self.view and current_object is not None:
+                # Project
+                try:
+                    self.newProjectWindow = NewProjectGUI()
+                    self.newProjectWindow.editing = True
+                    self.newProjectWindow.initUI(self)
+                    self.newProjectWindow.edit(current_object)
+                    self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
+                except Exception as e:
+                    print(e)
+            elif current_object is not None:
+                # User
+                try:
+                    self.newUserWindow = NewUserGUI()
+                    self.newUserWindow.editing = True
+                    self.newUserWindow.initUI(self)
+                    self.newUserWindow.editUser(current_object)
+                    self.newUserWindow.setWindowIcon(QIcon("icon.png"))
+                except Exception as e:
+                    print(e)
+            else:
+                QMessageBox.question(self, 'Error', 'An unexpected error occurred trying to edit selected item',
+                                     QMessageBox.Close, QMessageBox.Close)
+        except:
+            QMessageBox.question(self, 'Error', 'Nothing was selected to edit.',
                                  QMessageBox.Close, QMessageBox.Close)
 
     # makeNewProject: Opens new project creation UI
