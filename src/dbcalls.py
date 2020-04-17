@@ -110,7 +110,7 @@ def update_user(eid, name, role, rate, mentor, rank):
     else:
         base.update_user(eid, name, rank=rank, rate=rate, role=role, mentor=mentor)
 
-def update_project(name, description, exp_hours, last_update="" ,rpt=False, start_mo="NULL", start_yr="NULL", end_mo="NULL",
+def update_project(pid, name, description, exp_hours, last_update="" ,rpt=False, start_mo="NULL", start_yr="NULL", end_mo="NULL",
                     end_yr="NULL"):
     """Update a project in database
 
@@ -122,7 +122,7 @@ def update_project(name, description, exp_hours, last_update="" ,rpt=False, star
     if not exists:
         base.create_project(name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt)
     else:
-        base.update_project(name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt, last_update=last_update)
+        base.update_project(pid, name, description, exp_hours, start_yr, start_mo, end_yr, end_mo, rpt, last_update=last_update)
 
 def get_pid(name):
     pid = base.db_query('''SELECT pid FROM project WHERE project_name="%s"''' % name)
