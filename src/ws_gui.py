@@ -234,7 +234,16 @@ class Main_UI(QMainWindow):
         buttonHBox.addWidget(editButton)
 
         # Add button box to vboxR
-        vboxR.addLayout(buttonHBox)
+        vboxL.addLayout(buttonHBox)
+
+        # Log Time Button Right Side
+        logButtonHBox = QHBoxLayout()
+
+        logTimeButton = QPushButton('Log Time')
+        logTimeButton.setToolTip('This button will log your time for the currently selected project')
+        logButtonHBox.addWidget(logTimeButton)
+
+        vboxR.addLayout(logButtonHBox)
 
         # Finalize box
         hbox.addLayout(vboxL)
