@@ -262,7 +262,7 @@ class Project:
             return self.billing_codes
 
     def push(self):
-        dbcalls.update_project(self.name, self.description, self.expected_hours, last_update=self.hours_edit_date,
+        dbcalls.update_project(self.getId(), self.name, self.description, self.expected_hours, last_update=self.hours_edit_date,
                                rpt=self.repeating)
 
     def get_pid(self):

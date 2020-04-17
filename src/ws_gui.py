@@ -24,6 +24,8 @@
 #           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
 #           or that project.  Link to object.UserProject
 #       Move buttons for list to under list on main view, then add new button for the logging feature.
+#       Change edit user form to disallow editing of eid
+#       When switching views clear right hand windows
 #   Things that are broken:
 #       Adding user with form (doesnt crash at least):
 #           (Error executing command 1396 (HY000): Operation CREATE USER failed for 'Joe'@'localhost' CREATE USER
@@ -407,11 +409,15 @@ class Main_UI(QMainWindow):
 
         # Add item based on which view is selected
         if self.view:
-            for name, ID in dbcalls.db_get_project_ids():
-                print(name)
-                item = QListWidgetItem(name)
-                item.setData(Qt.UserRole, ID)
-                left_view.addItem(item)
+            try:
+                for name, ID in dbcalls.db_get_project_ids():
+                    print(name)
+                    item = QListWidgetItem(name)
+                    item.setData(Qt.UserRole, ID)
+                    left_view.addItem(item)
+            except Exception as e:
+                print(e)
+                print(dbcalls.db_get_project_ids())
         else:
             for user, ID in dbcalls.db_get_ids():
                 item = QListWidgetItem(user)
@@ -1209,15 +1215,18 @@ class NewProjectGUI(QWidget):
         try:
             project.push()
             project.id = project.get_pid()
-
-            # TODO: Fix with db calls after fixing user forms
-            # for user in users:
-            #     # Brendan to Dan: We need the users variable to be a list of UID's.
-            #     dbcalls.base.add_user_to_project(user, self.id)
-
+        except Exception as e:
+            print("Broke in pushing project and getting id")
+            print(e)
+        # TODO: Fix with db calls after fixing user forms
+        # for user in users:
+        #     # Brendan to Dan: We need the users variable to be a list of UID's.
+        #     dbcalls.base.add_user_to_project(user, self.id)
+        try:
             for code in project.billing_codes:
                 dbcalls.associate_billing_code(project.getId(), code)
         except Exception as e:
+            print("Broke in trying to deal with billing codes")
             print(e)
         self.parent_window.updateUserList()
         self.close()
@@ -1318,6 +1327,8 @@ class NewProjectGUI(QWidget):
         # Fix billing codes to either string or list
         if "," in billing_codes:
             billing_codes = billing_codes.split(",")
+        else:
+            billing_codes = [billing_codes]
 
         # Save as new object to db through constructor
         return object.Project(name, description, billing_codes, expected_hours)
