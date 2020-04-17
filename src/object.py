@@ -108,6 +108,8 @@ class User:
 
 class UserProject:
     billing_code = ""
+    owner = ""
+    pid = ""
     projected_hours = 0
     # Default is none, to differentiate from desired of 0
     desired_hours = None
@@ -121,14 +123,25 @@ class UserProject:
     # __init__: Initializes a user project
     # ARGS: billing_code (String), projected_hours (int), desired_hours (int | None), actual_hours (int | None)
     # Returns: self (object.UserProject)
-    def __init__(self, billing_code, projected_hours, desired_hours=None, actual_hours=None, owner=0):
+    def __init__(self, eid, pid, billing_code, projected_hours, desired_hours=None, actual_hours=None):
         self.billing_code = billing_code
         self.projected_hours = projected_hours
         self.desired_hours = desired_hours
         self.actual_hours = actual_hours
-        self.owner = owner
+        self.owner = eid
+        self.pid = pid
 
         self.push()
+
+    @classmethod
+    def create_from_db_row(cls, row):
+        pid = row[0]
+        billing_code = row[1]
+        eid = row[2]
+        projected_hours = row[3]
+        requested_hours = row[4]
+        earned_hours = row[5]
+        return cls(eid, pid, billing_code, projected_hours, desired_hours=requested_hours, actual_hours=earned_hours)
 
     # planned_vs_desired: Calculates the planned vs desired hours diff
     # ARGS: self (object.UserProject)
@@ -149,7 +162,7 @@ class UserProject:
         return self.actual_hours - self.desired_hours
 
     def push(self):
-        dbcalls.update_userproj(self.billing_code, self.owner, proj_hrs=self.projected_hours, des_hrs=self.desired_hours,
+        dbcalls.update_userproj(self.pid, self.billing_code, self.owner, proj_hrs=self.projected_hours, des_hrs=self.desired_hours,
                                 act_hrs=self.actual_hours)
 
     # toString: Converts data into printable string
@@ -199,7 +212,6 @@ class Project:
     # create_from_db_row: Creates a project object from a DB row
     # ARGS: row (List[db row])
     # RETURNS: object.Project
-    # TODO: WTF is going on with db rows for projects?  Missing a lot of values
     @classmethod
     def create_from_db_row(cls, row):
         if row is None:

@@ -68,15 +68,15 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: server_addr (String), username (String), password (String)
     def login(self):
-        # server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
-        # if okPressed and server_addr != '':
-        # pass
-        # username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
-        # if okPressed and server_addr != '':
-        # pass
-        # password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
-        # if okPressed and server_addr != '':
-        # pass
+        #server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
+        #if okPressed and server_addr != '':
+            #pass
+        #username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
+        #if okPressed and server_addr != '':
+            #pass
+        #password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
+        #if okPressed and server_addr != '':
+            #pass
         # Debug/dev stuff
         server_addr = "db.jessearstein.com"
         username = "billy"
@@ -172,7 +172,7 @@ class Main_UI(QMainWindow):
         # Pane Right
         right_view = QTextEdit()
         right_view.setObjectName("right_view")
-        right_view.setFixedHeight(left_view.height() / 2)
+        right_view.setFixedHeight(left_view.height()/2)
         right_view.setAlignment(Qt.AlignLeft)
         right_view.setReadOnly(True)
         vboxR.addWidget(right_view)
@@ -185,9 +185,10 @@ class Main_UI(QMainWindow):
         # Projects / Assigned User List
         project_assigned_user_list_box = QListWidget()
         project_assigned_user_list_box.setObjectName("project_assigned_user_list_box")
-        project_assigned_user_list_box.setFixedHeight(left_view.height() / 2)
+        project_assigned_user_list_box.setFixedHeight(left_view.height()/2)
         project_assigned_user_list_box.setItemAlignment(Qt.AlignLeft)
         vboxR.addWidget(project_assigned_user_list_box)
+
 
         # New hbox for buttons under selected user pane
         buttonHBox = QHBoxLayout()
@@ -259,10 +260,6 @@ class Main_UI(QMainWindow):
                 project = object.Project.create_from_db_row(selected_object_row)
                 # selected_object = findItem(name, self.projectList)
                 right_view.setText(project.print_project())
-
-                # ---------- Lower Pane Updating ---------------
-
-                # ---------- Lower Pane Updating ---------------
             except Exception as e:
                 print("Exception:", e)
                 print("PID: %s" % pid)
@@ -310,7 +307,7 @@ class Main_UI(QMainWindow):
             self.updateUserList()
         except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
-                                 QMessageBox.Close, QMessageBox.Close)
+                                    QMessageBox.Close, QMessageBox.Close)
             self.updateUserList()
 
     # editSelected: Edits the currently highlighted item
@@ -608,8 +605,8 @@ class NewUserGUI(QWidget):
         # If edited and not saved prompt
         elif self.box_edited and not self.saved:
             to_exit = QMessageBox.question(self, 'Cancel Confirmation', "You haven't saved, are you sure you want "
-                                                                        "to cancel?",
-                                           QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
+                                                                            "to cancel?",
+                                               QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
             if to_exit == QMessageBox.Yes:
                 event.accept()
             elif to_exit == QMessageBox.Save:

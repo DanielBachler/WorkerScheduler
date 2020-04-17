@@ -70,7 +70,6 @@ class DB_Connection:
                             "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
             self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer,"
                             "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
-            self.db_command("INSERT INTO employee (eid, employee_name) VALUES (0, 'Hector');")
 
     # Return a user's information
     def get_user_info(self):
@@ -146,15 +145,16 @@ class DB_Connection:
                % (int(pid), name, desc, str(est_hrs), str(start_yr), str(start_mo), str(end_yr), str(end_mo), repeat, dt, name)
         self.db_command(stmt)
 
-    def add_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
-        stmt = '''INSERT INTO user_project (billing_code, eid, projected_hours, requested_hours, earned_hours) VALUES 
-                    (%d, %d, %s, %s, %s);''' % (code, eid, str(proj_hours), str(req_hrs), str(earn_hours))
+    def add_userproj(self, pid, code, eid, proj_hours, req_hrs, earn_hours):
+        stmt = '''INSERT INTO user_project (pid, billing_code, eid, projected_hours, requested_hours, earned_hours) 
+        VALUES (%s, %s, %s, %s, %s, %s);''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
+                                               str(earn_hours))
         self.db_command(stmt)
 
-    def update_userproj(self, code, eid, proj_hours, req_hrs, earn_hours):
-        stmt = '''UPDATE user_project SET billing_code=%d, eid=%d, projected_hours=%s, requested_hours=%s,
-                    earned_hours=%s WHERE billing_code=%d AND eid=%d;''' % (code, eid, str(proj_hours), str(req_hrs),
-                                                                            str(earn_hours), code, eid)
+    def update_userproj(self, pid, code, eid, proj_hours, req_hrs, earn_hours):
+        stmt = '''UPDATE user_project SET pid=%s, billing_code=%s, eid=%s, projected_hours=%s, requested_hours=%s,
+                    earned_hours=%s WHERE billing_code=%s AND eid=%s;''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
+                                                                            str(earn_hours), str(code), str(eid))
         self.db_command(stmt)
 
     # Get information on a project
