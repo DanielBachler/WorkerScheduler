@@ -342,7 +342,8 @@ class Main_UI(QMainWindow):
         currentItem = self.centralWidget().findChild(QListWidget).currentItem()
         current_object = None
         if self.view:
-            current_object = dbcalls.get_project(currentItem.text())
+            current_object = dbcalls.get_project((currentItem.data(Qt.UserRole)))
+            current_object = object.Project.create_from_db_row(current_object)
         else:
             current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
             current_object = object.User.from_db_row(current_object)
@@ -1249,7 +1250,7 @@ class NewProjectGUI(QWidget):
         else:
             event.ignore()
 
-    # editing: Updates the window to contain info of editing object
+    # edit: Updates the window to contain info of editing object
     # ARGS: self (QWidget), project (object.Project)
     # RETURNS: None
     def edit(self, project=object.Project):

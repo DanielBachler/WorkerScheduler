@@ -25,8 +25,8 @@ class User:
     employee_id = ""
     # List of UserProject Objects
     projects = []
-    # If a user is an admin
-    role = False
+    # If a user is an admin (0 = False)
+    role = 0
 
     # __init__: Initializes a given user
     # ARGS: self (User), name (String), pay (String), rank (String), team (String), mentor (String),
@@ -85,8 +85,8 @@ class User:
             return projects_string
 
     def push(self):
-        role = 0    # Brendan to Dan: Set this to something appropriate
-        dbcalls.update_user(self.employee_id, str(self.name), str(role), str(self.pay), str(self.mentor), str(self.rank))
+        dbcalls.update_user(self.employee_id, str(self.name), str(self.role), str(self.pay), str(self.mentor),
+                            str(self.rank))
 
     # getID: returns the unique id (employee_id)
     # ARGS: self (object.User)
