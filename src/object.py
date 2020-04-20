@@ -251,8 +251,12 @@ class Project:
     # TODO: Redo to pull names using the UID list
     def print_users(self):
         user_string = ""
-        for user in self.users:
-            user_string += user.name + "\n"
+        users = dbcalls.get_projects_users(self.getId())
+        for user in users:
+            eid = user[2]
+            user_row = dbcalls.get_user(eid)
+
+            user_string += user_row[1] + "\n"
         return user_string
 
     # printBillingCodes: creates a formatted string of the assigned billing codes

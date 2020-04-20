@@ -173,6 +173,10 @@ class DB_Connection:
                                                                             str(earn_hours), str(code), str(eid))
         self.db_command(stmt)
 
+    def rm_user_project(self, eid, pid):
+        stmt = 'DELETE FROM user_project WHERE eid=%s AND pid=%s;' % (eid, pid)
+        self.db_command(stmt)
+
     # Get information on a project
     def get_project_data(self):
         pass

@@ -10,26 +10,31 @@
 
 # TODO:
 #   Overall:
-#       Ensure nothing broke from DB refactor (it did)
+#       Ensure nothing broke from DB refactor (it did) (mostly done now!)
 #       Get admin flag working
 #       Allow pasting into server window
 #       Ability to remove ranks if admin
-#       For users view:
-#           Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
-#           hours for that project.  Link to object.UserProject
-#       For project view:
-#           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
-#           or that project.  Link to object.UserProject
+#       Jesse is working on this stuff:
+#           For users view:
+#               Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
+#               hours for that project.  Link to object.UserProject
+#           For project view:
+#               Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
+#               or that project.  Link to object.UserProject
 #       Edit project form to have repeating
-#       Fix closing of all windows to close with master window
+#       Fix closing of all windows to close with master window (important)
 #   Things that are broken:
 #       Teams are not implemented at all.
-#       Clicking a deleted user on another instance crashes the program
+#       Clicking a deleted user on another instance crashes the program (unsure on fix)
 #       2 instances simultaneously editing one object causes second edit to override changes from first edit.
-#       Not selecting user and hitting edit button causes crash
+#           (expected behavior, but not optimal)
+#       Cannot update project billing codes (keeps old ones)
 #   Things that need to be done and I need Brendan for:
 #       NewProjectGUI.updateProject(): Updating users to be associated with project
 #           May not need to be done since it can be referenced from project, should be done for ease of access
+#       Implement removing of items from db
+#       All items should be referenced as strings, not integers
+
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -588,7 +593,6 @@ class NewUserGUI(QWidget):
     # saveUser: Saves the user currently being created, makes sure that all req fields are filled
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Ensure Functionality
     def saveUser(self):
         if self.box_edited:
             try:
@@ -776,11 +780,12 @@ class AddUserInfoGUI(QWidget):
         billingCode_Label = QLabel("Billing Code")
         billingCode_Combobox = QComboBox()
         billingCode_Combobox.setObjectName("billingCode")
-        if (not isinstance(self.selected_project.billing_codes, str)):
-            for i in range(len(self.selected_project.billing_codes)):
-                billingCode_Combobox.addItem(self.selected_project.billing_codes[i])
-        else:
-            billingCode_Combobox.addItem(self.selected_project.billing_codes)
+        try:
+            for billing_code in self.selected_project.billing_codes:
+                billingCode_Combobox.addItem(str(billing_code))
+        except Exception as e:
+            print(e)
+            print(self.selected_project.billing_codes)
 
         billingCode_Box.addWidget(billingCode_Label)
         billingCode_Box.addWidget(billingCode_Combobox)
@@ -849,13 +854,12 @@ class AddUserInfoGUI(QWidget):
             aH = actualHours.text()
             bC = billingCode.currentText()
 
-            # Make UserProject object
-            # TODO: Finish fixing this
-            userProject = object.UserProject(self.selected_project.getId(), self.user.employee_id, bC, pH, dH, aH)
-            if self.user.employee_id in self.parent_window.parent_window.user_projects.keys():
-                self.parent_window.parent_window.user_projects[self.user.employee_id].append(userProject)
-            else:
-                self.parent_window.parent_window.user_projects[self.user.employee_id] = [userProject]
+            try:
+            # Just push object to db
+                dbcalls.update_userproj(str(self.selected_project.getId()), bC, str(self.user.employee_id), pH, dH, aH)
+            except Exception as e:
+                print(e)
+                print("Failed to save project to db")
 
             # Mark as saved and close
             self.saved = True
@@ -890,7 +894,7 @@ class AddUsersGUI(QWidget):
         super().__init__()
         self.selected_project = project
         self.parent_window = parent_window
-        # TODO: test
+        self.project_user_list = []
         user_project_objects = dbcalls.get_projects_users(project.getId())
         # Get users given the eids
         if user_project_objects is not None:
@@ -973,11 +977,10 @@ class AddUsersGUI(QWidget):
     def addUserToProject(self):
         self.project_user_list.append((self.selected_all_user.data(Qt.UserRole), self.selected_all_user.text()))
         self.updateProjectUsersList()
+        # Make a user from selected all user
+        selected_all_user_row = dbcalls.get_user(self.selected_all_user.data(Qt.UserRole))
+        selected_all_user = object.User.from_db_row(selected_all_user_row)
         try:
-            # Make a user from selected all user
-            selected_all_user_row = dbcalls.get_user(self.selected_all_user.data(Qt.UserRole))
-            selected_all_user = object.User.from_db_row(selected_all_user_row)
-            print(selected_all_user.print_user())
             self.user_info = AddUserInfoGUI(self.selected_project, selected_all_user, self)
             self.user_info.initUI()
         except Exception as e:
@@ -989,7 +992,12 @@ class AddUsersGUI(QWidget):
     # RETURNS: None
     def removeUserFromProject(self):
         try:
-            to_rm = (self.selected_all_user.data(Qt.UserRole), self.selected_all_user.text())
+            # Remove item from database
+            eid = self.selected_project_user.data(Qt.UserRole)
+            pid = self.selected_project.getId()
+            dbcalls.rm_proj_object(eid, pid)
+            # Remove user from list
+            to_rm = (self.selected_project_user.data(Qt.UserRole), self.selected_project_user.text())
             self.project_user_list.remove(to_rm)
             self.updateProjectUsersList()
         except:
@@ -1254,14 +1262,12 @@ class NewProjectGUI(QWidget):
     # updateProject: Updates an existing project instead of creating a new one
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Fix
     def updateProject(self):
         # Get updated project and append to DB
         project = self.getProject()
         project.id = self.editing_project.id
         project.users = self.project_user_list
         # Add to list and update master list in main UI
-        # TODO: Fix method to use project ID as identifier
         dbcalls.update_project(project.id, project.name, project.description, project.expected_hours,
                                project.hours_edit_date, project.repeating)
         # Update mainUI window to show new project in list
@@ -1273,8 +1279,9 @@ class NewProjectGUI(QWidget):
         item.setData(Qt.UserRole, project.id)
         self.parent_window.newSelected(item)
 
+        # PROBABLY NOT NEEDED ANYMORE, LEAVING IN CASE
+
         # Update users with UserProjects
-        # TODO: Figure out how to do with db
         # for user in self.user_projects.keys():
         #     # Find user
         #     userOb = None
@@ -1285,7 +1292,6 @@ class NewProjectGUI(QWidget):
         #     if userOb is not None:
         #         for ob in self.user_projects[user]:
         #             userOb.projects.append(ob)
-        # # TODO: Database updates
 
         self.close()
 
