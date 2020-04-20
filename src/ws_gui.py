@@ -26,6 +26,7 @@
 #       Give UI code a sweep to ensure it is clean and well commented - Dan's problem
 #       Implement an admin clean DB ability (if eid not in employee table remove projects and such)
 #       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
+#       Make admin do more stuff, like ability to make new admins etc
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Clicking a deleted user on another instance crashes the program (unsure on fix)
