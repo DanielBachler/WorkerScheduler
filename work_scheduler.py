@@ -25,10 +25,7 @@ def main():
     # TEMP
 
     ex = ws_gui.Main_UI()
-    conn = ws_db.DB_Connection()
-    dbcalls.init_dbwrapper(conn)
-    conn.db_login(ex)
-    conn.init_db()
+    ws_db.connect_to_db(ex)
 
     rank_list = ["Sr. Analyst", "Analyst", "Principle", "New Analyst", "Consultant", "Admin"]
     projectList = tempProjectList()

@@ -14,9 +14,25 @@ if __name__ == "__main__":
 import sqlite3
 import sys
 from datetime import datetime
+
 import mysql.connector as sql
 
-DB_TYPE = sql
+from src import dbcalls
+
+DB_TYPE = sql   # Set to sqlite3 to use sqlite. (for quick testing and development, depreciated)
+
+connect = None  # Singleton instance of database connection
+
+# Create singleton database connection
+def connect_to_db(ex):
+    global connect
+    if connect is None:
+        connect = DB_Connection()
+        connect.db_login(ex)
+        connect.init_db()
+        dbcalls.init_dbwrapper(connect)
+    else:
+        print("Unable to create new database connection. Connection already active.", file=sys.stderr)
 
 # Manages connection with mySQL database
 class DB_Connection:

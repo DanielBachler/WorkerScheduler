@@ -42,6 +42,8 @@ from src import object
 import copy
 from src import dbcalls
 
+DEBUG_MODE = False      # Set this to true to automatically log in as the "Billy" user. This must be false when checked
+                        # into the repository
 
 class Main_UI(QMainWindow):
     # Class global vars for sub windows
@@ -68,20 +70,20 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: server_addr (String), username (String), password (String)
     def login(self):
-        #server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
-        #if okPressed and server_addr != '':
-            #pass
-        #username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
-        #if okPressed and server_addr != '':
-            #pass
-        #password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
-        #if okPressed and server_addr != '':
-            #pass
-        # Debug/dev stuff
         server_addr = "db.jessearstein.com"
         username = "billy"
         password = "12345"
-        return server_addr, username, password
+        if not DEBUG_MODE:
+            server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
+            if okPressed and server_addr != '':
+                pass
+            username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
+            if okPressed and server_addr != '':
+                pass
+            password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
+            if okPressed and server_addr != '':
+                pass
+        return (server_addr, username, password)
 
     # initUI: Creates the UI for the main UI
     # ARGS: self (QMainWindow), userList (List[User]), projectList (List[Project])
