@@ -23,6 +23,9 @@
 #               or that project.  Link to object.UserProject
 #       Edit project form to have repeating
 #       Fix closing of all windows to close with master window (important)
+#       Give UI code a sweep to ensure it is clean and well commented - Dan's problem
+#       Implement an admin clean DB ability (if eid not in employee table remove projects and such)
+#       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Clicking a deleted user on another instance crashes the program (unsure on fix)
