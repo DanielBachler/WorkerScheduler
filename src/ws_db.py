@@ -208,6 +208,10 @@ class DB_Connection:
         stmt = '''INSERT INTO emp_role (role_name) VALUES ("%s");''' % str(rank)
         self.db_command(stmt)
 
+    def remove_rank(self, rank):
+        stmt = '''DELETE FROM emp_role WHERE role_name=%s''' % str(rank)
+        self.db_command(stmt)
+
     # Remove user from team
     def remove_user_from_team(self):
         pass

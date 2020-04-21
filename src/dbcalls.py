@@ -137,6 +137,9 @@ def update_ranks(ranks):
     for rank in ranks:
         base.add_rank(rank)
 
+def remove_rank(rank):
+    base.remove_rank(rank)
+
 
 def associate_billing_code(pid, code):
     base.add_billing_code(code)

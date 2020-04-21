@@ -27,6 +27,8 @@
 #       Implement an admin clean DB ability (if eid not in employee table remove projects and such)
 #       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
 #       Make admin do more stuff, like ability to make new admins etc
+#       Make admin function that allows custom SQL queries
+#       Change mentor input to drop down with list of all employees above "rank"
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Clicking a deleted user on another instance crashes the program (unsure on fix)
@@ -34,8 +36,6 @@
 #           (expected behavior, but not optimal)
 #       Cannot update project billing codes (keeps old ones)
 #   Things that need to be done and I need Brendan for:
-#       NewProjectGUI.updateProject(): Updating users to be associated with project
-#           May not need to be done since it can be referenced from project, should be done for ease of access
 #       Implement removing of items from db
 #       All items should be referenced as strings, not integers
 
@@ -51,7 +51,7 @@ from src import object
 import copy
 from src import dbcalls
 
-DEBUG_MODE = False      # Set this to true to automatically log in as the "Billy" user. This must be false when checked
+DEBUG_MODE = True      # Set this to true to automatically log in as the "Billy" user. This must be false when checked
                         # into the repository
 
 class Main_UI(QMainWindow):
@@ -441,6 +441,11 @@ class Main_UI(QMainWindow):
     def removeRank(self):
         pass
         # QInputDialog with drop down of possible ranks, the selected one to be removed
+        ranks = dbcalls.get_ranks()
+        selected_rank, clicked = QInputDialog.getItem(self, "Rank to remove", "Rank:", ranks, editable=False)
+        if clicked:
+            print(str(selected_rank))
+            dbcalls.remove_rank(str(selected_rank))
 
 
 class NewUserGUI(QWidget):
