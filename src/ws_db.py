@@ -117,7 +117,11 @@ class DB_Connection:
         self.db_command(stmt)
 
     # Update user by EID
-    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
+    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor=""):
+        if rank == "" or rank == "None":
+            rank = "NULL"
+        if mentor == "None":
+            mentor = ""
         stmt = '''UPDATE employee SET employee_name="%s", rank="%s", emp_role=%s, hourly_rate=%s, mentor="%s" WHERE
                     eid=%s;''' % (name, str(rank), str(role), str(rate), mentor, str(eid))
         self.db_command(stmt)
