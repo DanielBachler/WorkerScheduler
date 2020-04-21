@@ -117,7 +117,11 @@ class DB_Connection:
         self.db_command(stmt)
 
     # Update user by EID
-    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
+    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor=""):
+        if rank == "" or rank == "None":
+            rank = "NULL"
+        if mentor == "None":
+            mentor = ""
         stmt = '''UPDATE employee SET employee_name="%s", rank="%s", emp_role=%s, hourly_rate=%s, mentor="%s" WHERE
                     eid=%s;''' % (name, str(rank), str(role), str(rate), mentor, str(eid))
         self.db_command(stmt)
@@ -162,12 +166,20 @@ class DB_Connection:
         self.db_command(stmt)
 
     def add_userproj(self, pid, code, eid, proj_hours, req_hrs, earn_hours):
+        if str(req_hrs) == "":
+            req_hrs = "NULL"
+        if str(earn_hours) == "":
+            earn_hours = "NULL"
         stmt = '''INSERT INTO user_project (pid, billing_code, eid, projected_hours, requested_hours, earned_hours) 
         VALUES (%s, %s, %s, %s, %s, %s);''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
                                                str(earn_hours))
         self.db_command(stmt)
 
     def update_userproj(self, pid, code, eid, proj_hours, req_hrs, earn_hours):
+        if str(req_hrs) == "":
+            req_hrs = "NULL"
+        if str(earn_hours) == "":
+            earn_hours = "NULL"
         stmt = '''UPDATE user_project SET pid=%s, billing_code=%s, eid=%s, projected_hours=%s, requested_hours=%s,
                     earned_hours=%s WHERE billing_code=%s AND eid=%s;''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
                                                                             str(earn_hours), str(code), str(eid))
