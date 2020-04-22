@@ -61,7 +61,7 @@ class DB_Connection:
         else:
             print("Creating database")
             self.db_command("CREATE TABLE IF NOT EXISTS employee (eid integer not null, employee_name varchar(64),"
-                            "rank varchar(32), emp_role integer, hourly_rate real, mentor varchar(32) default NULL,"
+                            "rank varchar(32), emp_role integer, hourly_rate real, mentor varchar(64) default NULL,"
                             "PRIMARY KEY (eid));")
             self.db_command("CREATE TABLE IF NOT EXISTS project (pid integer not null auto_increment, "
                             "project_name varchar(64), description varchar(1024), estimated_hrs real, start_year integer, "
@@ -70,22 +70,29 @@ class DB_Connection:
             self.db_command("CREATE TABLE IF NOT EXISTS team (tid integer not null auto_increment,"
                             "team_name varchar(32), PRIMARY KEY (tid));")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer not null primary key);")
-            self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer, PRIMARY KEY (pid, code));")
-            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer, PRIMARY KEY (tid, eid));")
-            self.db_command("CREATE TABLE IF NOT EXISTS project_assignment (eid integer, pid integer, PRIMARY KEY (eid, pid));")
+            self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer,"
+                            "PRIMARY KEY (pid, code), FOREIGN KEY (pid) REFERENCES project(pid));")
+            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer, PRIMARY KEY (tid, eid),"
+                            "FOREIGN KEY (tid) REFERENCES team(tid), FOREIGN KEY (eid) REFERENCES employee(eid));")
             self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer not null auto_increment,"
                             "billing_code integer, eid integer, projected_hours real default NULL,"
-                            "requested_hours real default NULL, earned_hours real default 0, PRIMARY KEY(pid));")
-            self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
+                            "requested_hours real default NULL, earned_hours real default 0, PRIMARY KEY(pid),"
+                            "FOREIGN KEY (pid) REFERENCES project(pid),"
+                            "FOREIGN KEY (eid) REFERENCES employee(eid));")
+            # self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
             self.db_command("CREATE TABLE IF NOT EXISTS time_assignments (code integer, eid integer, mo integer,"
-                            "yr integer, hrs real);")
+                            "yr integer, hrs real, PRIMARY KEY (code, eid, mo, yr),"
+                            "FOREIGN KEY (eid) REFERENCES employee(eid));")
             self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_name varchar(32), primary key (role_name));")
-            self.db_command("CREATE TABLE IF NOT EXISTS access_level (level_id integer not null primary key,"
-                            "level_name varchar(16));")
-            self.db_command("CREATE TABLE IF NOT EXISTS user_proj_past (upid integer, start_yr integer, start_mo integer,"
-                            "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
-            self.db_command("CREATE TABLE IF NOT EXISTS proj_past (pid integer, start_yr integer, start_mo integer,"
-                            "end_yr integer, end_mo integer, projected_hrs real, actual_hrs real);")
+
+            self.db_command("CREATE INDEX emp_name ON employee(employee_name);")
+
+            self.db_command("CREATE INDEX rank_idx ON emp_role(role_name);")
+            self.db_command("ALTER TABLE employee ADD FOREIGN KEY (rank) REFERENCES emp_role(role_name);")
+
+            self.db_command("CREATE INDEX bc_idx ON billing_code(code);")
+            self.db_command("ALTER TABLE billing_code_assignment ADD FOREIGN KEY (code) REFERENCES billing_code(code);")
+            self.db_command("ALTER TABLE time_assignments ADD FOREIGN KEY (code) REFERENCES billing_code(code);")
 
     # Return a user's information
     def get_user_info(self):
@@ -104,24 +111,26 @@ class DB_Connection:
         self.db_command("FLUSH PRIVILEGES;")
 
     # Create a database user.
-    def create_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
+    def create_user(self, eid, name, rank="NULL", rate="NULL", role="1", mentor="NULL"):
         stmt = "CREATE USER '%s'@'localhost';" % name
         self.db_command(stmt)
         stmt = "CREATE USER '"+name+"'@'%';"
         self.db_command(stmt)
         self.set_admin_user(name)
-        # TODO: Define all of these at once
-        # TODO: Use company's EID
+        if role is None:
+            role = "0"
         stmt = '''INSERT INTO employee(eid, employee_name, emp_role, hourly_rate, mentor, rank) VALUES 
                     (%s, "%s",%s, %f, "%s","%s");''' % (str(eid), name, str(role), float(rate), str(mentor), str(rank))
         self.db_command(stmt)
 
     # Update user by EID
-    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor=""):
+    def update_user(self, eid, name, rank="NULL", rate="NULL", role="1", mentor=""):
         if rank == "" or rank == "None":
             rank = "NULL"
         if mentor == "None":
             mentor = ""
+        if role is None:
+            role = "0"
         stmt = '''UPDATE employee SET employee_name="%s", rank="%s", emp_role=%s, hourly_rate=%s, mentor="%s" WHERE
                     eid=%s;''' % (name, str(rank), str(role), str(rate), mentor, str(eid))
         self.db_command(stmt)
@@ -180,6 +189,8 @@ class DB_Connection:
             req_hrs = "NULL"
         if str(earn_hours) == "":
             earn_hours = "NULL"
+        if earn_hours is None:
+            earn_hours = 0
         stmt = '''UPDATE user_project SET pid=%s, billing_code=%s, eid=%s, projected_hours=%s, requested_hours=%s,
                     earned_hours=%s WHERE billing_code=%s AND eid=%s;''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
                                                                             str(earn_hours), str(code), str(eid))
