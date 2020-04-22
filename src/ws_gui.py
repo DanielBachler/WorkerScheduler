@@ -10,26 +10,35 @@
 
 # TODO:
 #   Overall:
-#       Ensure nothing broke from DB refactor (it did)
+#       Ensure nothing broke from DB refactor (it did) (mostly done now!)
 #       Get admin flag working
 #       Allow pasting into server window
 #       Ability to remove ranks if admin
-#       For users view:
-#           Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
-#           hours for that project.  Link to object.UserProject
-#       For project view:
-#           Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
-#           or that project.  Link to object.UserProject
-#       Change edit user form to disallow editing of eid
-#       When switching views clear right hand windows
+#       Jesse is working on this stuff:
+#           For users view:
+#               Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
+#               hours for that project.  Link to object.UserProject
+#           For project view:
+#               Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
+#               or that project.  Link to object.UserProject
 #       Edit project form to have repeating
+#       Fix closing of all windows to close with master window (important)
+#       Implement an admin clean DB ability (if eid not in employee table remove projects and such)
+#       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
+#       Make admin do more stuff, like ability to make new admins etc
+#       Make admin function that allows custom SQL queries
+#       Change mentor input to drop down with list of all employees above "rank"
 #   Things that are broken:
 #       Teams are not implemented at all.
-#       Cannot delete user, gives user already deleted error (dumb try catch?)
-#       Clicking a deleted user on another instance crashes the program
+#       Clicking a deleted user on another instance crashes the program (unsure on fix)
+#       2 instances simultaneously editing one object causes second edit to override changes from first edit.
+#           (expected behavior, but not optimal)
+#       Cannot update project billing codes (keeps old ones)
+#       Can't assign multiple users to a project due to duplicate key entry for pid (user projects)
 #   Things that need to be done and I need Brendan for:
-#       NewProjectGUI.updateProject(): Updating users to be associated with project
-#           May not need to be done since it can be referenced from project, should be done for ease of access
+#       Implement removing of items from db
+#       All items should be referenced as strings, not integers
+
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -41,6 +50,9 @@ from PyQt5.QtGui import QIcon
 from src import object
 import copy
 from src import dbcalls
+
+# Set this to true to automatically log in as the "Billy" user. This must be false when checked into the repository
+DEBUG_MODE = True
 
 
 class Main_UI(QMainWindow):
@@ -68,25 +80,26 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: server_addr (String), username (String), password (String)
     def login(self):
-        #server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
-        #if okPressed and server_addr != '':
-            #pass
-        #username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal, "")
-        #if okPressed and server_addr != '':
-            #pass
-        #password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
-        #if okPressed and server_addr != '':
-            #pass
-        # Debug/dev stuff
         server_addr = "db.jessearstein.com"
         username = "billy"
         password = "12345"
+        if not DEBUG_MODE:
+            server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
+            if okPressed and server_addr != '':
+                pass
+            username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal,
+                                                       "")
+            if okPressed and server_addr != '':
+                pass
+            password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
+            if okPressed and server_addr != '':
+                pass
         return server_addr, username, password
 
     # initUI: Creates the UI for the main UI
     # ARGS: self (QMainWindow), userList (List[User]), projectList (List[Project])
     # RETURNS: None
-    def initUI(self, userList, projectList, rank_list):
+    def initUI(self):
 
         self.rank_list = dbcalls.get_ranks()
 
@@ -172,7 +185,7 @@ class Main_UI(QMainWindow):
         # Pane Right
         right_view = QTextEdit()
         right_view.setObjectName("right_view")
-        right_view.setFixedHeight(left_view.height()/2)
+        right_view.setFixedHeight(int(left_view.height() / 2))
         right_view.setAlignment(Qt.AlignLeft)
         right_view.setReadOnly(True)
         vboxR.addWidget(right_view)
@@ -185,10 +198,10 @@ class Main_UI(QMainWindow):
         # Projects / Assigned User List
         project_assigned_user_list_box = QListWidget()
         project_assigned_user_list_box.setObjectName("project_assigned_user_list_box")
-        project_assigned_user_list_box.setFixedHeight(left_view.height()/2)
-        project_assigned_user_list_box.setItemAlignment(Qt.AlignLeft)
+        project_assigned_user_list_box.setFixedHeight(int(left_view.height() / 2))
+        # Broke program so commented out
+        # project_assigned_user_list_box.setItemAlignment(Qt.AlignLeft)
         vboxR.addWidget(project_assigned_user_list_box)
-
 
         # New hbox for buttons under selected user pane
         buttonHBox = QHBoxLayout()
@@ -223,7 +236,6 @@ class Main_UI(QMainWindow):
 
         centralWidget.setLayout(hbox)
 
-        # FIX WITH DB CALL
         self.updateUserList()
 
         self.statusBar().showMessage('Ready')
@@ -241,7 +253,6 @@ class Main_UI(QMainWindow):
         if temp == QMessageBox.Yes:
             self.newUserWindow.parent_closing = True
             self.newProjectWindow.parent_closing = True
-            # TODO: Close database connection
             event.accept()
         else:
             event.ignore()
@@ -253,22 +264,19 @@ class Main_UI(QMainWindow):
         # Get right_view object
         right_view = self.centralWidget().findChild(QTextEdit, "right_view")
         if self.view:
-            name = item.text()
+            pid = item.data(Qt.UserRole)
             try:
-                pid = dbcalls.get_pid(name)
                 selected_object_row = dbcalls.get_project(pid)
                 project = object.Project.create_from_db_row(selected_object_row)
-                # selected_object = findItem(name, self.projectList)
                 right_view.setText(project.print_project())
             except Exception as e:
                 print("Exception:", e)
                 print("PID: %s" % pid)
                 print("Selected row:", selected_object_row)
         else:
-            id = item.data(Qt.UserRole)
+            eid = item.data(Qt.UserRole)
             try:
-                # uid = dbcalls.get_user(id)
-                selected_object_row = dbcalls.get_user(id)
+                selected_object_row = dbcalls.get_user(eid)
                 user = object.User.from_db_row(selected_object_row)
                 try:
                     right_view.setText(user.print_user())
@@ -276,15 +284,13 @@ class Main_UI(QMainWindow):
                     print(e)
             except Exception as e:
                 print(e)
-                print("UID:", id)
+                print("UID:", eid)
                 print("Selected row:", selected_object_row)
-        # self.updateUserList()
 
     # makeNewUser: Creates a new user object and adds them to the database
     # ARGS: self (QMainWindow)
-    # RETURNS: None, user object is added to local database instead
+    # RETURNS: None, user object is added to database instead
     def makeNewUser(self):
-        # New popup window with ability to create new local user, push to database on close?
         self.newUserWindow = NewUserGUI()
         self.newUserWindow.initUI(self)
         self.newUserWindow.setWindowIcon(QIcon('icon.png'))
@@ -292,61 +298,62 @@ class Main_UI(QMainWindow):
     # deleteSelectedUserFunc: Deletes the user passed to it, called by the delete button on main GUI panel
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: Make sure working (need higher access login)
     def deletedSelectedFunc(self):
         try:
             current_object = self.centralWidget().findChild(QListWidget).currentItem()
-            id = current_object.data(Qt.UserRole)
-            result = ""
+            uid = current_object.data(Qt.UserRole)
             if self.view:
                 # Project
-                result = dbcalls.rm_proj(id)
+                dbcalls.rm_proj(uid)
             else:
                 # User
-                result = dbcalls.rm_user(id)
+                dbcalls.rm_user(uid)
             self.updateUserList()
         except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
-                                    QMessageBox.Close, QMessageBox.Close)
+                                 QMessageBox.Close, QMessageBox.Close)
             self.updateUserList()
 
     # editSelected: Edits the currently highlighted item
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: Ensure functionality
     def editSelected(self):
-        # Get the item as its object type
-        currentItem = self.centralWidget().findChild(QListWidget).currentItem()
-        current_object = None
-        if self.view:
-            current_object = dbcalls.get_project((currentItem.data(Qt.UserRole)))
-            current_object = object.Project.create_from_db_row(current_object)
-        else:
-            current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
-            current_object = object.User.from_db_row(current_object)
+        try:
+            # Get the item as its object type
+            currentItem = self.centralWidget().findChild(QListWidget).currentItem()
+            current_object = None
+            if self.view:
+                current_object = dbcalls.get_project((currentItem.data(Qt.UserRole)))
+                current_object = object.Project.create_from_db_row(current_object)
+            else:
+                current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
+                current_object = object.User.from_db_row(current_object)
 
-        if self.view and current_object is not None:
-            # Project
-            try:
-                self.newProjectWindow = NewProjectGUI()
-                self.newProjectWindow.editing = True
-                self.newProjectWindow.initUI(self)
-                self.newProjectWindow.edit(current_object)
-                self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
-            except Exception as e:
-                print(e)
-        elif current_object is not None:
-            # User
-            try:
-                self.newUserWindow = NewUserGUI()
-                self.newUserWindow.editing = True
-                self.newUserWindow.initUI(self)
-                self.newUserWindow.editUser(current_object)
-                self.newUserWindow.setWindowIcon(QIcon("icon.png"))
-            except Exception as e:
-                print(e)
-        else:
-            QMessageBox.question(self, 'Error', 'An unexpected error occurred trying to edit selected item',
+            if self.view and current_object is not None:
+                # Project
+                try:
+                    self.newProjectWindow = NewProjectGUI()
+                    self.newProjectWindow.editing = True
+                    self.newProjectWindow.initUI(self)
+                    self.newProjectWindow.edit(current_object)
+                    self.newProjectWindow.setWindowIcon(QIcon("icon.png"))
+                except Exception as e:
+                    print(e)
+            elif current_object is not None:
+                # User
+                try:
+                    self.newUserWindow = NewUserGUI()
+                    self.newUserWindow.editing = True
+                    self.newUserWindow.initUI(self)
+                    self.newUserWindow.editUser(current_object)
+                    self.newUserWindow.setWindowIcon(QIcon("icon.png"))
+                except Exception as e:
+                    print(e)
+            else:
+                QMessageBox.question(self, 'Error', 'An unexpected error occurred trying to edit selected item',
+                                     QMessageBox.Close, QMessageBox.Close)
+        except:
+            QMessageBox.question(self, 'Error', 'Nothing was selected to edit.',
                                  QMessageBox.Close, QMessageBox.Close)
 
     # makeNewProject: Opens new project creation UI
@@ -391,6 +398,9 @@ class Main_UI(QMainWindow):
     # RETURNS: None
     def switch_user_view(self):
         self.view = False
+        # Get right hand view and clear it
+        right_view = self.centralWidget().findChild(QTextEdit, "right_view")
+        right_view.clear()
         self.updateUserList()
 
     # switch_project_view: Changes the main UI to show projects
@@ -398,12 +408,14 @@ class Main_UI(QMainWindow):
     # RETURNS:
     def switch_project_view(self):
         self.view = True
+        # Get right hand view and clear it
+        right_view = self.centralWidget().findChild(QTextEdit, "right_view")
+        right_view.clear()
         self.updateUserList()
 
     # addRank: adds a new rank to the rank list
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: Ensure functionality
     def addRank(self):
         rank, okPressed = QInputDialog.getText(self, "Enter New Rank", "Rank:", QLineEdit.Normal, "")
         if okPressed and rank != "":
@@ -415,10 +427,14 @@ class Main_UI(QMainWindow):
     # removeRank: removes a rank from the rank list in DB
     # ARGS: self (QMainWindow)
     # RETURNS: None
-    # TODO: Implement
     def removeRank(self):
         pass
         # QInputDialog with drop down of possible ranks, the selected one to be removed
+        ranks = dbcalls.get_ranks()
+        selected_rank, clicked = QInputDialog.getItem(self, "Rank to remove", "Rank:", ranks, editable=False)
+        if clicked:
+            print(str(selected_rank))
+            dbcalls.remove_rank(str(selected_rank))
 
 
 class NewUserGUI(QWidget):
@@ -575,7 +591,6 @@ class NewUserGUI(QWidget):
     # saveUser: Saves the user currently being created, makes sure that all req fields are filled
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Ensure Functionality
     def saveUser(self):
         if self.box_edited:
             try:
@@ -605,8 +620,8 @@ class NewUserGUI(QWidget):
         # If edited and not saved prompt
         elif self.box_edited and not self.saved:
             to_exit = QMessageBox.question(self, 'Cancel Confirmation', "You haven't saved, are you sure you want "
-                                                                            "to cancel?",
-                                               QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
+                                                                        "to cancel?",
+                                           QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
             if to_exit == QMessageBox.Yes:
                 event.accept()
             elif to_exit == QMessageBox.Save:
@@ -625,7 +640,6 @@ class NewUserGUI(QWidget):
     # updateRankBox: updates the rank combo box if new item is added
     # ARGS: None
     # RETURNS: None
-    # TODO: Ensure functionality
     def updateRankBox(self):
         # Get combo box object
         rank_edit = self.findChild(QComboBox, "user_rank")
@@ -653,21 +667,21 @@ class NewUserGUI(QWidget):
         team.setText(str(user.team))
         mentor.setText(str(user.mentor))
         employee_id.setText(str(user.employee_id))
+        employee_id.setReadOnly(True)
         self.box_edited = False
 
     # updateUser: Updates a given users entry
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Ensure functionality
+    # TODO: Implement role if logged in user is an admin
     def updateUser(self):
         # Place holder for projects, needs more fleshing out
         self.made_user = self.makeUser()
-        dbcalls.update_user(self.made_user.employee_id, self.made_user.name, None,  # TODO: What is role?
+        dbcalls.update_user(self.made_user.employee_id, self.made_user.name, self.made_user.role,
                             self.made_user.pay, self.made_user.mentor, self.made_user.rank)
         self.parent_window.updateUserList()
         self.saved = True
         self.close_from_save = True
-        # TODO: REDO WITH NAME AND ID (should work)
         qlistitem = QListWidgetItem(self.made_user.name)
         qlistitem.setData(Qt.UserRole, self.made_user.employee_id)
         self.parent_window.newSelected(qlistitem)
@@ -762,11 +776,12 @@ class AddUserInfoGUI(QWidget):
         billingCode_Label = QLabel("Billing Code")
         billingCode_Combobox = QComboBox()
         billingCode_Combobox.setObjectName("billingCode")
-        if (not isinstance(self.selected_project.billing_codes, str)):
-            for i in range(len(self.selected_project.billing_codes)):
-                billingCode_Combobox.addItem(self.selected_project.billing_codes[i])
-        else:
-            billingCode_Combobox.addItem(self.selected_project.billing_codes)
+        try:
+            for billing_code in self.selected_project.billing_codes:
+                billingCode_Combobox.addItem(str(billing_code))
+        except Exception as e:
+            print(e)
+            print(self.selected_project.billing_codes)
 
         billingCode_Box.addWidget(billingCode_Label)
         billingCode_Box.addWidget(billingCode_Combobox)
@@ -835,29 +850,12 @@ class AddUserInfoGUI(QWidget):
             aH = actualHours.text()
             bC = billingCode.currentText()
 
-            # TODO: Make this better
-            # Try and convert to ints
             try:
-                pH = int(pH)
-            except:
-                pass
-
-            try:
-                dH = int(dH)
-            except:
-                dH = None
-
-            try:
-                aH = int(aH)
-            except:
-                aH = None
-
-            # Make UserProject object
-            userProject = object.UserProject(bC, pH, dH, aH)
-            if self.user.employee_id in self.parent_window.parent_window.user_projects.keys():
-                self.parent_window.parent_window.user_projects[self.user.employee_id].append(userProject)
-            else:
-                self.parent_window.parent_window.user_projects[self.user.employee_id] = [userProject]
+                # Just push object to db
+                dbcalls.update_userproj(str(self.selected_project.getId()), bC, str(self.user.employee_id), pH, dH, aH)
+            except Exception as e:
+                print(e)
+                print("Failed to save project to db")
 
             # Mark as saved and close
             self.saved = True
@@ -892,7 +890,14 @@ class AddUsersGUI(QWidget):
         super().__init__()
         self.selected_project = project
         self.parent_window = parent_window
-        self.project_user_list = copy.deepcopy(project.users)
+        self.project_user_list = []
+        user_project_objects = dbcalls.get_projects_users(project.getId())
+        # Get users given the eids
+        if user_project_objects is not None:
+            for row in user_project_objects:
+                user = dbcalls.get_user(row[2])
+                name = user[1]
+                self.project_user_list.append((row[2], name))
 
     # initUI: Initializes the UI
     # ARGS: self (QWidget)
@@ -966,12 +971,16 @@ class AddUsersGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUserToProject(self):
+        self.project_user_list.append((self.selected_all_user.data(Qt.UserRole), self.selected_all_user.text()))
+        self.updateProjectUsersList()
+        # Make a user from selected all user
+        selected_all_user_row = dbcalls.get_user(self.selected_all_user.data(Qt.UserRole))
+        selected_all_user = object.User.from_db_row(selected_all_user_row)
         try:
-            self.project_user_list.append(self.selected_all_user)
-            self.updateProjectUsersList()
-            self.user_info = AddUserInfoGUI(self.selected_project, self.selected_all_user, self)
+            self.user_info = AddUserInfoGUI(self.selected_project, selected_all_user, self)
             self.user_info.initUI()
         except Exception as e:
+            print("Broke making new window")
             print(e)
 
     # removeUserFromProject: Removes the selected user in project list from the project, are you sure prompt?
@@ -979,7 +988,13 @@ class AddUsersGUI(QWidget):
     # RETURNS: None
     def removeUserFromProject(self):
         try:
-            self.project_user_list.remove(self.selected_project_user)
+            # Remove item from database
+            eid = self.selected_project_user.data(Qt.UserRole)
+            pid = self.selected_project.getId()
+            dbcalls.rm_proj_object(eid, pid)
+            # Remove user from list
+            to_rm = (self.selected_project_user.data(Qt.UserRole), self.selected_project_user.text())
+            self.project_user_list.remove(to_rm)
             self.updateProjectUsersList()
         except:
             QMessageBox.question(self, 'Error', 'Selected item is already deleted',
@@ -988,16 +1003,15 @@ class AddUsersGUI(QWidget):
     # updateAllUser: Updates the current selected_all_user
     # ARGS: self (QWidget), item (QListWidgetItem)
     # RETURNS: None
-    # TODO: Fix with DB
     def updateAllUser(self, item):
-        self.selected_all_user = findItem(item.text(), self.parent_window.parent_window.userList)
+        # Get user id from item
+        self.selected_all_user = item
 
     # updateProjectUser: Updates the current selected_project_user
     # ARGS: self (QWidget), item (QListWidgetItem)
     # RETURNS: None
-    # TODO: Fix with DB
     def updateProjectUser(self, item):
-        self.selected_project_user = findItem(item.text(), self.project_user_list)
+        self.selected_project_user = item
 
     # updateAllUsersList: Updates the QListWidget with the current version of userList
     # ARGS: self (QWidget)
@@ -1005,8 +1019,10 @@ class AddUsersGUI(QWidget):
     def updateAllUsersList(self):
         all_users = self.findChild(QListWidget, "all_users")
         all_users.clear()
-        for user in self.parent_window.parent_window.userList:
-            all_users.addItem(user.name)
+        for name, id in dbcalls.db_get_ids():
+            item = QListWidgetItem(name)
+            item.setData(Qt.UserRole, id)
+            all_users.addItem(item)
 
     # updateProjectUsersList: Updates the QListWidget with the current version of userList
     # ARGS: self (QWidget)
@@ -1014,8 +1030,10 @@ class AddUsersGUI(QWidget):
     def updateProjectUsersList(self):
         project_users = self.findChild(QListWidget, "project_users")
         project_users.clear()
-        for user in self.project_user_list:
-            project_users.addItem(user.name)
+        for eid, name in self.project_user_list:
+            item = QListWidgetItem(name)
+            item.setData(Qt.UserRole, eid)
+            project_users.addItem(item)
 
     # closeEvent: Saves created user list to parent window before closing
     # ARGS: self (QWidget), event (QEvent (closing event))
@@ -1168,7 +1186,6 @@ class NewProjectGUI(QWidget):
     # save: Saves the project to the list of projects
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Fix
     def save(self):
         self.saved = True
         # Create project from info in UI
@@ -1180,10 +1197,6 @@ class NewProjectGUI(QWidget):
         except Exception as e:
             print("Broke in pushing project and getting id")
             print(e)
-        # TODO: Fix with db calls after fixing user forms
-        # for user in users:
-        #     # Brendan to Dan: We need the users variable to be a list of UID's.
-        #     dbcalls.base.add_user_to_project(user, self.id)
         try:
             for code in project.billing_codes:
                 dbcalls.associate_billing_code(project.getId(), code)
@@ -1244,14 +1257,12 @@ class NewProjectGUI(QWidget):
     # updateProject: Updates an existing project instead of creating a new one
     # ARGS: self (QWidget)
     # RETURNS: None
-    # TODO: Fix
     def updateProject(self):
         # Get updated project and append to DB
         project = self.getProject()
         project.id = self.editing_project.id
         project.users = self.project_user_list
         # Add to list and update master list in main UI
-        # TODO: Fix method to use project ID as identifier
         dbcalls.update_project(project.id, project.name, project.description, project.expected_hours,
                                project.hours_edit_date, project.repeating)
         # Update mainUI window to show new project in list
@@ -1262,20 +1273,6 @@ class NewProjectGUI(QWidget):
         item = QListWidgetItem(project.name)
         item.setData(Qt.UserRole, project.id)
         self.parent_window.newSelected(item)
-
-        # Update users with UserProjects
-        # TODO: Figure out how to do with db
-        # for user in self.user_projects.keys():
-        #     # Find user
-        #     userOb = None
-        #     try:
-        #         userOb = findItemByID(user, self.parent_window.userList)
-        #     except Exception as e:
-        #         print(e)
-        #     if userOb is not None:
-        #         for ob in self.user_projects[user]:
-        #             userOb.projects.append(ob)
-        # # TODO: Database updates
 
         self.close()
 

@@ -137,6 +137,9 @@ def update_ranks(ranks):
     for rank in ranks:
         base.add_rank(rank)
 
+def remove_rank(rank):
+    base.remove_rank(rank)
+
 
 def associate_billing_code(pid, code):
     base.add_billing_code(code)
@@ -154,7 +157,7 @@ def check_project_exists(name):
 
 
 def check_uproj_exists(eid, code):
-    exists = base.db_query('''SELECT count(*) FROM user_project WHERE eid = %d AND billing_code = %d;''' % (eid, code))
+    exists = base.db_query('''SELECT count(*) FROM user_project WHERE eid = %s AND billing_code = %s;''' % (eid, code))
     return exists[0][0] > 0
 
 
@@ -242,3 +245,12 @@ def rm_user(user_id):
     """
 
     base.del_user(user_id)
+
+def rm_proj_object(eid, pid):
+    """ Remove a project object from database
+
+    @param pid: Project ID of target object
+    @param eid: Employee ID of target user associated with object
+
+    """
+    base.rm_user_project(eid, pid)

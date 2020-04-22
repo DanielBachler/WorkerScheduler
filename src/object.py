@@ -30,9 +30,9 @@ class User:
 
     # __init__: Initializes a given user
     # ARGS: self (User), name (String), pay (String), rank (String), team (String), mentor (String),
-    #       employee_id (String)
+    #       employee_id (String), role (int)
     # RETURNS: User
-    def __init__(self, name, pay, rank, team, mentor, employee_id):
+    def __init__(self, name, pay, rank, team, mentor, employee_id, role=0):
         self.name = name
         self.pay = pay
         self.rank = rank
@@ -40,6 +40,7 @@ class User:
         if mentor != "NA":
             self.mentor = mentor
         self.employee_id = employee_id
+        self.role = role
 
         self.push()
 
@@ -251,8 +252,12 @@ class Project:
     # TODO: Redo to pull names using the UID list
     def print_users(self):
         user_string = ""
-        for user in self.users:
-            user_string += user.name + "\n"
+        users = dbcalls.get_projects_users(self.getId())
+        for user in users:
+            eid = user[2]
+            user_row = dbcalls.get_user(eid)
+
+            user_string += user_row[1] + "\n"
         return user_string
 
     # printBillingCodes: creates a formatted string of the assigned billing codes

@@ -14,9 +14,25 @@ if __name__ == "__main__":
 import sqlite3
 import sys
 from datetime import datetime
+
 import mysql.connector as sql
 
-DB_TYPE = sql
+from src import dbcalls
+
+DB_TYPE = sql   # Set to sqlite3 to use sqlite. (for quick testing and development, depreciated)
+
+connect = None  # Singleton instance of database connection
+
+# Create singleton database connection
+def connect_to_db(ex):
+    global connect
+    if connect is None:
+        connect = DB_Connection()
+        connect.db_login(ex)
+        connect.init_db()
+        dbcalls.init_dbwrapper(connect)
+    else:
+        print("Unable to create new database connection. Connection already active.", file=sys.stderr)
 
 # Manages connection with mySQL database
 class DB_Connection:
@@ -101,7 +117,11 @@ class DB_Connection:
         self.db_command(stmt)
 
     # Update user by EID
-    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor="NULL"):
+    def update_user(self, eid, name, rank="NULL", rate="NULL", role="NULL", mentor=""):
+        if rank == "" or rank == "None":
+            rank = "NULL"
+        if mentor == "None":
+            mentor = ""
         stmt = '''UPDATE employee SET employee_name="%s", rank="%s", emp_role=%s, hourly_rate=%s, mentor="%s" WHERE
                     eid=%s;''' % (name, str(rank), str(role), str(rate), mentor, str(eid))
         self.db_command(stmt)
@@ -146,15 +166,27 @@ class DB_Connection:
         self.db_command(stmt)
 
     def add_userproj(self, pid, code, eid, proj_hours, req_hrs, earn_hours):
+        if str(req_hrs) == "":
+            req_hrs = "NULL"
+        if str(earn_hours) == "":
+            earn_hours = "NULL"
         stmt = '''INSERT INTO user_project (pid, billing_code, eid, projected_hours, requested_hours, earned_hours) 
         VALUES (%s, %s, %s, %s, %s, %s);''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
                                                str(earn_hours))
         self.db_command(stmt)
 
     def update_userproj(self, pid, code, eid, proj_hours, req_hrs, earn_hours):
+        if str(req_hrs) == "":
+            req_hrs = "NULL"
+        if str(earn_hours) == "":
+            earn_hours = "NULL"
         stmt = '''UPDATE user_project SET pid=%s, billing_code=%s, eid=%s, projected_hours=%s, requested_hours=%s,
                     earned_hours=%s WHERE billing_code=%s AND eid=%s;''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
                                                                             str(earn_hours), str(code), str(eid))
+        self.db_command(stmt)
+
+    def rm_user_project(self, eid, pid):
+        stmt = 'DELETE FROM user_project WHERE eid=%s AND pid=%s;' % (eid, pid)
         self.db_command(stmt)
 
     # Get information on a project
@@ -186,6 +218,10 @@ class DB_Connection:
     # Add employee rank to database
     def add_rank(self, rank):
         stmt = '''INSERT INTO emp_role (role_name) VALUES ("%s");''' % str(rank)
+        self.db_command(stmt)
+
+    def remove_rank(self, rank):
+        stmt = '''DELETE FROM emp_role WHERE role_name=%s''' % str(rank)
         self.db_command(stmt)
 
     # Remove user from team
