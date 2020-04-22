@@ -287,8 +287,17 @@ class DB_Connection:
             print("Error executing query on database,", file=sys.stderr)
         return res
 
+    # Check if an SQL query has comments. This likely is an injection attack
+    def check_attack(self, stmt):
+        if "#" in stmt or "--" in stmt or "/*" in stmt:
+            print("SQL Injection attack detected. Will not execute query", file=sys.stderr)
+            return True
+        return False
+
     # Execute database query
     def db_command(self, stmt):
+        if self.check_attack(stmt):
+            return
         try:
             self.crs.execute(stmt)
             self.cnx.commit()
@@ -297,6 +306,8 @@ class DB_Connection:
 
     # Execute database query
     def db_query(self, stmt):
+        if self.check_attack(stmt):
+            return [[]]
         try:
             self.crs.execute(stmt)
             return self.crs.fetchall()
