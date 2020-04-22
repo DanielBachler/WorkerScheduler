@@ -30,9 +30,9 @@ class User:
 
     # __init__: Initializes a given user
     # ARGS: self (User), name (String), pay (String), rank (String), team (String), mentor (String),
-    #       employee_id (String)
+    #       employee_id (String), role (int)
     # RETURNS: User
-    def __init__(self, name, pay, rank, team, mentor, employee_id):
+    def __init__(self, name, pay, rank, team, mentor, employee_id, role=0):
         self.name = name
         self.pay = pay
         self.rank = rank
@@ -40,6 +40,7 @@ class User:
         if mentor != "NA":
             self.mentor = mentor
         self.employee_id = employee_id
+        self.role = role
 
         self.push()
 
