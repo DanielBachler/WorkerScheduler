@@ -254,3 +254,13 @@ def rm_proj_object(eid, pid):
 
     """
     base.rm_user_project(eid, pid)
+
+def db_custom_query(stmt):
+    """ Execute a custom query on the database
+
+    :param stmt: A string containing an SQL statement
+    :return: a 2-dimensional table containing the results of the query
+
+    """
+
+    return base.db_query(stmt)
