@@ -85,6 +85,7 @@ class User:
         dbcalls.update_user(self.employee_id, str(self.name), str(self.role), str(self.pay), str(self.mentor),
                             str(self.rank))
 
+
 class UserProject:
     billing_code = ""
     pid = ""

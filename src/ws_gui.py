@@ -8,37 +8,6 @@
 # ws_gui.py
 # GUI Wrapper for Work Scheduler
 
-# TODO:
-#   Overall:
-#       Ensure nothing broke from DB refactor (it did) (mostly done now!)
-#       Get admin flag working
-#       Allow pasting into server window
-#       Ability to remove ranks if admin
-#       Jesse is working on this stuff:
-#           For users view:
-#               Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
-#               hours for that project.  Link to object.UserProject
-#           For project view:
-#               Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
-#               or that project.  Link to object.UserProject
-#       Edit project form to have repeating
-#       Fix closing of all windows to close with master window (important)
-#       Implement an admin clean DB ability (if eid not in employee table remove projects and such)
-#       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
-#       Make admin do more stuff, like ability to make new admins etc
-#       Make admin function that allows custom SQL queries
-#       Change mentor input to drop down with list of all employees above "rank"
-#   Things that are broken:
-#       Teams are not implemented at all.
-#       Clicking a deleted user on another instance crashes the program (unsure on fix)
-#       2 instances simultaneously editing one object causes second edit to override changes from first edit.
-#           (expected behavior, but not optimal)
-#       Cannot update project billing codes (keeps old ones)
-#       Can't assign multiple users to a project due to duplicate key entry for pid (user projects)
-#   Things that need to be done and I need Brendan for:
-#       Implement removing of items from db
-#       All items should be referenced as strings, not integers
-
 
 if __name__ == "__main__":
     print("Unable to execute as script")
@@ -290,10 +259,11 @@ class Main_UI(QMainWindow):
 
                     # ---------- Right Lower List Projects -------
                     # Todo: TEST THIS CODE ONCE THERE IS DATA IN THE USER PROJECT TABLE.
-                    userProjectList = dbcalls.get_users_projects(user.employee_id) # Grab a list of user projects associated with an employee id.
+                    userProjectList = dbcalls.get_users_projects(
+                        user.employee_id)  # Grab a list of user projects associated with an employee id.
 
-
-                    for userProject in userProjectList: # This will add projects to the lower right box list. It will also store the project id (pid) in the metadata.
+                    for userProject in userProjectList:  # This will add projects to the lower right box list. It
+                        # will also store the project id (pid) in the metadata.
                         project = dbcalls.get_project(userProject[0])
                         projectItem = QListWidgetItem(project[1])
                         projectItem.setData(Qt.UserRole, userProject[0])
@@ -374,18 +344,21 @@ class Main_UI(QMainWindow):
         except:
             QMessageBox.question(self, 'Error', 'Nothing was selected to edit.',
                                  QMessageBox.Close, QMessageBox.Close)
+
     # logTime: Opens UI window to add time for a user to a project.
     # ARGS: self(QMainWindow)
     # Returns: None
     def logTime(self):
         try:
             currentItemLeft = self.centralWidget().findChild(QListWidget, "left_view").currentItem()
-            currentItemRight = self.centralWidget().findChild(QListWidget, "project_assigned_user_list_box").currentItem()
+            currentItemRight = self.centralWidget().findChild(QListWidget,
+                                                              "project_assigned_user_list_box").currentItem()
             current_object_left = None
             current_object_right = None
             # Create our objects from two selected..
             if self.view:
-                # If we are in project view mode we grab the currently selected items from the left side and right and their info from the database.
+                # If we are in project view mode we grab the currently selected items from the left side and right
+                # and their info from the database.
                 current_object_left = dbcalls.get_project((currentItemLeft.data(Qt.UserRole)))
                 current_object_left = object.Project.from_db_row(current_object_left)
                 current_object_right = dbcalls.get_user(currentItemRight.data(Qt.UserRole))
@@ -405,12 +378,13 @@ class Main_UI(QMainWindow):
                 loginDialog.show()
 
             elif current_object_left is not None and current_object_right is not None:
-                 # Make log time UI window with user as left object and project as right object.
-                 loginDialog = LogTimeUI(self)
-                 loginDialog.initUI(currentItemLeft,currentItemRight)
-                 loginDialog.show()
+                # Make log time UI window with user as left object and project as right object.
+                loginDialog = LogTimeUI(self)
+                loginDialog.initUI(currentItemLeft, currentItemRight)
+                loginDialog.show()
             else:
-                QMessageBox.question(self, 'Error', 'Please select a user and project to log time for.',QMessageBox.Close, QMessageBox.Close)
+                QMessageBox.question(self, 'Error', 'Please select a user and project to log time for.',
+                                     QMessageBox.Close, QMessageBox.Close)
         except Exception as e:
             print(e)
             QMessageBox.question(self, 'Error', 'Please select a user and project to log time for.', QMessageBox.Close,
@@ -900,6 +874,10 @@ class AddUserInfoGUI(QWidget):
     # RETURNS: None
     def save(self):
         try:
+            # Add user to parent's list of added users
+            self.parent_window.project_user_list.append((self.parent_window.selected_all_user.data(Qt.UserRole),
+                                                         self.parent_window.selected_all_user.text()))
+            self.updateProjectUsersList()
             # Get items
             projectedHours = self.findChild(QLineEdit, "projectedHours")
             desiredHours = self.findChild(QLineEdit, "desiredHours")
@@ -1033,8 +1011,6 @@ class AddUsersGUI(QWidget):
     # ARGS: self (QWidget)
     # RETURNS: None
     def addUserToProject(self):
-        self.project_user_list.append((self.selected_all_user.data(Qt.UserRole), self.selected_all_user.text()))
-        self.updateProjectUsersList()
         # Make a user from selected all user
         selected_all_user_row = dbcalls.get_user(self.selected_all_user.data(Qt.UserRole))
         selected_all_user = object.User.from_db_row(selected_all_user_row)
@@ -1372,9 +1348,9 @@ class NewProjectGUI(QWidget):
         except Exception as e:
             print(e)
 
+
 # This class is for a dialog box for logging time.
 class LogTimeUI(QDialog):
-
     user = None
     billingCode = None
 
