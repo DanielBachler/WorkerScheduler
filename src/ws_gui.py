@@ -106,7 +106,6 @@ class Main_UI(QMainWindow):
         projectMenu.addAction(switchViewProject)
 
         # Admin menu, only create if user is admin rank
-        # FIX WITH DB CALL FOR ADMIN CHECK FOR ALL ADMIN APPS
         if self.admin:
             # Menu bar item
             adminMenu = menubar.addMenu("Admin")
@@ -118,9 +117,17 @@ class Main_UI(QMainWindow):
             remove_rank.setToolTip("This will only remove the rank from the choice list\n"
                                    "Existing users with the rank will keep it.")
             remove_rank.triggered.connect(self.removeRank)
+
+            custom_sql = QAction("Custom Query")
+            custom_sql.setToolTip("Clicking this will allow the execution of a custom SQL query on the database you "
+                                  "are connected to.  Use this with caution!  This will not allow updating or "
+                                  "deleting entries from the database")
+            custom_sql.triggered.connect(self.custom_query)
+
             # Add actions
             adminMenu.addAction(add_rank)
             adminMenu.addAction(remove_rank)
+
 
         # Contents of central widget
 
@@ -462,7 +469,6 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def removeRank(self):
-        pass
         # QInputDialog with drop down of possible ranks, the selected one to be removed
         ranks = dbcalls.get_ranks()
         selected_rank, clicked = QInputDialog.getItem(self, "Rank to remove", "Rank:", ranks, editable=False)
@@ -472,6 +478,14 @@ class Main_UI(QMainWindow):
             except Exception as e:
                 print(e)
 
+    def custom_query(self):
+        # Get QInputDialog with text field
+        query, clicked = QInputDialog.getText(self, "Custom Query", "Query:", QLineEdit.Normal, "")
+        if clicked:
+            try:
+                dbcalls.db_custom_query(query)
+            except Exception as e:
+                print(e)                
 
 class NewUserGUI(QWidget):
     # Temp var to hold made user

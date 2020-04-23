@@ -1,16 +1,8 @@
 # TODO:
 #   Overall:
 #       Get admin flag working
-#       Jesse is working on this stuff:
-#           For users view:
-#               Add list of projects in broken out QListWidget below detailed view, clicking brings up form that logs
-#               hours for that project.  Link to object.UserProject
-#           For project view:
-#               Add list of users in broken out QListWidget below detailed view, clicking brings up form that logs hours
-#               or that project.  Link to object.UserProject
 #       Edit project form to have repeating
 #       Fix closing of all windows to close with master window (important)
-#       Implement an admin clean DB ability (if eid not in employee table remove projects and such)
 #       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
 #       Make admin do more stuff, like ability to make new admins etc
 #       Make admin function that allows custom SQL queries
