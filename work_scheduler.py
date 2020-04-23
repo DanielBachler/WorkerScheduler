@@ -10,6 +10,7 @@
 # Driver for The Work Scheduler
 
 import sys
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 
@@ -20,16 +21,21 @@ from src import dbcalls
 
 app = None
 
+FRESH_INSTANCE_MODE = False     # Set to be true by first command line argument. Use to configure database server
 
 def main():
     # TEMP
 
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "fresh":
+            global FRESH_INSTANCE_MODE
+            FRESH_INSTANCE_MODE = True
+
     ex = ws_gui.Main_UI()
-    ws_db.connect_to_db(ex)
+    ws_db.DB_Connection.connect_to_db(ex, fresh=FRESH_INSTANCE_MODE)
 
-    rank_list = ["Sr. Analyst", "Analyst", "Principle", "New Analyst", "Consultant", "Admin"]
-
-    dbcalls.update_ranks(rank_list)
+    if FRESH_INSTANCE_MODE:
+        dbcalls.update_ranks( ["Sr. Analyst", "Analyst", "Principle", "New Analyst", "Consultant", "Admin"])
 
     ex.initUI()
     ex.setWindowIcon(QIcon('icon.png'))

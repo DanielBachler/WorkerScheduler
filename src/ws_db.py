@@ -23,17 +23,6 @@ DB_TYPE = sql   # Set to sqlite3 to use sqlite. (for quick testing and developme
 
 connect = None  # Singleton instance of database connection
 
-# Create singleton database connection
-def connect_to_db(ex):
-    global connect
-    if connect is None:
-        connect = DB_Connection()
-        connect.db_login(ex)
-        connect.init_db()
-        dbcalls.init_dbwrapper(connect)
-    else:
-        print("Unable to create new database connection. Connection already active.", file=sys.stderr)
-
 # Manages connection with mySQL database
 class DB_Connection:
 
@@ -42,6 +31,19 @@ class DB_Connection:
 
     def __init__(self):
         pass
+
+    # Create singleton database connection
+    @staticmethod
+    def connect_to_db(ex, fresh=False):
+        global connect
+        if connect is None:
+            connect = DB_Connection()
+            connect.db_login(ex)
+            if fresh:
+                connect.init_db()
+            dbcalls.init_dbwrapper(connect)
+        else:
+            print("Unable to create new database connection. Connection already active.", file=sys.stderr)
 
     # Login to database. Store open connection
     def db_login(self, ex):
