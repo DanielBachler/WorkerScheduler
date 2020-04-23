@@ -106,7 +106,6 @@ class Main_UI(QMainWindow):
         projectMenu.addAction(switchViewProject)
 
         # Admin menu, only create if user is admin rank
-        # FIX WITH DB CALL FOR ADMIN CHECK FOR ALL ADMIN APPS
         if self.admin:
             # Menu bar item
             adminMenu = menubar.addMenu("Admin")
@@ -118,9 +117,18 @@ class Main_UI(QMainWindow):
             remove_rank.setToolTip("This will only remove the rank from the choice list\n"
                                    "Existing users with the rank will keep it.")
             remove_rank.triggered.connect(self.removeRank)
+
+            custom_sql = QAction("Custom Query", self)
+            custom_sql.setToolTip("Clicking this will allow the execution of a custom SQL query on the database you "
+                                  "are connected to.  Use this with caution!  This will not allow updating or "
+                                  "deleting entries from the database")
+            custom_sql.triggered.connect(self.custom_query)
+
             # Add actions
             adminMenu.addAction(add_rank)
             adminMenu.addAction(remove_rank)
+            adminMenu.addAction(custom_sql)
+
 
         # Contents of central widget
 
@@ -462,7 +470,6 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: None
     def removeRank(self):
-        pass
         # QInputDialog with drop down of possible ranks, the selected one to be removed
         ranks = dbcalls.get_ranks()
         selected_rank, clicked = QInputDialog.getItem(self, "Rank to remove", "Rank:", ranks, editable=False)
@@ -471,6 +478,37 @@ class Main_UI(QMainWindow):
                 dbcalls.remove_rank(str(selected_rank))
             except Exception as e:
                 print(e)
+
+    # custom_query: Runs a custom SQL query provided by the user
+    # ARGS: None
+    # RETURNS: None, but generates a .csv file with results from query
+    def custom_query(self):
+        # Get QInputDialog with text field
+        query, clicked = QInputDialog.getText(self, "Custom Query", "Query:", QLineEdit.Normal, "")
+        if clicked:
+            try:
+                results = dbcalls.db_custom_query(query)
+                if results is not None:
+                    fileName, clicked = QInputDialog.getText(self, "Save to File", "Filename:", QLineEdit.Normal, ".csv")
+                    if clicked:
+                        try:
+                            output_file = open(fileName, "w")
+                            for result in results:
+                                for item in result:
+                                    output_file.write(str(item) + ", ")
+                                output_file.write("\n")
+                            output_file.close()
+                        except Exception as e:
+                            print(e)
+                            QMessageBox.question(self, "Error in writing to file",
+                                                 "There was a problem writing the results to the given file name.",
+                                                 QMessageBox.Close, QMessageBox.Close)
+                else:
+                    QMessageBox.question(self, "Error in Query", "No results returned", QMessageBox.Close,
+                                         QMessageBox.Close)
+            except Exception as e:
+                QMessageBox.question(self, "Error in Query", "An unexpected error occured", QMessageBox.Close,
+                                     QMessageBox.Close)
 
 
 class NewUserGUI(QWidget):
@@ -570,13 +608,17 @@ class NewUserGUI(QWidget):
         hbox_team.addWidget(team_edit)
 
         # Mentor label and editor RIGHT
-        hbox_mentor = QHBoxLayout()
-        mentor_label = QLabel("Mentor:")
-        mentor_edit = QLineEdit()
-        mentor_edit.textEdited.connect(self.boxEdited)
-        mentor_edit.setObjectName("user_mentor")
-        hbox_mentor.addWidget(mentor_label)
-        hbox_mentor.addWidget(mentor_edit)
+        try:
+            hbox_mentor = QHBoxLayout()
+            mentor_label = QLabel("Mentor:")
+            mentor_combo_box = QComboBox()
+            mentor_combo_box.activated.connect(self.boxEdited)
+            mentor_combo_box.setObjectName("user_mentor")
+            hbox_mentor.addWidget(mentor_label)
+            hbox_mentor.addWidget(mentor_combo_box)
+        except Exception as e:
+            print(e)
+            print("Broke creating mentor box")
 
         # Employee ID label and editor LEFT
         hbox_id = QHBoxLayout()
@@ -615,6 +657,11 @@ class NewUserGUI(QWidget):
 
         # Populate combo box
         self.updateRankBox()
+        try:
+            self.updateMentorBox()
+        except Exception as e:
+            print(e)
+            print("Broke updating mentor box")
 
         # Finalize self
         self.setGeometry(300, 300, 300, 500)
@@ -686,6 +733,21 @@ class NewUserGUI(QWidget):
         for rank in dbcalls.get_ranks():
             rank_edit.addItem(rank)
 
+    # updateMentorBox: Updates the list of mentors from the employee table
+    # ARGS: None
+    # RETURNS: None
+    def updateMentorBox(self):
+        eids = dbcalls.db_get_ids()
+        user_names = []
+        mentor_combo_box = self.findChild(QComboBox, "user_mentor")
+        mentor_combo_box.addItem("")
+        try:
+            for name, eid in eids:
+                mentor_combo_box.addItem(name)
+        except Exception as e:
+            print(e)
+            print("Broke updating box")
+
     # editUser: Sets up the UI to edit a user
     # ARGS: self (QWidget), user (object.User)
     # RETURNS: None
@@ -695,13 +757,13 @@ class NewUserGUI(QWidget):
         pay = self.findChild(QLineEdit, "user_pay")
         rank = self.findChild(QComboBox, "user_rank")
         team = self.findChild(QLineEdit, "user_team")
-        mentor = self.findChild(QLineEdit, "user_mentor")
+        mentor = self.findChild(QComboBox, "user_mentor")
         employee_id = self.findChild(QLineEdit, "user_id")
         name.setText(str(user.name))
         pay.setText(str(user.pay))
         rank.setCurrentIndex(rank.findText(str(user.rank)))
         team.setText(str(user.team))
-        mentor.setText(str(user.mentor))
+        mentor.setCurrentIndex(mentor.findText(str(user.mentor)))
         employee_id.setText(str(user.employee_id))
         employee_id.setReadOnly(True)
         self.box_edited = False
@@ -731,7 +793,7 @@ class NewUserGUI(QWidget):
         pay = self.findChild(QLineEdit, "user_pay").text()
         rank = self.findChild(QComboBox, "user_rank").currentText()
         team = self.findChild(QLineEdit, "user_team").text()
-        mentor = self.findChild(QLineEdit, "user_mentor").text()
+        mentor = self.findChild(QLineEdit, "user_mentor").currentText()
         employee_id = self.findChild(QLineEdit, "user_id").text()
         return object.User(name, pay, rank, team, mentor, employee_id)
 
