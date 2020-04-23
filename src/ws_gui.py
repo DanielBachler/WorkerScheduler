@@ -399,13 +399,13 @@ class Main_UI(QMainWindow):
             # Open gui to add time.
             if self.view and current_object_left is not None and current_object_right is not None:
                 # Make log time UI window with project as left object and user as right object.
-                loginDialog = logTimeUI(self)
+                loginDialog = LogTimeUI(self)
                 loginDialog.initUI(currentItemRight, currentItemLeft)
                 loginDialog.show()
 
             elif current_object_left is not None and current_object_right is not None:
                  # Make log time UI window with user as left object and project as right object.
-                 loginDialog = logTimeUI(self)
+                 loginDialog = LogTimeUI(self)
                  loginDialog.initUI(currentItemLeft,currentItemRight)
                  loginDialog.show()
             else:
@@ -498,7 +498,7 @@ class Main_UI(QMainWindow):
 
 class NewUserGUI(QWidget):
     # Temp var to hold made user
-    made_user = ""
+    made_user = None
 
     # Saved bool
     saved = False
@@ -507,7 +507,7 @@ class NewUserGUI(QWidget):
     close_from_save = False
 
     # Parent window
-    parent_window = ""
+    parent_window = None
 
     # Var for whether box has been edited
     box_edited = False
@@ -764,7 +764,7 @@ class AddUserInfoGUI(QWidget):
     boxEditedVariable = False
 
     # Parent AddUsersGUI window
-    parent_window = ""
+    parent_window = None
 
     # Selected project to add user info to
     selected_project = object.Project
@@ -875,22 +875,22 @@ class AddUserInfoGUI(QWidget):
     # closeEvent: Modifies closing behavior
     # ARGS: self (QWidget), QCloseEvent (QCloseEvent)
     # RETURNS: None
-    def closeEvent(self, QCloseEvent):
+    def closeEvent(self, event):
         # If edited and not saved
         if self.boxEditedVariable and not self.saved:
             to_exit = QMessageBox.question(self, 'Cancel Confirmation', 'Are you sure you want to cancel without '
                                                                         'saving?',
                                            QMessageBox.Yes | QMessageBox.Save | QMessageBox.No, QMessageBox.No)
         else:
-            QCloseEvent.accept()
+            event.accept()
             return
 
         if to_exit == QMessageBox.Yes:
-            QCloseEvent.accept()
+            event.accept()
         elif to_exit == QMessageBox.Save:
             self.save()
         else:
-            QCloseEvent.ignore()
+            event.ignore()
 
     # save: Saves the current information into a UserProjectObject
     # ARGS: self (QWidget)
@@ -925,16 +925,16 @@ class AddUserInfoGUI(QWidget):
 
 class AddUsersGUI(QWidget):
     # The project to add users to
-    selected_project = object.Project
+    selected_project = None
 
     # The parent window
-    parent_window = QWidget
+    parent_window = None
 
     # Selected user from all users
-    selected_all_user = object.User
+    selected_all_user = None
 
     # Selected user from project
-    selected_project_user = object.User
+    selected_project_user = None
 
     # List of users assigned to the project
     project_user_list = []
@@ -1104,10 +1104,10 @@ class AddUsersGUI(QWidget):
 
 class NewProjectGUI(QWidget):
     # Parent window
-    parent_window = ""
+    parent_window = None
 
     # Child add user window
-    add_user_window = AddUsersGUI
+    add_user_window = None
 
     # If boxes have been edited
     edited = False
@@ -1117,7 +1117,7 @@ class NewProjectGUI(QWidget):
 
     # Editing vars
     editing = False
-    editing_project = object.Project
+    editing_project = None
     project_user_list = []
 
     # Closing behavior var from main parent
@@ -1301,7 +1301,7 @@ class NewProjectGUI(QWidget):
     # edit: Updates the window to contain info of editing object
     # ARGS: self (QWidget), project (object.Project)
     # RETURNS: None
-    def edit(self, project=object.Project):
+    def edit(self, project=None):
         self.editing_project = project
         try:
             self.findChild(QLineEdit, "billing_input").setText(project.formatBillingCodes())
@@ -1368,12 +1368,15 @@ class NewProjectGUI(QWidget):
             self.edited = True
         except Exception as e:
             print(e)
+
 # This class is for a dialog box for logging time.
-class logTimeUI(QDialog):
+class LogTimeUI(QDialog):
+
     user = None
     billingCode = None
+
     def __init__(self, *args, **kwargs):
-        super(logTimeUI, self).__init__(*args, **kwargs)
+        super(LogTimeUI, self).__init__(*args, **kwargs)
         self.setWindowTitle("Log Time")
 
         self.timeTextBox = QLineEdit()
@@ -1389,9 +1392,10 @@ class logTimeUI(QDialog):
         self.layout.addWidget(self.timeTextBox)
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
-    def initUI(self,inUser,inBillingCode):
-        user = inUser
-        billingCode = inBillingCode
+
+    def initUI(self, user, bc):
+        self.user = user
+        self.billingCode = bc
 
     def updateTime(self):
         print("I did something.")
