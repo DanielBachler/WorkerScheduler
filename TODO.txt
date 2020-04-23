@@ -1,0 +1,14 @@
+# TODO:
+#   Overall:
+#       Get admin flag working
+#       Edit project form to have repeating
+#       Fix closing of all windows to close with master window (important)
+#       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
+#       Make admin do more stuff, like ability to make new admins etc
+#       Implement Error log in some form
+#   Things that are broken:
+#       Teams are not implemented at all.
+#       Clicking a deleted user on another instance crashes the program (unsure on fix)
+#       2 instances simultaneously editing one object causes second edit to override changes from first edit.
+#           (expected behavior, but not optimal)
+#       Cannot update project billing codes (keeps old ones)
