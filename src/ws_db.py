@@ -73,28 +73,29 @@ class DB_Connection:
                             "team_name varchar(32), PRIMARY KEY (tid));")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code (code integer not null primary key);")
             self.db_command("CREATE TABLE IF NOT EXISTS billing_code_assignment (pid integer, code integer,"
-                            "PRIMARY KEY (pid, code), FOREIGN KEY (pid) REFERENCES project(pid));")
-            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer, PRIMARY KEY (tid, eid),"
-                            "FOREIGN KEY (tid) REFERENCES team(tid), FOREIGN KEY (eid) REFERENCES employee(eid));")
-            self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer not null auto_increment,"
+                            "PRIMARY KEY (pid, code));")
+            self.db_command("CREATE TABLE IF NOT EXISTS team_membership (tid integer, eid integer, PRIMARY KEY (tid, eid));")
+            self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer not null,"
                             "billing_code integer, eid integer, projected_hours real default NULL,"
-                            "requested_hours real default NULL, earned_hours real default 0,"
-                            "FOREIGN KEY (pid) REFERENCES project(pid),"
-                            "FOREIGN KEY (eid) REFERENCES employee(eid));")
+                            "requested_hours real default NULL, earned_hours real default 0);")
             # self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
             self.db_command("CREATE TABLE IF NOT EXISTS time_assignments (code integer, eid integer, mo integer,"
-                            "yr integer, hrs real, PRIMARY KEY (code, eid, mo, yr),"
-                            "FOREIGN KEY (eid) REFERENCES employee(eid));")
+                            "yr integer, hrs real, PRIMARY KEY (code, eid, mo, yr));")
             self.db_command("CREATE TABLE IF NOT EXISTS emp_role (role_name varchar(32), primary key (role_name));")
 
             self.db_command("CREATE INDEX emp_name ON employee(employee_name);")
-
             self.db_command("CREATE INDEX rank_idx ON emp_role(role_name);")
-            self.db_command("ALTER TABLE employee ADD FOREIGN KEY (rank) REFERENCES emp_role(role_name);")
 
-            self.db_command("CREATE INDEX bc_idx ON billing_code(code);")
-            self.db_command("ALTER TABLE billing_code_assignment ADD FOREIGN KEY (code) REFERENCES billing_code(code);")
-            self.db_command("ALTER TABLE time_assignments ADD FOREIGN KEY (code) REFERENCES billing_code(code);")
+            self.db_command("ALTER TABLE time_assignments ADD FOREIGN KEY (eid) REFERENCES employee(eid) ON DELETE SET NULL")
+            self.db_command("ALTER TABLE time_assignments ADD FOREIGN KEY (code) REFERENCES billing_code(code) ON DELETE SET NULL;")
+
+            self.db_command("ALTER TABLE team_membership ADD FOREIGN KEY (tid) REFERENCES team(tid) ON DELETE CASCADE")
+            self.db_command("ALTER TABLE team_membership ADD FOREIGN KEY (eid)REFERENCES employee(eid) ON DELETE CASCADE ")
+
+            self.db_command("ALTER TABLE employee ADD FOREIGN KEY (rank) REFERENCES emp_role(role_name) ON DELETE SET NULL;")
+
+            self.db_command("ALTER TABLE billing_code_assignment ADD FOREIGN KEY (code) REFERENCES billing_code(code) ON DELETE SET NULL;")
+            self.db_command("ALTER TABLE billing_code_assignment ADD FOREIGN KEY (pid) REFERENCES project(pid) ON DELETE SET NULL ")
 
     def set_admin_user(self, name):
         self.db_command("GRANT ALL ON *.* TO '%s'@'localhost';" % name)
@@ -174,6 +175,8 @@ class DB_Connection:
             earn_hours = "NULL"
         if earn_hours is None:
             earn_hours = 0
+        if req_hrs is None:
+            req_hrs = "NULL"
         stmt = '''UPDATE user_project SET pid=%s, billing_code=%s, eid=%s, projected_hours=%s, requested_hours=%s,
                     earned_hours=%s WHERE billing_code=%s AND eid=%s;''' % (str(pid), str(code), str(eid), str(proj_hours), str(req_hrs),
                                                                             str(earn_hours), str(code), str(eid))
