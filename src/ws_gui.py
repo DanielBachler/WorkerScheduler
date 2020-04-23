@@ -129,7 +129,6 @@ class Main_UI(QMainWindow):
             adminMenu.addAction(remove_rank)
             adminMenu.addAction(custom_sql)
 
-
         # Contents of central widget
 
         # Create contents of window
@@ -272,7 +271,8 @@ class Main_UI(QMainWindow):
                     userProjectList = dbcalls.get_users_projects(
                         user.employee_id)  # Grab a list of user projects associated with an employee id.
 
-                    userProjectList = dbcalls.get_users_projects(user.employee_id) # Grab a list of user projects associated with an employee id.
+                    # Grab a list of user projects associated with an employee id.
+                    userProjectList = dbcalls.get_users_projects(user.employee_id)
 
                     for userProject in userProjectList:  # This will add projects to the lower right box list. It
                         # will also store the project id (pid) in the metadata.
@@ -683,7 +683,7 @@ class NewUserGUI(QWidget):
             try:
                 # Get user
                 self.made_user = self.makeUser()
-                dbcalls.update_user(self.made_user.employee_id, self.made_user.name, None,  # TODO: what is roll??
+                dbcalls.update_user(self.made_user.employee_id, self.made_user.name, None,
                                     self.made_user.pay, self.made_user.mentor, self.made_user.rank)
                 self.parent_window.updateUserList()
                 self.saved = True
@@ -1414,6 +1414,7 @@ class NewProjectGUI(QWidget):
         except Exception as e:
             print(e)
 
+
 # This class is for a dialog box for logging time.
 class LogTimeUI(QDialog):
 
@@ -1447,9 +1448,9 @@ class LogTimeUI(QDialog):
             timeToAdd = self.timeTextBox.text()
             uproject_row = dbcalls.get_uproj(self.user.employee_id, self.billingCode)
             uproject = object.UserProject.from_db_row(uproject_row)
-            if (uproject.actual_hours is None):
+            if uproject.actual_hours is None:
                 uproject.actual_hours = 0.0
-            if (float(timeToAdd) > 0.0):
+            if float(timeToAdd) > 0.0:
                 uproject.actual_hours += float(timeToAdd)
                 uproject.push()
         except Exception as e:

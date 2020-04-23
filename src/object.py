@@ -223,7 +223,6 @@ class Project:
     # print_users: Makes a formatted string for the users assigned to a project
     # ARGS: self (Project)
     # RETURNS: user_string (String)
-    # TODO: Redo to pull names using the UID list
     def users_as_string(self):
         user_string = ""
         users = dbcalls.get_projects_users(self.getId())
