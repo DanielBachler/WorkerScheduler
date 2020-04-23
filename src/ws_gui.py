@@ -269,8 +269,10 @@ class Main_UI(QMainWindow):
                 for user in users:
                     eid = user[2]
                     user_row = dbcalls.get_user(eid)
-                    userItem = QListWidgetItem(user_row[1])
-                    userItem.setData(Qt.UserRole, user_row[0])
+                    billingCode = user[1]
+                    userAndBillingCode = str(user_row[1]) + " (" + str(billingCode) + ")"
+                    userItem = QListWidgetItem(userAndBillingCode)
+                    userItem.setData(Qt.UserRole, billingCode)
                     project_assigned_user_list_box.addItem(userItem)
 
                 # ---------- Right Lower List Users ---------
@@ -288,15 +290,16 @@ class Main_UI(QMainWindow):
                     right_view.setText(str(user))
 
                     # ---------- Right Lower List Projects -------
-                    # Todo: TEST THIS CODE ONCE THERE IS DATA IN THE USER PROJECT TABLE.
+
                     userProjectList = dbcalls.get_users_projects(user.employee_id) # Grab a list of user projects associated with an employee id.
 
 
                     for userProject in userProjectList: # This will add projects to the lower right box list. It will also store the project id (pid) in the metadata.
                         project = dbcalls.get_project(userProject[0])
-                        projectItem = QListWidgetItem(project[1])
-                        projectItem.setData(Qt.UserRole, userProject[0])
-                        project_assigned_user_list_box.addItem(projectItem)
+                        billingCode = userProject[1]
+                        projectItem = QListWidgetItem(str(project[1]) + " (" + str(billingCode) + ")")
+                        projectItem.setData(Qt.UserRole, billingCode)
+                        project_assigned_user_list_box.addItem(projectItem )
                     # ---------- Right Lower List Projects -------
                 except Exception as e:
                     print(e)
@@ -1398,5 +1401,5 @@ class LogTimeUI(QDialog):
         self.billingCode = bc
 
     def updateTime(self):
-        print("I did something.")
+
         self.close()
