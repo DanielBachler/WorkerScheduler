@@ -494,7 +494,6 @@ class Main_UI(QMainWindow):
         selected_rank, clicked = QInputDialog.getItem(self, "Rank to remove", "Rank:", ranks, editable=False)
         if clicked:
             try:
-                print(str(selected_rank))
                 dbcalls.remove_rank(str(selected_rank))
             except Exception as e:
                 print(e)
