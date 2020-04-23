@@ -797,7 +797,7 @@ class NewUserGUI(QWidget):
         pay = self.findChild(QLineEdit, "user_pay").text()
         rank = self.findChild(QComboBox, "user_rank").currentText()
         team = self.findChild(QLineEdit, "user_team").text()
-        mentor = self.findChild(QLineEdit, "user_mentor").currentText()
+        mentor = self.findChild(QComboBox, "user_mentor").currentText()
         employee_id = self.findChild(QLineEdit, "user_id").text()
         return object.User(name, pay, rank, team, mentor, employee_id)
 
