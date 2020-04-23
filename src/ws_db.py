@@ -96,17 +96,6 @@ class DB_Connection:
             self.db_command("ALTER TABLE billing_code_assignment ADD FOREIGN KEY (code) REFERENCES billing_code(code);")
             self.db_command("ALTER TABLE time_assignments ADD FOREIGN KEY (code) REFERENCES billing_code(code);")
 
-    # Return a user's information
-    def get_user_info(self):
-        pass
-        # self.db_command("GRANT ALL ON *.* to user@localhost IDENTIFIED BY 'password'; ")    # TODO
-        # self.db_command("GRANT ALL ON *.* to user@'%' IDENTIFIED BY 'password';")           # TODO
-
-
-    # Set a company's information. This only needs to be done once.
-    def set_company_info(self):
-        pass
-
     def set_admin_user(self, name):
         self.db_command("GRANT ALL ON *.* TO '%s'@'localhost';" % name)
         self.db_command("GRANT ALL ON *.* TO '"+name+"'@'%';")
@@ -138,7 +127,7 @@ class DB_Connection:
         self.db_command(stmt)
 
     # Delete a database user.
-    def del_user(self, eid):
+    def rm_user(self, eid):
         stmt = 'DELETE FROM employee WHERE eid=%d;' % eid
         self.db_command(stmt)
 
@@ -148,14 +137,6 @@ class DB_Connection:
         if res is None:
             print("Error executing query on database,", file=sys.stderr)
         return res
-
-    # Allow user to request hours
-    def user_request_hours(self):
-        pass
-
-    # Allow user to log hours
-    def user_log_hours(self):
-        pass
 
     # Create project
     def create_project(self, name, desc, est_hrs, start_yr, start_mo, end_yr, end_mo, rpt):
@@ -198,26 +179,6 @@ class DB_Connection:
                                                                             str(earn_hours), str(code), str(eid))
         self.db_command(stmt)
 
-    def rm_user_project(self, eid, pid):
-        stmt = 'DELETE FROM user_project WHERE eid=%s AND pid=%s;' % (eid, pid)
-        self.db_command(stmt)
-
-    # Get information on a project
-    def get_project_data(self):
-        pass
-
-    # List all projects
-    def list_projects(self):
-        res = self.db_query("SELECT * from project;")
-        if res is None:
-            print("Error executing query on database,", file=sys.stderr)
-        return res
-
-    # Remove a project
-    def delete_project(self, pid):
-        # TODO
-        pass
-
     # Create a team
     def create_team(self, name):
         stmt = 'INSERT INTO team (team_name) VALUES ("%s");' % name
@@ -233,34 +194,36 @@ class DB_Connection:
         stmt = '''INSERT INTO emp_role (role_name) VALUES ("%s");''' % str(rank)
         self.db_command(stmt)
 
-    def remove_rank(self, rank):
+    def rm_rank(self, rank):
         stmt = '''DELETE FROM emp_role WHERE role_name=%s''' % str(rank)
         self.db_command(stmt)
 
     # Remove user from team
-    def remove_user_from_team(self):
-        pass
+    def remove_user_from_team(self, tid, eid):
+        stmt = '''DELETE FROM team_membership WHERE tid=%d AND eid=%d''' % (int(tid), int(eid))
+        self.db_command(stmt)
 
     # Fetch teams for a given user
     def get_teams_for_user(self, eid):
-        pass
+        stmt = '''SELECT tid FROM team_membership WHERE eid=%d''' % int(eid)
+        res = self.db_query(stmt)
+        if res is None:
+            return []
+        teams = []
+        for tup in res:
+            teams.append(tup[0])
+        return res
 
     # Fetch users on a given team
     def get_users_on_team(self, tid):
-        pass
-
-    # Associate user with project
-    def add_user_to_project(self, eid, pid):
-        stmt = 'INSERT INTO project_assignment VALUES (%d, %d)' % (eid, pid)
-        self.db_command(stmt)
-
-    # Remove user from project
-    def remove_user_from_project(self, eid, pid):
-        pass
-
-    # Fetch users on a given project
-    def get_users_for_project(self, pid):
-        pass
+        stmt = '''SELECT eid FROM team_membership WHERE tid=%d''' % int(tid)
+        res = self.db_query(stmt)
+        if res is None:
+            return []
+        users = []
+        for tup in res:
+            users.append(tup[0])
+        return res
 
     # Add billing code to database
     def add_billing_code(self, bc):
@@ -273,15 +236,6 @@ class DB_Connection:
         stmt = 'INSERT INTO billing_code_assignment VALUES (%s, %s);' % (str(pid), str(bc))
         self.db_command(stmt)
 
-    # Disassociate billing code from project
-    def remove_billing_code_from_project(self):
-        pass
-
-    # Return all billing codes
-    def list_all_billing_codes(self):
-        res = self.db_query("SELECT * FROM billing_code")
-        return res
-
     # Return all teams
     def list_all_teams(self):
         res = self.db_query("SELECT * from team;")
@@ -290,15 +244,15 @@ class DB_Connection:
         return res
 
     # Check if an SQL query has comments. This likely is an injection attack
-    def check_attack(self, stmt):
+    def _check_attack(self, stmt):
         if "#" in stmt or "--" in stmt or "/*" in stmt:
-            print("SQL Injection attack detected. Will not execute query", file=sys.stderr)
+            print("Probable SQL Injection attack detected. Will not execute query.", file=sys.stderr)
             return True
         return False
 
     # Execute database query
     def db_command(self, stmt):
-        if self.check_attack(stmt):
+        if self._check_attack(stmt):
             return
         try:
             self.crs.execute(stmt)
@@ -308,7 +262,7 @@ class DB_Connection:
 
     # Execute database query
     def db_query(self, stmt):
-        if self.check_attack(stmt):
+        if self._check_attack(stmt):
             return [[]]
         try:
             self.crs.execute(stmt)
