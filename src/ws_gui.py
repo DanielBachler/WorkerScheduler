@@ -50,6 +50,7 @@ from PyQt5.QtGui import QIcon
 from src import object
 from src import dbcalls
 
+
 class Main_UI(QMainWindow):
     # Class global vars for sub windows
     newUserWindow = None
