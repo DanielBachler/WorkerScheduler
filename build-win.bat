@@ -1,3 +1,3 @@
-ECHO OFF
+@ECHO OFF
 
-pyinstaller -F src/work_scheduler.py
+pyinstaller -F work_scheduler.py
