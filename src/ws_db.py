@@ -76,7 +76,7 @@ class DB_Connection:
                             "FOREIGN KEY (tid) REFERENCES team(tid), FOREIGN KEY (eid) REFERENCES employee(eid));")
             self.db_command("CREATE TABLE IF NOT EXISTS user_project (pid integer not null auto_increment,"
                             "billing_code integer, eid integer, projected_hours real default NULL,"
-                            "requested_hours real default NULL, earned_hours real default 0, PRIMARY KEY(pid),"
+                            "requested_hours real default NULL, earned_hours real default 0,"
                             "FOREIGN KEY (pid) REFERENCES project(pid),"
                             "FOREIGN KEY (eid) REFERENCES employee(eid));")
             # self.db_command("CREATE TABLE IF NOT EXISTS company_info (company_name varchar(32));")
