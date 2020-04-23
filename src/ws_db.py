@@ -195,7 +195,7 @@ class DB_Connection:
         self.db_command(stmt)
 
     def rm_rank(self, rank):
-        stmt = '''DELETE FROM emp_role WHERE role_name=%s''' % str(rank)
+        stmt = '''DELETE FROM emp_role WHERE role_name="%s"''' % str(rank)
         self.db_command(stmt)
 
     # Remove user from team
