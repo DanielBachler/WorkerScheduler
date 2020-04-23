@@ -942,7 +942,7 @@ class AddUserInfoGUI(QWidget):
             # Add user to parent's list of added users
             self.parent_window.project_user_list.append((self.parent_window.selected_all_user.data(Qt.UserRole),
                                                          self.parent_window.selected_all_user.text()))
-            self.updateProjectUsersList()
+            self.parent_window.updateProjectUsersList()
             # Get items
             projectedHours = self.findChild(QLineEdit, "projectedHours")
             desiredHours = self.findChild(QLineEdit, "desiredHours")
