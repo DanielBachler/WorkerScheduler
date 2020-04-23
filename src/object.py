@@ -186,7 +186,7 @@ class Project:
     # ARGS: row (List[db row])
     # RETURNS: object.Project
     @classmethod
-    def create_from_db_row(cls, row):
+    def from_db_row(cls, row):
         if row is None:
             return None
         title = row[1]
@@ -208,21 +208,22 @@ class Project:
         new_proj.hours_edit_date = date.today()
         return new_proj
 
-    # print_project: Makes a string for a project in a formatted manor
-    # ARGS: self (Project)
-    # RETURNS: None
-    def print_project(self):
+    # String override
+    def __str__(self):
+        codes = ""
+        for code in self.billing_codes:
+            codes += str(code) + "\n"
         print_string = ("Title: %s\nDescription: %s\nBilling Code: %s\nExpected Hours: %s\n"
                         "Date of Last Edit: %s\nAssigned Employees: %s" %
-                        (self.name, self.description, self.printBillingCodes(), self.expected_hours,
-                         self.hours_edit_date.strftime("%b-%d-%Y"), self.print_users()))
+                        (self.name, self.description, codes, self.expected_hours,
+                         self.hours_edit_date.strftime("%b-%d-%Y"), self.users_as_string()))
         return print_string
 
     # print_users: Makes a formatted string for the users assigned to a project
     # ARGS: self (Project)
     # RETURNS: user_string (String)
     # TODO: Redo to pull names using the UID list
-    def print_users(self):
+    def users_as_string(self):
         user_string = ""
         users = dbcalls.get_projects_users(self.getId())
         for user in users:
@@ -232,19 +233,10 @@ class Project:
             user_string += user_row[1] + "\n"
         return user_string
 
-    # printBillingCodes: creates a formatted string of the assigned billing codes
-    # ARGS: self (object.Project)
-    # RETURNS: codes (String)
-    def printBillingCodes(self):
-        codes = ""
-        for code in self.billing_codes:
-            codes += str(code) + "\n"
-        return codes
-
     # formatBillingCodes: Puts all the billing codes into a string with commas
     # ARGS: self (object.Project)
     # RETURNS: codes/self.billing_codes (String)
-    def formatBillingCodes(self):
+    def bcs_as_string(self):
         codes = ""
         if len(self.billing_codes) == 1:
             codes = str(self.billing_codes[0])

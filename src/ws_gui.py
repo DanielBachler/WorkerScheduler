@@ -261,8 +261,8 @@ class Main_UI(QMainWindow):
             pid = item.data(Qt.UserRole)
             try:
                 selected_object_row = dbcalls.get_project(pid)
-                project = object.Project.create_from_db_row(selected_object_row)
-                right_view.setText(project.print_project())
+                project = object.Project.from_db_row(selected_object_row)
+                right_view.setText(str(project))
 
                 # ---------- Right Lower List Users ---------
                 users = dbcalls.get_projects_users(pid)
@@ -342,7 +342,7 @@ class Main_UI(QMainWindow):
             current_object = None
             if self.view:
                 current_object = dbcalls.get_project((currentItem.data(Qt.UserRole)))
-                current_object = object.Project.create_from_db_row(current_object)
+                current_object = object.Project.from_db_row(current_object)
             else:
                 current_object = dbcalls.get_user(currentItem.data(Qt.UserRole))
                 current_object = object.User.from_db_row(current_object)
@@ -386,7 +386,7 @@ class Main_UI(QMainWindow):
             if self.view:
                 # If we are in project view mode we grab the currently selected items from the left side and right and their info from the database.
                 current_object_left = dbcalls.get_project((currentItemLeft.data(Qt.UserRole)))
-                current_object_left = object.Project.create_from_db_row(current_object_left)
+                current_object_left = object.Project.from_db_row(current_object_left)
                 current_object_right = dbcalls.get_user(currentItemRight.data(Qt.UserRole))
                 print(currentItemRight.data)
                 current_object_right = object.User.from_db_row(current_object_right)
@@ -395,7 +395,7 @@ class Main_UI(QMainWindow):
                 current_object_left = dbcalls.get_user((currentItemLeft.data(Qt.UserRole)))
                 current_object_left = object.User.from_db_row(current_object_left)
                 current_object_right = dbcalls.get_project(currentItemRight.data(Qt.UserRole))
-                current_object_right = object.Project.create_from_db_row(current_object_right)
+                current_object_right = object.Project.from_db_row(current_object_right)
             # Open gui to add time.
             if self.view and current_object_left is not None and current_object_right is not None:
                 # Make log time UI window with project as left object and user as right object.
@@ -1304,7 +1304,7 @@ class NewProjectGUI(QWidget):
     def edit(self, project=None):
         self.editing_project = project
         try:
-            self.findChild(QLineEdit, "billing_input").setText(project.formatBillingCodes())
+            self.findChild(QLineEdit, "billing_input").setText(project.bcs_as_string())
         except Exception as e:
             print(e)
             print("Broke trying to format billing codes")
