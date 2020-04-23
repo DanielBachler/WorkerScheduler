@@ -87,7 +87,6 @@ class User:
 
 class UserProject:
     billing_code = ""
-    owner = ""
     pid = ""
     projected_hours = 0
     # Default is none, to differentiate from desired of 0
@@ -113,7 +112,7 @@ class UserProject:
         self.push()
 
     @classmethod
-    def create_from_db_row(cls, row):
+    def from_db_row(cls, row):
         pid = row[0]
         billing_code = row[1]
         eid = row[2]
@@ -144,16 +143,11 @@ class UserProject:
         dbcalls.update_userproj(self.pid, self.billing_code, self.owner, proj_hrs=self.projected_hours, des_hrs=self.desired_hours,
                                 act_hrs=self.actual_hours)
 
-    # toString: Converts data into printable string
-    # ARGS: self (object.UserProject)
-    # RETURNS: toRet (String)
-    def toString(self):
-        toRet = "Billing code: " + self.billing_code + "\nProject Hours: " + str(self.projected_hours) + "\nDesired " \
-                "Hours: " + str(self.desired_hours) + "\nActual Hours: " + str(self.actual_hours)
-        return toRet
-
     def __str__(self):
-        return self.toString()
+        toRet = "Billing code: " + self.billing_code + "\nProject Hours: " + str(self.projected_hours) + "\nDesired " \
+                                                                                                         "Hours: " + str(
+            self.desired_hours) + "\nActual Hours: " + str(self.actual_hours)
+        return toRet
 
 
 class Project:
