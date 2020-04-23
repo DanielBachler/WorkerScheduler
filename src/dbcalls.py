@@ -138,7 +138,7 @@ def update_ranks(ranks):
         base.add_rank(rank)
 
 def remove_rank(rank):
-    base.remove_rank(rank)
+    base.rm_rank(rank)
 
 
 def associate_billing_code(pid, code):
@@ -160,6 +160,9 @@ def check_uproj_exists(eid, code):
     exists = base.db_query('''SELECT count(*) FROM user_project WHERE eid = %s AND billing_code = %s;''' % (eid, code))
     return exists[0][0] > 0
 
+def get_uproj(eid, code):
+    res = base.db_query('''SELECT count(*) FROM user_project WHERE eid = %s AND billing_code = %s;''' % (eid, code))
+    return res[0]
 
 # Send object (User, Project, UserProject) to db
 def update_user(eid, name, role, rate, mentor, rank):
@@ -262,5 +265,8 @@ def db_custom_query(stmt):
     :return: a 2-dimensional table containing the results of the query
 
     """
+
+    if "UPDATE" in stmt.upper() or "DELETE" in stmt.upper() or "INSERT" in stmt.upper() or "CREATE" in stmt.upper():
+        return [[]]
 
     return base.db_query(stmt)
