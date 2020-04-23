@@ -358,34 +358,33 @@ class Main_UI(QMainWindow):
             currentItemLeft = self.centralWidget().findChild(QListWidget, "left_view").currentItem()
             currentItemRight = self.centralWidget().findChild(QListWidget,
                                                               "project_assigned_user_list_box").currentItem()
+            print(currentItemRight.data(Qt.UserRole))
             current_object_left = None
             current_object_right = None
             # Create our objects from two selected..
             if self.view:
                 # If we are in project view mode we grab the currently selected items from the left side and right
                 # and their info from the database.
-                current_object_left = dbcalls.get_project((currentItemLeft.data(Qt.UserRole)))
-                current_object_left = object.Project.from_db_row(current_object_left)
-                current_object_right = dbcalls.get_user(currentItemRight.data(Qt.UserRole))
-                print(currentItemRight.data)
+                current_object_left = currentItemLeft.data(Qt.UserRole) # Billing Code
+                current_object_right = dbcalls.get_user(currentItemRight.data(Qt.UserRole))# User
+
                 current_object_right = object.User.from_db_row(current_object_right)
             else:
                 # If we are in user view mode we grab the user from left and project from the right.
                 current_object_left = dbcalls.get_user((currentItemLeft.data(Qt.UserRole)))
-                current_object_left = object.User.from_db_row(current_object_left)
-                current_object_right = dbcalls.get_project(currentItemRight.data(Qt.UserRole))
-                current_object_right = object.Project.from_db_row(current_object_right)
+                current_object_left = object.User.from_db_row(current_object_left) # User
+                current_object_right = currentItemRight.data(Qt.UserRole) # Billing Code
             # Open gui to add time.
             if self.view and current_object_left is not None and current_object_right is not None:
                 # Make log time UI window with project as left object and user as right object.
                 loginDialog = LogTimeUI(self)
-                loginDialog.initUI(currentItemRight, currentItemLeft)
+                loginDialog.initUI(current_object_right, current_object_left)
                 loginDialog.show()
 
             elif current_object_left is not None and current_object_right is not None:
                 # Make log time UI window with user as left object and project as right object.
                 loginDialog = LogTimeUI(self)
-                loginDialog.initUI(currentItemLeft, currentItemRight)
+                loginDialog.initUI(current_object_left, current_object_right)
                 loginDialog.show()
             else:
                 QMessageBox.question(self, 'Error', 'Please select a user and project to log time for.',
@@ -1382,5 +1381,18 @@ class LogTimeUI(QDialog):
         self.billingCode = bc
 
     def updateTime(self):
+        try:
+            timeToAdd = self.timeTextBox.text()
+            uproject_row = dbcalls.get_uproj(self.user.employee_id, self.billingCode)
+            uproject = object.UserProject.from_db_row(uproject_row)
+            if (uproject.actual_hours is None):
+                uproject.actual_hours = 0.0
+            if (float(timeToAdd) > 0.0):
+                uproject.actual_hours += float(timeToAdd)
+                uproject.push()
+        except Exception as e:
+            QMessageBox.question(self, 'Error', 'An error occured adding your time.', QMessageBox.Close,
+                                 QMessageBox.Close)
+            print(e)
 
         self.close()
