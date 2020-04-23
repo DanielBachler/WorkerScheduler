@@ -263,4 +263,7 @@ def db_custom_query(stmt):
 
     """
 
+    if "UPDATE" in stmt.upper() or "DELETE" in stmt.upper() or "INSERT" in stmt.upper() or "CREATE" in stmt.upper():
+        return [[]]
+
     return base.db_query(stmt)
