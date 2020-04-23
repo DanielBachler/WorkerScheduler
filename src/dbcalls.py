@@ -161,7 +161,7 @@ def check_uproj_exists(eid, code):
     return exists[0][0] > 0
 
 def get_uproj(eid, code):
-    res = base.db_query('''SELECT count(*) FROM user_project WHERE eid = %s AND billing_code = %s;''' % (eid, code))
+    res = base.db_query('''SELECT * FROM user_project WHERE eid = %s AND billing_code = %s;''' % (eid, code))
     return res[0]
 
 # Send object (User, Project, UserProject) to db

@@ -366,7 +366,6 @@ class Main_UI(QMainWindow):
             currentItemLeft = self.centralWidget().findChild(QListWidget, "left_view").currentItem()
             currentItemRight = self.centralWidget().findChild(QListWidget,
                                                               "project_assigned_user_list_box").currentItem()
-            print(currentItemRight.data(Qt.UserRole))
             current_object_left = None
             current_object_right = None
             # Create our objects from two selected..
