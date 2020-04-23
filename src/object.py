@@ -60,21 +60,19 @@ class User:
         new_user = cls(name, rate, rank, "", mentor, eid)
         return new_user
 
-    # print_user: Makes a string of the information for the selected user in a formatted fashion
-    # ARGS: self (User)
-    # RETURNS: print_string (String)
-    def print_user(self):
+    # String override
+    def __str__(self):
         print_string = ("User Name: %s\nUser Rank: %s\n"
                         "User Pay: %s \nUser Team: %s\n"
                         "User Mentor: %s\nEmployee ID: %s\nProjects: \n%s" %
                         (self.name, self.rank, self.pay, self.team,
-                         self.mentor, self.employee_id, self.print_projects()))
+                         self.mentor, self.employee_id, self.projects_as_string()))
         return print_string
 
     # print_projects: Prints a Users projects using projects.print_project for each Project object
     # ARGS: self (User)
     # RETURNS: projects_string (String)
-    def print_projects(self):
+    def projects_as_string(self):
         if not self.projects:
             return ""
         else:
@@ -86,26 +84,6 @@ class User:
     def push(self):
         dbcalls.update_user(self.employee_id, str(self.name), str(self.role), str(self.pay), str(self.mentor),
                             str(self.rank))
-
-    # getID: returns the unique id (employee_id)
-    # ARGS: self (object.User)
-    # RETURNS employee_id (string)
-    def get_Id(self):
-        return self.employee_id
-
-    # TODO: Fix with new UserProject object
-
-    # addProject: adds a project to the dict with projected hours
-    # ARGS: self (object.User), project (object.Project), projected_hours (int)
-    # RETURNS: None
-    def addProject(self, project, projected_hours):
-        if project in self.projects.keys():
-            current_list = self.projects[project]
-            current_list[0] = projected_hours
-            self.projects[project] = current_list
-        else:
-            self.projects[project] = (projected_hours, "NA")
-
 
 class UserProject:
     billing_code = ""

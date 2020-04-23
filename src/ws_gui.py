@@ -285,7 +285,7 @@ class Main_UI(QMainWindow):
                 selected_object_row = dbcalls.get_user(eid)
                 user = object.User.from_db_row(selected_object_row)
                 try:
-                    right_view.setText(user.print_user())
+                    right_view.setText(str(user))
 
                     # ---------- Right Lower List Projects -------
                     # Todo: TEST THIS CODE ONCE THERE IS DATA IN THE USER PROJECT TABLE.
