@@ -5,8 +5,7 @@
 #       Fix closing of all windows to close with master window (important)
 #       Make it so that all logging in users have a db user, their user gets built upon login and stored locally
 #       Make admin do more stuff, like ability to make new admins etc
-#       Make admin function that allows custom SQL queries
-#       Change mentor input to drop down with list of all employees above "rank"
+#       Implement Error log in some form
 #   Things that are broken:
 #       Teams are not implemented at all.
 #       Clicking a deleted user on another instance crashes the program (unsure on fix)
