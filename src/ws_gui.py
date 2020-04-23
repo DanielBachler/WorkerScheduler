@@ -48,17 +48,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from src import object
-import copy
 from src import dbcalls
-
-# Set this to true to automatically log in as the "Billy" user. This must be false when checked into the repository
-DEBUG_MODE = True
-
 
 class Main_UI(QMainWindow):
     # Class global vars for sub windows
-    newUserWindow = ""
-    newProjectWindow = ""
+    newUserWindow = None
+    newProjectWindow = None
     # List of available ranks pulled from database
     rank_list = None
 
@@ -80,20 +75,16 @@ class Main_UI(QMainWindow):
     # ARGS: self (QMainWindow)
     # RETURNS: server_addr (String), username (String), password (String)
     def login(self):
-        server_addr = "db.jessearstein.com"
-        username = "billy"
-        password = "12345"
-        if not DEBUG_MODE:
-            server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
-            if okPressed and server_addr != '':
-                pass
-            username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal,
-                                                       "")
-            if okPressed and server_addr != '':
-                pass
-            password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
-            if okPressed and server_addr != '':
-                pass
+        server_addr, okPressed = QInputDialog.getText(self, "Enter Server Address", "Server:", QLineEdit.Normal, "")
+        if okPressed and server_addr != '':
+            pass
+        username, okPressed = QInputDialog.getText(self, "Enter Database Username", "Username:", QLineEdit.Normal,
+                                                   "")
+        if okPressed and server_addr != '':
+            pass
+        password, okPressed = QInputDialog.getText(self, "Enter Password", "Password:", QLineEdit.Password, "")
+        if okPressed and server_addr != '':
+            pass
         return server_addr, username, password
 
     # initUI: Creates the UI for the main UI
