@@ -1,29 +1,26 @@
 # Worker Scheduler
 
-A work management application designed for [Milliman](https://us.milliman.com/)
+A project management application designed for [Milliman](https://us.milliman.com/) as a senior design
+project at Montana State Univeristy.
 
-This was completed as a senior design project at Montana State University.
-
-## Project Management
-
-See the following links for important project management information
-
-* [Task Management](https://yodiz.com/)
-
-## Development Requirements
+## Required development tools
 
 * JetBrains PyCharm with Anaconda Plugin
 * Anaconda Navigator
-* Qt Designer
-* Git for Windows
-* PyQt5 module
-* mysql-connector-python
+* PyQt5
+* Oracle's mySQL connector for Python
+* PyInstaller
 
-## Development Servers
+## Build Instructions
 
-* Development MySQL Server: www.bek.sh:3306
+The Work Scheduler may be built using the `build-win.bat` script on any Windows machine. Your shell must
+have the correct Anaconda virtual environment set up and launched. The output executable will be located
+in a created `dist/` directory.
 
-## Development Resources
+macOS and Linux users may build the project in a compatible environment with the command `pyinstaller -F work_scheduler.py`
 
-* [PyQt5 Tutorial](http://zetcode.com/gui/pyqt5/)
-* [mySQL Connector Tutorial](https://dev.mysql.com/doc/connector-python/en/connector-python-examples.html)
+## Running the application
+
+If it is your first time running the application, launch it from a shell with the argument `fresh`, which will
+create the appropriate database schema on login. After the application has completed its initial configuration,
+you may continue use as normal. You may also launch the application without a shell or any arguments.
